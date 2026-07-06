@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0}
+    @keyframes welcomePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+    @keyframes modalPop{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
+    @keyframes hintFadeIn{0%{opacity:0}100%{opacity:1}}
+  </style>
+</helmet>
+<div data-screen-label="Home" onClick="{{ deselectAll }}" style="position:relative;height:100vh;width:100%;background:#1f0d10;color:#f4ecd8;font-family:'VT323',monospace;overflow:hidden;display:flex;flex-direction:column">
+
+  <!-- TOP BAR -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 32px;position:relative;z-index:2">
+    <div style="display:flex;align-items:center;gap:12px;background:#2b1810;border-radius:0;padding:8px 16px 8px 8px;box-shadow:3px 3px 0 #000">
+      <sc-if value="{{ counterDenom }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Coin" denom="{{ counterDenom }}" size="{{ 32 }}"></dc-import>
+      </sc-if>
+      <sc-if value="{{ !counterDenom }}" hint-placeholder-val="{{ true }}">
+        <div style="width:32px;height:32px;border-radius:50%;background:#3a3a3a"></div>
+      </sc-if>
+      <div style="font-size:20px;font-weight:700;color:#d4a017;letter-spacing:.2px">{{ counterFormatted }}</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <div title="How to Play" onClick="{{ openHelp }}" style="width:44px;height:44px;border-radius:0;background:#2b1810;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#3a2418">
+        <div style="width:20px;height:16px;border-left:3px solid #d4a017;border-right:3px solid #d4a017;position:relative">
+          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#d4a017;opacity:.6"></div>
+        </div>
+      </div>
+      <div title="Transaction History" onClick="{{ openHistory }}" style="width:44px;height:44px;border-radius:0;background:#2b1810;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#3a2418">
+        <div style="width:18px;height:18px;border-radius:50%;border:2px solid #d4a017;position:relative">
+          <div style="position:absolute;left:calc(50% - 1px);top:2px;width:1.5px;height:6px;background:#d4a017"></div>
+          <div style="position:absolute;left:50%;top:8px;width:6px;height:1.5px;background:#d4a017"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROKE STATE CLAIM -->
+  <sc-if value="{{ brokeVisible }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ claimBroke }}" title="Claim your $1 coin" style="position:absolute;top:88px;left:32px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;z-index:3">
+      <dc-import name="Coin" denom="{{ 1 }}" selected="{{ true }}" size="{{ 52 }}"></dc-import>
+      <div style="font-size:11px;color:#d4a017;font-weight:600;background:#2b1810;padding:3px 8px;border-radius:0">Claim $1</div>
+    </div>
+  </sc-if>
+
+  <!-- CENTER CONTENT -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px;padding:24px 32px 96px">
+    <div style="font-family:'Press Start 2P',monospace;font-size:30px;line-height:1.6;letter-spacing:1px;text-align:center;text-shadow:4px 4px 0 #000;color:#d4a017;animation:{{ welcomeAnim }}">{{ welcomeText }}</div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,180px);grid-auto-rows:150px;gap:24px">
+      <sc-for list="{{ games }}" as="g" hint-placeholder-count="6">
+        <div onClick="{{ g.onClick }}" style="border-radius:0;background:#2b1810;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;box-shadow:3px 3px 0 #000;color:#6a6a6a;transition:color 200ms ease,transform 200ms ease,box-shadow 200ms ease" style-hover="color:#d4a017;transform:scale(1.045);box-shadow:3px 3px 0 #000">
+
+          <sc-if value="{{ g.isSlots }}" hint-placeholder-val="{{ false }}">
+            <div style="width:56px;height:40px;border:2.5px solid currentColor;border-radius:0;display:flex">
+              <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;background:currentColor"></div></div>
+              <div style="width:2px;background:currentColor;opacity:.6"></div>
+              <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;background:currentColor"></div></div>
+              <div style="width:2px;background:currentColor;opacity:.6"></div>
+              <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;background:currentColor"></div></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ g.isCoinFlip }}" hint-placeholder-val="{{ false }}">
+            <div style="width:44px;height:44px;border-radius:50%;border:3px solid currentColor"></div>
+          </sc-if>
+          <sc-if value="{{ g.isBlackjack }}" hint-placeholder-val="{{ false }}">
+            <div style="width:38px;height:52px;border:2.5px solid currentColor;border-radius:5px;position:relative">
+              <div style="position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:50%;background:currentColor"></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ g.isRoulette }}" hint-placeholder-val="{{ false }}">
+            <div style="width:48px;height:48px;border-radius:50%;border:2.5px solid currentColor;position:relative">
+              <div style="position:absolute;left:50%;top:2px;bottom:2px;width:2px;background:currentColor;transform:translateX(-50%)"></div>
+              <div style="position:absolute;top:50%;left:2px;right:2px;height:2px;background:currentColor;transform:translateY(-50%)"></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ g.isPlinko }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+              <div style="display:flex;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:currentColor"></div></div>
+              <div style="display:flex;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:currentColor"></div><div style="width:8px;height:8px;border-radius:50%;background:currentColor"></div></div>
+              <div style="display:flex;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:currentColor"></div><div style="width:8px;height:8px;border-radius:50%;background:currentColor"></div><div style="width:8px;height:8px;border-radius:50%;background:currentColor"></div></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ g.isSandbox }}" hint-placeholder-val="{{ false }}">
+            <div style="position:relative;width:48px;height:48px;display:flex;align-items:center;justify-content:center">
+              <div style="width:44px;height:44px;border:2.5px dashed currentColor;border-radius:0"></div>
+            </div>
+          </sc-if>
+
+          <div style="font-size:15px;font-weight:600">{{ g.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- INVENTORY (quick slots + drawer + mint machine), one portable component -->
+  <dc-import name="InventoryDrawer" wallet="{{ wallet }}" open="{{ drawerOpen }}" selected-denom="{{ selectedDenom }}" selected-source="{{ selectedSource }}" on-toggle="{{ toggleDrawer }}" on-close="{{ closeDrawer }}" on-select-denom="{{ onSelectDenom }}" on-wallet-change="{{ onWalletChange }}"></dc-import>
+
+  <!-- HINT BAR -->
+  <div key="{{ hint.text }}" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#2b1810;color:#ddd;font-size:14px;padding:10px 20px;border-radius:0;box-shadow:3px 3px 0 #000;animation:hintFadeIn 220ms ease;z-index:8;white-space:nowrap">{{ hint.text }}</div>
+
+  <!-- HELP BOOK MODAL -->
+  <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeHelp }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
+      <div onClick="{{ stopProp }}" style="position:relative;width:760px;max-width:92vw;height:460px;perspective:1600px;animation:modalPop 220ms ease-out">
+        <div key="{{ helpFlipping }}" style="position:absolute;inset:0;background:#2b1810;border-radius:0;box-shadow:5px 5px 0 #000;display:flex;overflow:hidden;transform:{{ helpFlipTransform }};transition:transform 260ms ease-in-out;transform-style:preserve-3d">
+
+          <sc-if value="{{ isSpreadToc }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;padding:36px;border-right:1px solid #333">
+              <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#8a8a8a;margin-bottom:20px">Contents</div>
+              <div style="font-size:17px;color:#f4ecd8;margin-bottom:14px">1. Welcome &amp; Basics</div>
+              <div style="font-size:17px;color:#f4ecd8">2. Your Wallet &amp; Coins</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isSpreadToc }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;padding:36px;display:flex;align-items:center;justify-content:center">
+              <div style="font-size:15px;color:#777;text-align:center">Flip forward to begin<br/>&#8594;</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSpreadWelcome }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:1;padding:36px;border-right:1px solid #333">
+              <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:20px">How to Play</div>
+              <div style="font-size:15px;color:#ddd;line-height:1.9">
+                <div>&#8226; Click a game tile to start playing.</div>
+                <div>&#8226; Each game has its own rules &mdash; check back here anytime.</div>
+                <div>&#8226; Your coin balance carries across every game.</div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isSpreadWelcome }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:1;padding:36px">
+              <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:20px">Your Wallet</div>
+              <div style="font-size:15px;color:#ddd;line-height:1.9">
+                <div>&#8226; Open the drawer on the right edge to see your coins.</div>
+                <div>&#8226; Use the quick slots on the right edge for fast access.</div>
+                <div>&#8226; A coin assigned to a quick slot leaves the drawer until unassigned.</div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- COVER (flips open on mount) -->
+        <div key="{{ coverOpen }}" style="position:absolute;inset:0;background:#1e1e1e;border-radius:0;box-shadow:5px 5px 0 #000;display:flex;align-items:center;justify-content:center;transform-origin:left center;transform:{{ coverTransform }};opacity:{{ coverOpacity }};transition:transform 550ms cubic-bezier(.4,0,.2,1),opacity 480ms ease;pointer-events:{{ coverPointerEvents }}">
+          <div style="font-size:26px;font-weight:800;color:#d4a017;letter-spacing:1px">How to Play</div>
+        </div>
+
+        <div onClick="{{ goToc }}" style="position:absolute;left:-52px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#2b1810;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:3px 3px 0 #000">
+          <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:8px solid #d4a017"></div>
+        </div>
+        <div onClick="{{ goWelcome }}" style="position:absolute;right:-52px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#2b1810;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:3px 3px 0 #000">
+          <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:8px solid #d4a017"></div>
+        </div>
+        <div onClick="{{ closeHelp }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#d4a017;color:#1f0d10;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">&#10005;</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- HISTORY MODAL -->
+  <sc-if value="{{ historyOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeHistory }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
+      <div onClick="{{ stopProp }}" style="position:relative;width:520px;max-width:92vw;max-height:70vh;background:#2b1810;border-radius:0;box-shadow:5px 5px 0 #000;padding:28px;overflow-y:auto;animation:modalPop 220ms ease-out">
+        <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:18px">Transaction History</div>
+        <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ historyList }}" as="h" hint-placeholder-count="5">
+              <div style="display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #333">
+                <div style="font-size:14px;color:#ddd">{{ h.description }}</div>
+                <div style="font-size:12px;color:#777;white-space:nowrap">{{ h.timeLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:13px;color:#777">No transactions yet.</div>
+        </sc-if>
+        <div onClick="{{ closeHistory }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#d4a017;color:#1f0d10;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">&#10005;</div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;demoPreset&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Standard&quot;,&quot;options&quot;:[&quot;Standard&quot;,&quot;High Roller&quot;,&quot;Broke&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+// NOTE: coin visuals live in Coin.dc.html / CoinStack.dc.html. The mint
+// machine and the whole quick-tab/drawer system live in MintMachine.dc.html
+// / InventoryDrawer.dc.html. This page only owns: the wallet's canonical
+// state + persistence, the welcome banner, and the game tile grid.
+const DENOMS = [1, 5, 25, 100, 500, 1000, 5000, 10000];
+const STORAGE_KEY = 'casinoHubWallet_v1';
+
+function defaultCounts(preset){
+  if(preset==='High Roller') return {1:0,5:0,25:0,100:0,500:4,1000:4,5000:2,10000:1};
+  if(preset==='Broke') return {1:0,5:0,25:0,100:0,500:0,1000:0,5000:0,10000:0};
+  return {1:5,5:5,25:4,100:4,500:0,1000:0,5000:0,10000:0};
+}
+
+function loadWallet(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      const counts = Object.assign(defaultCounts('Standard'), parsed.counts || {});
+      return {
+        counts,
+        quickSlots: Array.isArray(parsed.quickSlots) ? parsed.quickSlots.slice(0,3) : [],
+        mintInput: parsed.mintInput && typeof parsed.mintInput === 'object' ? parsed.mintInput : null,
+        sandboxBet: parsed.sandboxBet && typeof parsed.sandboxBet === 'object' ? parsed.sandboxBet : {},
+        history: Array.isArray(parsed.history) ? parsed.history : [],
+        hasPlayedBefore: !!parsed.hasPlayedBefore
+      };
+    }
+  } catch(e) {}
+  return { counts: defaultCounts('Standard'), quickSlots: [], mintInput: null, sandboxBet: {}, history: [], hasPlayedBefore: false };
+}
+
+function saveWallet(w){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(w)); } catch(e) {}
+}
+
+function formatMoney(v){ return '$' + v.toLocaleString('en-US'); }
+
+function addTx(wallet, description){
+  wallet.history = [{ id: Date.now() + '-' + Math.random().toString(36).slice(2), description, timestamp: Date.now() }, ...wallet.history].slice(0, 300);
+}
+
+function totalValue(wallet){
+  let sum = DENOMS.reduce((s, d) => s + d * (wallet.counts[d] || 0), 0);
+  if(wallet.mintInput) sum += wallet.mintInput.fromDenom * wallet.mintInput.fromCount;
+  const sb = wallet.sandboxBet || {};
+  for(const k of Object.keys(sb)) sum += Number(k) * (sb[k] || 0);
+  return sum;
+}
+
+class Component extends DCLogic {
+  state = {
+    wallet: loadWallet(),
+    drawerOpen: false,
+    selectedDenom: null,
+    selectedSource: null,
+    helpOpen: false,
+    coverOpen: false,
+    helpSpread: 1,
+    helpFlipping: false,
+    historyOpen: false
+  };
+
+  computeHintText(){
+    if(this.state.wallet.mintInput) return 'Click the right box to collect, or the left box to cancel.';
+    if(this.state.selectedDenom != null) return 'Click a quick slot, or the Mint Machine\u2019s left box to use it.';
+    if(this.state.drawerOpen) return 'Click a coin to select it.';
+    return 'Click a game tile to start playing, or open the drawer to manage your coins.';
+  }
+
+  componentDidUpdate(prevProps, prevState){
+    if(this.props.demoPreset && this.props.demoPreset !== prevProps.demoPreset){
+      const wallet = { counts: defaultCounts(this.props.demoPreset), quickSlots: [], mintInput: null, sandboxBet: {}, history: this.state.wallet.history, hasPlayedBefore: this.state.wallet.hasPlayedBefore };
+      addTx(wallet, 'Demo preset applied: ' + this.props.demoPreset);
+      saveWallet(wallet);
+      this.setState({ wallet, selectedDenom: null, selectedSource: null });
+    }
+  }
+
+  toggleDrawer = () => { this.setState(s => ({ drawerOpen: !s.drawerOpen })); };
+  closeDrawer = () => { this.setState({ drawerOpen: false }); };
+
+  onWalletChange = (transformFn) => {
+    const next = transformFn(this.state.wallet);
+    saveWallet(next);
+    this.setState({ wallet: next, selectedDenom: null, selectedSource: null });
+  };
+
+  onSelectDenom = (denom, source) => {
+    this.setState({ selectedDenom: denom, selectedSource: source });
+  };
+
+  claimBroke = () => {
+    const wallet = this.state.wallet;
+    const next = { ...wallet, counts: { ...wallet.counts } };
+    next.counts[1] = (next.counts[1] || 0) + 1;
+    addTx(next, 'Claimed complimentary $1 coin');
+    saveWallet(next);
+    this.setState({ wallet: next });
+  };
+
+  navigateGame = (label, href) => () => {
+    const wallet = this.state.wallet;
+    if(!wallet.hasPlayedBefore){
+      const next = { ...wallet, hasPlayedBefore: true };
+      saveWallet(next);
+    }
+    window.location.href = href;
+  };
+
+  openHelp = () => {
+    this.setState({ helpOpen: true, helpSpread: 1, coverOpen: true });
+    setTimeout(() => this.setState({ coverOpen: false }), 60);
+  };
+  closeHelp = () => { this.setState({ helpOpen: false }); };
+  goSpread = (target) => () => {
+    if(target === this.state.helpSpread || this.state.helpFlipping) return;
+    this.setState({ helpFlipping: true });
+    setTimeout(() => this.setState({ helpSpread: target }), 260);
+    setTimeout(() => this.setState({ helpFlipping: false }), 520);
+  };
+
+  openHistory = () => { this.setState({ historyOpen: true }); };
+  closeHistory = () => { this.setState({ historyOpen: false }); };
+
+  stopProp = (e) => { e.stopPropagation(); };
+  deselectAll = () => { this.setState({ selectedDenom: null, selectedSource: null }); };
+
+  renderVals(){
+    const wallet = this.state.wallet;
+    const total = totalValue(wallet);
+
+    const gameDefs = [
+      { label: 'Slots', kind: 'slots', href: 'ComingSoon.dc.html?game=Slots' },
+      { label: 'Coin Flip', kind: 'coinflip', href: 'ComingSoon.dc.html?game=Coin%20Flip' },
+      { label: 'Blackjack', kind: 'blackjack', href: 'ComingSoon.dc.html?game=Blackjack' },
+      { label: 'Roulette', kind: 'roulette', href: 'ComingSoon.dc.html?game=Roulette' },
+      { label: 'Plinko', kind: 'plinko', href: 'ComingSoon.dc.html?game=Plinko' },
+      { label: 'Sandbox', kind: 'sandbox', href: 'Sandbox.dc.html' }
+    ];
+    const games = gameDefs.map(g => ({
+      label: g.label,
+      isSlots: g.kind === 'slots', isCoinFlip: g.kind === 'coinflip', isBlackjack: g.kind === 'blackjack',
+      isRoulette: g.kind === 'roulette', isPlinko: g.kind === 'plinko', isSandbox: g.kind === 'sandbox',
+      onClick: this.navigateGame(g.label, g.href)
+    }));
+
+    const counterDenom = [...DENOMS].reverse().find(d => (wallet.counts[d] || 0) > 0) || null;
+    const historyList = (wallet.history || []).map(h => ({
+      ...h,
+      timeLabel: new Date(h.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    }));
+
+    return {
+      welcomeText: wallet.hasPlayedBefore ? 'Which game do you want to play?' : 'Welcome to the Casino',
+      welcomeAnim: 'welcomePulse 2.6s cubic-bezier(0.34,1.56,0.64,1) infinite',
+      games,
+      wallet,
+      drawerOpen: this.state.drawerOpen,
+      selectedDenom: this.state.selectedDenom,
+      selectedSource: this.state.selectedSource,
+      toggleDrawer: this.toggleDrawer,
+      closeDrawer: this.closeDrawer,
+      onSelectDenom: this.onSelectDenom,
+      onWalletChange: this.onWalletChange,
+      counterDenom, counterFormatted: formatMoney(total),
+      brokeVisible: total === 0,
+      claimBroke: this.claimBroke,
+      hint: { text: this.computeHintText() },
+      helpOpen: this.state.helpOpen,
+      helpFlipTransform: this.state.helpFlipping ? 'perspective(1600px) rotateY(85deg)' : 'perspective(1600px) rotateY(0deg)',
+      coverTransform: this.state.coverOpen ? 'rotateY(0deg)' : 'rotateY(-115deg)',
+      coverOpacity: this.state.coverOpen ? 1 : 0,
+      coverOpen: this.state.coverOpen,
+      coverPointerEvents: this.state.coverOpen ? 'auto' : 'none',
+      isSpreadToc: this.state.helpSpread === 0,
+      isSpreadWelcome: this.state.helpSpread === 1,
+      helpFlipping: this.state.helpFlipping,
+      openHelp: this.openHelp,
+      closeHelp: this.closeHelp,
+      goToc: this.goSpread(0),
+      goWelcome: this.goSpread(1),
+      historyOpen: this.state.historyOpen,
+      openHistory: this.openHistory,
+      closeHistory: this.closeHistory,
+      historyList,
+      hasHistory: historyList.length > 0,
+      noHistory: historyList.length === 0,
+      stopProp: this.stopProp,
+      deselectAll: this.deselectAll
+    };
+  }
+}
+
+</script>
+</body>
+</html>

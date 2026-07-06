@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0}
+    @keyframes modalPop{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
+    @keyframes hintFadeIn{0%{opacity:0}100%{opacity:1}}
+  </style>
+</helmet>
+<div data-screen-label="Sandbox" onClick="{{ deselectAll }}" style="position:relative;height:100vh;width:100%;background:#1f0d10;color:#f4ecd8;font-family:'VT323',monospace;overflow:hidden;display:flex;flex-direction:column">
+
+  <!-- TOP BAR -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 32px;position:relative;z-index:2">
+    <div style="display:flex;align-items:center;gap:16px">
+      <a href="Home.dc.html" style="font-size:13px;font-weight:700;color:#999;text-decoration:none;background:#2b1810;padding:10px 16px;border-radius:0;transition:color 150ms ease" style-hover="color:#d4a017">&#8592; Casino</a>
+      <div style="display:flex;align-items:center;gap:12px;background:#2b1810;border-radius:0;padding:8px 16px 8px 8px;box-shadow:3px 3px 0 #000">
+        <sc-if value="{{ counterDenom }}" hint-placeholder-val="{{ false }}">
+          <dc-import name="Coin" denom="{{ counterDenom }}" size="{{ 32 }}"></dc-import>
+        </sc-if>
+        <sc-if value="{{ !counterDenom }}" hint-placeholder-val="{{ true }}">
+          <div style="width:32px;height:32px;border-radius:50%;background:#3a3a3a"></div>
+        </sc-if>
+        <div style="font-size:20px;font-weight:700;color:#d4a017;letter-spacing:.2px">{{ counterFormatted }}</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <div title="How to Play" onClick="{{ openHelp }}" style="width:44px;height:44px;border-radius:0;background:#2b1810;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#3a2418">
+        <div style="width:20px;height:16px;border-left:3px solid #d4a017;border-right:3px solid #d4a017;position:relative">
+          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#d4a017;opacity:.6"></div>
+        </div>
+      </div>
+      <div title="Transaction History" onClick="{{ openHistory }}" style="width:44px;height:44px;border-radius:0;background:#2b1810;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#3a2418">
+        <div style="width:18px;height:18px;border-radius:50%;border:2px solid #d4a017;position:relative">
+          <div style="position:absolute;left:calc(50% - 1px);top:2px;width:1.5px;height:6px;background:#d4a017"></div>
+          <div style="position:absolute;left:50%;top:8px;width:6px;height:1.5px;background:#d4a017"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROKE STATE CLAIM -->
+  <sc-if value="{{ brokeVisible }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ claimBroke }}" title="Claim your $1 coin" style="position:absolute;top:88px;left:32px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;z-index:3">
+      <dc-import name="Coin" denom="{{ 1 }}" selected="{{ true }}" size="{{ 52 }}"></dc-import>
+      <div style="font-size:11px;color:#d4a017;font-weight:600;background:#2b1810;padding:3px 8px;border-radius:0">Claim $1</div>
+    </div>
+  </sc-if>
+
+  <!-- CENTER: SANDBOX TABLE -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px 80px 96px">
+    <div style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#666">Sandbox &mdash; nothing here plays or resolves</div>
+    <dc-import name="GameTable" piles="{{ tablePiles }}" bet-total-formatted="{{ betTotalFormatted }}" on-clear="{{ clearTable }}" on-table-click="{{ onTableAreaClick }}" on-pile-click="{{ onPileClick }}" selected-table-denom="{{ selectedTableDenom }}" hint-size="900px,300px"></dc-import>
+  </div>
+
+  <!-- INVENTORY (quick slots + drawer + mint machine), one portable component -->
+  <dc-import name="InventoryDrawer" wallet="{{ wallet }}" open="{{ drawerOpen }}" selected-denom="{{ selectedDenom }}" selected-source="{{ selectedSource }}" on-toggle="{{ toggleDrawer }}" on-close="{{ closeDrawer }}" on-select-denom="{{ onSelectDenom }}" on-wallet-change="{{ onWalletChange }}"></dc-import>
+
+  <!-- HINT BAR -->
+  <div key="{{ hint.text }}" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#2b1810;color:#ddd;font-size:14px;padding:10px 20px;border-radius:0;box-shadow:3px 3px 0 #000;animation:hintFadeIn 220ms ease;z-index:8;white-space:nowrap">{{ hint.text }}</div>
+
+  <!-- HELP BOOK MODAL -->
+  <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeHelp }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
+      <div onClick="{{ stopProp }}" style="position:relative;width:760px;max-width:92vw;height:460px;perspective:1600px;animation:modalPop 220ms ease-out">
+        <div style="position:absolute;inset:0;background:#2b1810;border-radius:0;box-shadow:5px 5px 0 #000;display:flex;overflow:hidden">
+          <div style="flex:1;padding:36px;border-right:1px solid #333">
+            <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:20px">Sandbox Table</div>
+            <div style="font-size:15px;color:#ddd;line-height:1.9">
+              <div>&#8226; Select one coin from the drawer or a quick slot.</div>
+              <div>&#8226; Click the table to place it as a bet, one coin at a time.</div>
+              <div>&#8226; Click a placed coin to pick it back up; click away from the table to return it to your hand.</div>
+              <div>&#8226; Nothing resolves here &mdash; it's just for testing.</div>
+            </div>
+          </div>
+          <div style="flex:1;padding:36px">
+            <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:20px">Controls</div>
+            <div style="font-size:15px;color:#ddd;line-height:1.9">
+              <div>&#8226; Clear Table returns every placed coin to your wallet.</div>
+              <div>&#8226; The Mint Machine at the bottom of the drawer still works here.</div>
+              <div>&#8226; A coin assigned to a quick slot leaves the drawer until unassigned.</div>
+            </div>
+          </div>
+        </div>
+        <div onClick="{{ closeHelp }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#d4a017;color:#1f0d10;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">&#10005;</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- HISTORY MODAL -->
+  <sc-if value="{{ historyOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeHistory }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
+      <div onClick="{{ stopProp }}" style="position:relative;width:520px;max-width:92vw;max-height:70vh;background:#2b1810;border-radius:0;box-shadow:5px 5px 0 #000;padding:28px;overflow-y:auto;animation:modalPop 220ms ease-out">
+        <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:18px">Transaction History</div>
+        <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ historyList }}" as="h" hint-placeholder-count="5">
+              <div style="display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #333">
+                <div style="font-size:14px;color:#ddd">{{ h.description }}</div>
+                <div style="font-size:12px;color:#777;white-space:nowrap">{{ h.timeLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:13px;color:#777">No transactions yet.</div>
+        </sc-if>
+        <div onClick="{{ closeHistory }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#d4a017;color:#1f0d10;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">&#10005;</div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+// NOTE: coin visuals (colors, sizing, stacking) live in Coin.dc.html /
+// CoinStack.dc.html. The mint machine and the whole quick-tab/drawer
+// system live in MintMachine.dc.html / InventoryDrawer.dc.html. This page
+// only owns: the wallet's canonical state + persistence, and anything
+// specific to the sandbox table itself (bets, trapdoor-free testing).
+const DENOMS = [1, 5, 25, 100, 500, 1000, 5000, 10000];
+const STORAGE_KEY = 'casinoHubWallet_v1';
+
+function defaultCounts(preset){
+  if(preset==='High Roller') return {1:0,5:0,25:0,100:0,500:4,1000:4,5000:2,10000:1};
+  if(preset==='Broke') return {1:0,5:0,25:0,100:0,500:0,1000:0,5000:0,10000:0};
+  return {1:5,5:5,25:4,100:4,500:0,1000:0,5000:0,10000:0};
+}
+
+function loadWallet(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      const counts = Object.assign(defaultCounts('Standard'), parsed.counts || {});
+      return {
+        counts,
+        quickSlots: Array.isArray(parsed.quickSlots) ? parsed.quickSlots.slice(0,3) : [],
+        mintInput: parsed.mintInput && typeof parsed.mintInput === 'object' ? parsed.mintInput : null,
+        sandboxBet: parsed.sandboxBet && typeof parsed.sandboxBet === 'object' ? parsed.sandboxBet : {},
+        history: Array.isArray(parsed.history) ? parsed.history : [],
+        hasPlayedBefore: !!parsed.hasPlayedBefore
+      };
+    }
+  } catch(e) {}
+  return { counts: defaultCounts('Standard'), quickSlots: [], mintInput: null, sandboxBet: {}, history: [], hasPlayedBefore: false };
+}
+
+function saveWallet(w){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(w)); } catch(e) {}
+}
+
+function formatMoney(v){ return '$' + v.toLocaleString('en-US'); }
+
+function totalValue(wallet){
+  let sum = DENOMS.reduce((s, d) => s + d * (wallet.counts[d] || 0), 0);
+  if(wallet.mintInput) sum += wallet.mintInput.fromDenom * wallet.mintInput.fromCount;
+  const sb = wallet.sandboxBet || {};
+  for(const k of Object.keys(sb)) sum += Number(k) * (sb[k] || 0);
+  return sum;
+}
+
+function placeOneOnTable(wallet, denom){
+  const avail = wallet.counts[denom] || 0;
+  if(avail <= 0) return wallet;
+  const next = { ...wallet, counts: { ...wallet.counts }, sandboxBet: { ...(wallet.sandboxBet || {}) } };
+  next.counts[denom] -= 1;
+  next.sandboxBet[denom] = (next.sandboxBet[denom] || 0) + 1;
+  return next;
+}
+
+function returnOneFromTable(wallet, denom){
+  const sb = { ...(wallet.sandboxBet || {}) };
+  const cur = sb[denom] || 0;
+  if(cur <= 0) return wallet;
+  sb[denom] = cur - 1;
+  if(sb[denom] <= 0) delete sb[denom];
+  const next = { ...wallet, counts: { ...wallet.counts }, sandboxBet: sb };
+  next.counts[denom] = (next.counts[denom] || 0) + 1;
+  return next;
+}
+
+function clearSandboxBet(wallet){
+  const next = { ...wallet, counts: { ...wallet.counts }, sandboxBet: {} };
+  const sb = wallet.sandboxBet || {};
+  for(const k of Object.keys(sb)){
+    next.counts[k] = (next.counts[k] || 0) + (sb[k] || 0);
+  }
+  return next;
+}
+
+class Component extends DCLogic {
+  state = {
+    wallet: loadWallet(),
+    drawerOpen: false,
+    selectedDenom: null,
+    selectedSource: null,
+    helpOpen: false,
+    historyOpen: false
+  };
+
+  computeHintText(){
+    if(this.state.wallet.mintInput) return 'Click the right box to collect, or the left box to cancel.';
+    if(this.state.selectedSource === 'table') return 'Click the table to put it back, or click elsewhere to return it to your hand.';
+    if(this.state.selectedDenom != null) return 'Click the table to place this coin as a bet.';
+    if(this.state.drawerOpen) return 'Click a coin to select it.';
+    return 'Select coins from the drawer or quick slots to test them on the table.';
+  }
+
+  returnIfTableSelected(wallet){
+    if(this.state.selectedSource === 'table' && this.state.selectedDenom != null){
+      return returnOneFromTable(wallet, this.state.selectedDenom);
+    }
+    return wallet;
+  }
+
+  saveAndSet(wallet, denom, source){
+    saveWallet(wallet);
+    this.setState({ wallet, selectedDenom: denom, selectedSource: source });
+  }
+
+  toggleDrawer = () => { this.setState(s => ({ drawerOpen: !s.drawerOpen })); };
+  closeDrawer = () => { this.setState({ drawerOpen: false }); };
+
+  // Single funnel for ALL wallet mutations coming from InventoryDrawer /
+  // MintMachine: rebase on the freshest wallet (returning a table-selected
+  // coin first if needed), apply the child's pure transform, persist.
+  onWalletChange = (transformFn) => {
+    const base = this.returnIfTableSelected(this.state.wallet);
+    const next = transformFn(base);
+    this.saveAndSet(next, null, null);
+  };
+
+  onSelectDenom = (denom, source) => {
+    const wallet = this.returnIfTableSelected(this.state.wallet);
+    this.saveAndSet(wallet, denom, source);
+  };
+
+  onPileClick = (denom) => {
+    const wallet = this.state.wallet;
+    if(this.state.selectedDenom == null){
+      if((wallet.sandboxBet[denom] || 0) > 0) this.saveAndSet(wallet, denom, 'table');
+      return;
+    }
+    if(this.state.selectedSource === 'table'){
+      this.saveAndSet(wallet, null, null);
+      return;
+    }
+    const next = placeOneOnTable(wallet, this.state.selectedDenom);
+    this.saveAndSet(next, null, null);
+  };
+
+  onTableAreaClick = (e) => {
+    if(e && e.stopPropagation) e.stopPropagation();
+    const wallet = this.state.wallet;
+    if(this.state.selectedDenom == null) return;
+    if(this.state.selectedSource === 'table'){ this.saveAndSet(wallet, null, null); return; }
+    const next = placeOneOnTable(wallet, this.state.selectedDenom);
+    this.saveAndSet(next, null, null);
+  };
+
+  clearTable = (e) => {
+    if(e && e.stopPropagation) e.stopPropagation();
+    const wallet = clearSandboxBet(this.state.wallet);
+    this.saveAndSet(wallet, null, null);
+  };
+
+  claimBroke = () => {
+    const wallet = this.state.wallet;
+    const next = { ...wallet, counts: { ...wallet.counts } };
+    next.counts[1] = (next.counts[1] || 0) + 1;
+    next.history = [{ id: Date.now() + '-' + Math.random().toString(36).slice(2), description: 'Claimed complimentary $1 coin', timestamp: Date.now() }, ...(wallet.history || [])].slice(0, 300);
+    saveWallet(next);
+    this.setState({ wallet: next });
+  };
+
+  openHelp = () => { this.setState({ helpOpen: true }); };
+  closeHelp = () => { this.setState({ helpOpen: false }); };
+  openHistory = () => { this.setState({ historyOpen: true }); };
+  closeHistory = () => { this.setState({ historyOpen: false }); };
+
+  stopProp = (e) => { e.stopPropagation(); };
+  deselectAll = () => {
+    const wallet = this.returnIfTableSelected(this.state.wallet);
+    this.saveAndSet(wallet, null, null);
+  };
+
+  renderVals(){
+    const wallet = this.state.wallet;
+    const total = totalValue(wallet);
+    const counterDenom = [...DENOMS].reverse().find(d => (wallet.counts[d] || 0) > 0) || null;
+
+    const historyList = (wallet.history || []).map(h => ({
+      ...h,
+      timeLabel: new Date(h.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    }));
+
+    const sb = wallet.sandboxBet || {};
+    const tablePiles = Object.keys(sb).map(k => ({ denom: Number(k), count: sb[k] || 0 })).filter(p => p.count > 0);
+    const betTotal = tablePiles.reduce((s,p) => s + p.denom * p.count, 0);
+
+    return {
+      wallet,
+      drawerOpen: this.state.drawerOpen,
+      selectedDenom: this.state.selectedDenom,
+      selectedSource: this.state.selectedSource,
+      toggleDrawer: this.toggleDrawer,
+      closeDrawer: this.closeDrawer,
+      onSelectDenom: this.onSelectDenom,
+      onWalletChange: this.onWalletChange,
+      counterDenom, counterFormatted: formatMoney(total),
+      brokeVisible: total === 0,
+      claimBroke: this.claimBroke,
+      hint: { text: this.computeHintText() },
+      helpOpen: this.state.helpOpen,
+      openHelp: this.openHelp,
+      closeHelp: this.closeHelp,
+      historyOpen: this.state.historyOpen,
+      openHistory: this.openHistory,
+      closeHistory: this.closeHistory,
+      historyList,
+      hasHistory: historyList.length > 0,
+      noHistory: historyList.length === 0,
+      stopProp: this.stopProp,
+      deselectAll: this.deselectAll,
+      tablePiles,
+      betTotalFormatted: formatMoney(betTotal),
+      selectedTableDenom: this.state.selectedSource === 'table' ? this.state.selectedDenom : null,
+      onTableAreaClick: this.onTableAreaClick,
+      onPileClick: this.onPileClick,
+      clearTable: this.clearTable
+    };
+  }
+}
+
+</script>
+</body>
+</html>

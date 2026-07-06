@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0}
+    @keyframes pulseSoft{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+  </style>
+</helmet>
+<div data-screen-label="Coming Soon" style="height:100vh;width:100%;background:#1f0d10;color:#f4ecd8;font-family:'VT323',monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px">
+  <dc-import name="Coin" denom="{{ 100 }}" selected="{{ true }}" size="{{ 88 }}"></dc-import>
+  <div style="font-family:'Press Start 2P',monospace;font-size:20px;line-height:1.7;text-align:center;text-shadow:3px 3px 0 #000;color:#d4a017">{{ gameName }}<br/>IS COMING SOON</div>
+  <div style="font-size:20px;color:#c9b79c;text-align:center;max-width:420px;line-height:1.6">This table hasn't been built yet. Your coins are safe back on the home page.</div>
+  <a href="Home.dc.html" style="margin-top:12px;background:#d4a017;color:#1a1a1a;font-family:'Press Start 2P',monospace;font-size:12px;padding:14px 22px;border:3px solid #1a1a1a;box-shadow:4px 4px 0 #000;text-decoration:none;transition:transform 150ms ease" style-hover="transform:scale(1.05)">BACK TO CASINO</a>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { gameName: 'This game' };
+
+  componentDidMount(){
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const g = params.get('game');
+      if(g) this.setState({ gameName: g });
+    } catch(e) {}
+  }
+
+  renderVals(){
+    return { gameName: this.state.gameName };
+  }
+}
+
+</script>
+</body>
+</html>

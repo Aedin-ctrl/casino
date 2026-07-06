@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="margin-top:22px;padding:16px;border-radius:0;background:#3a2418">
+  <div style="font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#c9a227;text-align:center;margin-bottom:16px">Mint / Exchange Machine</div>
+  <div style="display:flex;align-items:center;gap:10px">
+
+    <div onClick="{{ leftBox.containerClick }}" style="flex:1;min-height:120px;border-radius:0;background:#241209;border:2px {{ leftBox.borderStyle }};display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:8px;padding:12px;cursor:{{ leftBox.cursor }};position:relative">
+      <sc-if value="{{ leftBox.empty }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ leftBox.hasSelection }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ leftBox.hasUp }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ leftBox.onUpClick }}" style="font-size:11px;color:#c9a227;text-align:center;padding:10px 8px;border-radius:0;background:#2b1810;cursor:pointer">{{ leftBox.upText }}</div>
+          </sc-if>
+          <sc-if value="{{ leftBox.hasDown }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ leftBox.onDownClick }}" style="font-size:11px;color:#9ecbff;text-align:center;padding:10px 8px;border-radius:0;background:#2b1810;cursor:pointer">{{ leftBox.downText }}</div>
+          </sc-if>
+          <sc-if value="{{ leftBox.hasNeither }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:11px;color:#666;text-align:center;padding:0 8px">Not enough to mint up, and none to break down.</div>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ !leftBox.hasSelection }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:11px;color:#666;text-align:center;padding:0 8px">{{ leftBox.noSelectionText }}</div>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ leftBox.filled }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <dc-import name="Coin" denom="{{ leftBox.denom }}" selected="{{ false }}" size="{{ 80 }}"></dc-import>
+          <div style="font-size:11px;color:#ccc;font-weight:600">{{ leftBox.label }}</div>
+          <div style="font-size:9px;color:#888">tap to cancel</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="font-size:18px;color:#555;font-weight:700">&#8594;</div>
+
+    <div onClick="{{ rightBox.onClick }}" style="flex:1;min-height:120px;border-radius:0;background:#241209;border:2px {{ rightBox.borderStyle }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:{{ rightBox.cursor }}">
+      <sc-if value="{{ rightBox.empty }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:11px;color:#666;text-align:center;padding:0 8px">Result appears here</div>
+      </sc-if>
+      <sc-if value="{{ rightBox.filled }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="Coin" denom="{{ rightBox.denom }}" selected="{{ false }}" size="{{ 80 }}"></dc-import>
+        <div style="font-size:11px;color:#d4a017;font-weight:700">{{ rightBox.label }}</div>
+        <div style="font-size:9px;color:#8a8">tap to collect</div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:200},&quot;wallet&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;any&quot;},&quot;selectedDenom&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;number|null&quot;},&quot;onWalletChange&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(fn:(w:any)=&gt;any) =&gt; void&quot;},&quot;onDeselect&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+// Whole mint/exchange system lives here. The parent page owns the actual
+// wallet object + persistence; this component only ever asks for a change
+// via onWalletChange(walletTransformFn), so there is exactly one place
+// (the parent) where counts are ever written to localStorage.
+//
+// BUGFIX baked in: the old logic checked "can mint up?" first and returned
+// immediately, so "break down" was unreachable whenever up was also
+// possible. Both directions are now computed independently and shown as
+// separate choices whenever they apply.
+const DENOMS = [1, 5, 25, 100, 500, 1000, 5000, 10000];
+function formatMoney(v){ return '$' + v.toLocaleString('en-US'); }
+function ratioUp(idx){ return DENOMS[idx+1] / DENOMS[idx]; }
+function ratioDown(idx){ return DENOMS[idx] / DENOMS[idx-1]; }
+
+function computeMintOptions(counts, denom){
+  if(denom == null) return { up: null, down: null };
+  const idx = DENOMS.indexOf(denom);
+  const up = (idx < DENOMS.length - 1 && (counts[denom]||0) >= ratioUp(idx)) ? {
+    fromValue: denom, toValue: DENOMS[idx+1], fromCount: ratioUp(idx), toCount: 1,
+    actionText: 'Mint ' + ratioUp(idx) + '\u00d7 ' + formatMoney(denom) + ' \u2192 1\u00d7 ' + formatMoney(DENOMS[idx+1])
+  } : null;
+  const down = (idx > 0 && (counts[denom]||0) >= 1) ? {
+    fromValue: denom, toValue: DENOMS[idx-1], fromCount: 1, toCount: ratioDown(idx),
+    actionText: 'Break 1\u00d7 ' + formatMoney(denom) + ' \u2192 ' + ratioDown(idx) + '\u00d7 ' + formatMoney(DENOMS[idx-1])
+  } : null;
+  return { up, down };
+}
+
+class Component extends DCLogic {
+  commit(option){
+    this.props.onWalletChange((wallet) => {
+      const next = { ...wallet, counts: { ...wallet.counts } };
+      next.counts[option.fromValue] -= option.fromCount;
+      next.mintInput = { fromDenom: option.fromValue, fromCount: option.fromCount, toDenom: option.toValue, toCount: option.toCount };
+      return next;
+    });
+    if(this.props.onDeselect) this.props.onDeselect();
+  }
+  cancel(e){
+    if(e && e.stopPropagation) e.stopPropagation();
+    this.props.onWalletChange((wallet) => {
+      if(!wallet.mintInput) return wallet;
+      const next = { ...wallet, counts: { ...wallet.counts } };
+      next.counts[wallet.mintInput.fromDenom] = (next.counts[wallet.mintInput.fromDenom] || 0) + wallet.mintInput.fromCount;
+      next.mintInput = null;
+      return next;
+    });
+  }
+  collect(e){
+    if(e && e.stopPropagation) e.stopPropagation();
+    this.props.onWalletChange((wallet) => {
+      if(!wallet.mintInput) return wallet;
+      const { fromDenom, fromCount, toDenom, toCount } = wallet.mintInput;
+      const next = { ...wallet, counts: { ...wallet.counts } };
+      next.counts[toDenom] = (next.counts[toDenom] || 0) + toCount;
+      next.history = [{
+        id: Date.now() + '-' + Math.random().toString(36).slice(2),
+        description: 'Exchanged ' + fromCount + '\u00d7 ' + formatMoney(fromDenom) + ' \u2192 ' + toCount + '\u00d7 ' + formatMoney(toDenom),
+        timestamp: Date.now()
+      }, ...(wallet.history || [])].slice(0, 300);
+      next.mintInput = null;
+      return next;
+    });
+  }
+  renderVals(){
+    const wallet = this.props.wallet || { counts: {}, mintInput: null, history: [] };
+    let leftBox, rightBox;
+    if(wallet.mintInput){
+      leftBox = {
+        empty: false, filled: true, denom: wallet.mintInput.fromDenom,
+        label: wallet.mintInput.fromCount + '\u00d7 ' + formatMoney(wallet.mintInput.fromDenom),
+        containerClick: (e) => this.cancel(e), cursor: 'pointer', borderStyle: 'solid #d4a017'
+      };
+      rightBox = {
+        empty: false, filled: true, denom: wallet.mintInput.toDenom,
+        label: wallet.mintInput.toCount + '\u00d7 ' + formatMoney(wallet.mintInput.toDenom),
+        onClick: (e) => this.collect(e), cursor: 'pointer', borderStyle: 'solid #50c878'
+      };
+    } else {
+      const mintOptions = computeMintOptions(wallet.counts || {}, this.props.selectedDenom);
+      const hasSelection = this.props.selectedDenom != null;
+      leftBox = {
+        empty: true, filled: false, containerClick: () => {}, cursor: 'default', borderStyle: 'dashed #3a3a3a',
+        hasSelection, noSelectionText: 'Select a coin, then choose an action here',
+        hasUp: !!mintOptions.up, upText: mintOptions.up ? mintOptions.up.actionText : '',
+        onUpClick: mintOptions.up ? ((e) => { if(e) e.stopPropagation(); this.commit(mintOptions.up); }) : (() => {}),
+        hasDown: !!mintOptions.down, downText: mintOptions.down ? mintOptions.down.actionText : '',
+        onDownClick: mintOptions.down ? ((e) => { if(e) e.stopPropagation(); this.commit(mintOptions.down); }) : (() => {}),
+        hasNeither: hasSelection && !mintOptions.up && !mintOptions.down
+      };
+      rightBox = { empty: true, filled: false, onClick: () => {}, cursor: 'default', borderStyle: 'dashed #3a3a3a' };
+    }
+    return { leftBox, rightBox };
+  }
+}
+
+</script>
+</body>
+</html>
