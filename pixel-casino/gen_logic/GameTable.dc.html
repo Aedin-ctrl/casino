@@ -16,11 +16,11 @@
     @keyframes coinGlowPulse{0%,100%{outline-color:rgba(255,255,255,.7)}50%{outline-color:rgba(255,255,255,1)}}
   </style>
 </helmet>
-<div style="position:relative;width:100%;max-width:900px;background:#c0c0c0;border:6px solid #1a1a1a;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,0 0 0 4px #808080,0 0 0 10px #1a1a1a,5px 5px 0 #000;padding:32px;display:flex;align-items:center;gap:24px">
+<div style="position:relative;width:100%;max-width:900px;background:#c0c0c0;border:6px solid #1a1a1a;clip-path:polygon(6% 0,94% 0,100% 6%,100% 94%,94% 100%,6% 100%,0 94%,0 6%);box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,0 0 0 4px #808080,0 0 0 10px #1a1a1a,5px 5px 0 #000;padding:32px;display:flex;align-items:center;gap:24px">
 
-  <div onClick="{{ onClear }}" style="flex:none;background:{{ clearBg }};color:{{ clearColor }};font-family:'Press Start 2P',monospace;font-size:11px;padding:14px 18px;border:3px solid #1a1a1a;cursor:{{ clearCursor }};transition:transform 150ms ease;white-space:nowrap" style-hover="transform:scale(1.04);outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">CLEAR</div>
+  <div onClick="{{ onClear }}" style="flex:none;background:{{ clearBg }};color:{{ clearColor }};font-family:'Press Start 2P',monospace;font-size:11px;padding:14px 18px;border:3px solid #1a1a1a;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);cursor:{{ clearCursor }};transition:transform 150ms ease;white-space:nowrap" style-hover="transform:scale(1.04);outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">CLEAR</div>
 
-  <div onClick="{{ onTableClick }}" style="flex:1;min-height:220px;border:3px solid #1a1a1a;background:{{ surfaceBg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px;transform:{{ trapdoorTransform }};opacity:{{ trapdoorOpacity }};transition:transform 500ms ease-in-out,opacity 500ms ease-in-out">
+  <div onClick="{{ onTableClick }}" style="flex:1;min-height:220px;border:3px solid #1a1a1a;clip-path:polygon(15% 0,85% 0,100% 15%,100% 85%,85% 100%,15% 100%,0 85%,0 15%);background:{{ surfaceBg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px;transform:{{ trapdoorTransform }};opacity:{{ trapdoorOpacity }};transition:transform 500ms ease-in-out,opacity 500ms ease-in-out">
 
     <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ true }}">
       <div style="font-size:14px;color:#666">No coins on the table</div>

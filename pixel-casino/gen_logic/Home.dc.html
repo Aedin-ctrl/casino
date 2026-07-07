@@ -25,21 +25,21 @@
 
   <!-- TOP BAR -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 32px;position:relative;z-index:2">
-    <div style="display:flex;align-items:center;gap:12px;background:#c0c0c0;border-radius:0;padding:8px 16px 8px 8px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000">
+    <div style="display:flex;align-items:center;gap:12px;background:#c0c0c0;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);padding:8px 16px 8px 8px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000">
       <sc-if value="{{ counterDenom }}" hint-placeholder-val="{{ false }}">
         <dc-import name="Coin" denom="{{ counterDenom }}" size="{{ 32 }}"></dc-import>
       </sc-if>
       <sc-if value="{{ !counterDenom }}" hint-placeholder-val="{{ true }}">
-        <div style="width:32px;height:32px;border-radius:50%;background:#3a3a3a"></div>
+        <div style="width:32px;height:32px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);background:#3a3a3a"></div>
       </sc-if>
       <div style="font-size:20px;font-weight:700;color:#404040;letter-spacing:.2px">{{ counterFormatted }}</div>
     </div>
 
     <div style="display:flex;align-items:center;gap:12px">
-      <div title="How to Play" onClick="{{ openHelp }}" style="width:44px;height:44px;border-radius:0;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#d4d4d4;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
+      <div title="How to Play" onClick="{{ openHelp }}" style="width:44px;height:44px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#d4d4d4;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
         <dc-import name="BookIcon" color="{{ '#404040' }}" size="{{ 26 }}"></dc-import>
       </div>
-      <div title="Transaction History" onClick="{{ openHistory }}" style="width:44px;height:44px;border-radius:0;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#d4d4d4;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
+      <div title="Transaction History" onClick="{{ openHistory }}" style="width:44px;height:44px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#d4d4d4;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
         <dc-import name="ClockIcon" color="{{ '#404040' }}" size="{{ 26 }}"></dc-import>
       </div>
     </div>
@@ -49,7 +49,7 @@
   <sc-if value="{{ brokeVisible }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ claimBroke }}" title="Claim your $1 coin" style="position:absolute;top:88px;left:32px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;z-index:3">
       <dc-import name="Coin" denom="{{ 1 }}" selected="{{ true }}" size="{{ 52 }}"></dc-import>
-      <div style="font-size:11px;color:#404040;font-weight:600;background:#c0c0c0;padding:3px 8px;border-radius:0">Claim $1</div>
+      <div style="font-size:11px;color:#404040;font-weight:600;background:#c0c0c0;padding:3px 8px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%)">Claim $1</div>
     </div>
   </sc-if>
 
@@ -59,10 +59,10 @@
 
     <div style="display:grid;grid-template-columns:repeat(3,180px);grid-auto-rows:150px;gap:24px">
       <sc-for list="{{ games }}" as="g" hint-placeholder-count="6">
-        <div onClick="{{ g.onClick }}" style="border-radius:0;background:#c0c0c0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;color:#6a6a6a;transition:color 200ms ease,transform 200ms ease,box-shadow 200ms ease" style-hover="color:#404040;transform:scale(1.045);box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
+        <div onClick="{{ g.onClick }}" style="border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#c0c0c0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;color:#6a6a6a;transition:color 200ms ease,transform 200ms ease,box-shadow 200ms ease" style-hover="color:#404040;transform:scale(1.045);box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
 
           <sc-if value="{{ g.isSlots }}" hint-placeholder-val="{{ false }}">
-            <div style="width:56px;height:40px;border:2.5px solid currentColor;border-radius:0;display:flex">
+            <div style="width:56px;height:40px;border:2.5px solid currentColor;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);display:flex">
               <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;background:currentColor"></div></div>
               <div style="width:2px;background:currentColor;opacity:.6"></div>
               <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;background:currentColor"></div></div>
@@ -71,7 +71,7 @@
             </div>
           </sc-if>
           <sc-if value="{{ g.isCoinFlip }}" hint-placeholder-val="{{ false }}">
-            <div style="width:44px;height:44px;border-radius:50%;border:3px solid currentColor"></div>
+            <div style="width:44px;height:44px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);border:3px solid currentColor"></div>
           </sc-if>
           <sc-if value="{{ g.isBlackjack }}" hint-placeholder-val="{{ false }}">
             <div style="width:38px;height:52px;border:2.5px solid currentColor;border-radius:5px;position:relative">
@@ -79,7 +79,7 @@
             </div>
           </sc-if>
           <sc-if value="{{ g.isRoulette }}" hint-placeholder-val="{{ false }}">
-            <div style="width:48px;height:48px;border-radius:50%;border:2.5px solid currentColor;position:relative">
+            <div style="width:48px;height:48px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);border:2.5px solid currentColor;position:relative">
               <div style="position:absolute;left:50%;top:2px;bottom:2px;width:2px;background:currentColor;transform:translateX(-50%)"></div>
               <div style="position:absolute;top:50%;left:2px;right:2px;height:2px;background:currentColor;transform:translateY(-50%)"></div>
             </div>
@@ -93,7 +93,7 @@
           </sc-if>
           <sc-if value="{{ g.isSandbox }}" hint-placeholder-val="{{ false }}">
             <div style="position:relative;width:48px;height:48px;display:flex;align-items:center;justify-content:center">
-              <div style="width:44px;height:44px;border:2.5px dashed currentColor;border-radius:0"></div>
+              <div style="width:44px;height:44px;border:2.5px dashed currentColor;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%)"></div>
             </div>
           </sc-if>
 
@@ -107,13 +107,13 @@
   <dc-import name="InventoryDrawer" wallet="{{ wallet }}" open="{{ drawerOpen }}" selected-denom="{{ selectedDenom }}" selected-source="{{ selectedSource }}" on-toggle="{{ toggleDrawer }}" on-close="{{ closeDrawer }}" on-select-denom="{{ onSelectDenom }}" on-wallet-change="{{ onWalletChange }}"></dc-import>
 
   <!-- HINT BAR -->
-  <div key="{{ hint.text }}" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#c0c0c0;color:#ddd;font-size:14px;padding:10px 20px;border-radius:0;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;animation:hintFadeIn 220ms ease;z-index:8;white-space:nowrap">{{ hint.text }}</div>
+  <div key="{{ hint.text }}" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#c0c0c0;color:#ddd;font-size:14px;padding:10px 20px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;animation:hintFadeIn 220ms ease;z-index:8;white-space:nowrap">{{ hint.text }}</div>
 
   <!-- HELP BOOK MODAL -->
   <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ closeHelp }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
       <div onClick="{{ stopProp }}" style="position:relative;width:760px;max-width:92vw;height:460px;animation:{{ bookAnim }}">
-        <div style="position:absolute;inset:0;background:#c0c0c0;border-radius:0;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;display:flex;overflow:hidden">
+        <div style="position:absolute;inset:0;background:#c0c0c0;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;display:flex;overflow:hidden">
 
           <sc-if value="{{ isSpreadToc }}" hint-placeholder-val="{{ false }}">
             <div style="flex:1;padding:36px;border-right:1px solid #333">
@@ -150,13 +150,13 @@
           </sc-if>
         </div>
 
-        <div onClick="{{ goToc }}" style="position:absolute;left:-52px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000">
+        <div onClick="{{ goToc }}" style="position:absolute;left:-52px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000">
           <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:8px solid #404040"></div>
         </div>
-        <div onClick="{{ goWelcome }}" style="position:absolute;right:-52px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000">
+        <div onClick="{{ goWelcome }}" style="position:absolute;right:-52px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000">
           <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:8px solid #404040"></div>
         </div>
-        <div onClick="{{ closeHelp }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#404040;color:#ffffff;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;border:2px solid #000">&#10005;</div>
+        <div onClick="{{ closeHelp }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);background:#404040;color:#ffffff;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;border:2px solid #000">&#10005;</div>
       </div>
     </div>
   </sc-if>
@@ -164,7 +164,7 @@
   <!-- HISTORY MODAL -->
   <sc-if value="{{ historyOpen }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ closeHistory }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
-      <div onClick="{{ stopProp }}" style="position:relative;width:520px;max-width:92vw;max-height:70vh;background:#c0c0c0;border-radius:0;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;padding:28px;overflow-y:auto;animation:modalPop 220ms ease-out">
+      <div onClick="{{ stopProp }}" style="position:relative;width:520px;max-width:92vw;max-height:70vh;background:#c0c0c0;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;padding:28px;overflow-y:auto;animation:modalPop 220ms ease-out">
         <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#404040;margin-bottom:18px">Transaction History</div>
         <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:10px">
@@ -179,7 +179,7 @@
         <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ true }}">
           <div style="font-size:13px;color:#777">No transactions yet.</div>
         </sc-if>
-        <div onClick="{{ closeHistory }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#404040;color:#ffffff;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;border:2px solid #000">&#10005;</div>
+        <div onClick="{{ closeHistory }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);background:#404040;color:#ffffff;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;border:2px solid #000">&#10005;</div>
       </div>
     </div>
   </sc-if>

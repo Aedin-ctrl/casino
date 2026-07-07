@@ -7,13 +7,13 @@
 </head>
 <body>
 <x-dc>
-<div style="margin-top:22px;padding:16px;border-radius:0;background:#d4d4d4;border:2px solid #808080;box-shadow:inset 1px 1px 0 #fff">
+<div style="margin-top:22px;padding:16px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#d4d4d4;border:2px solid #808080;box-shadow:inset 1px 1px 0 #fff">
   <div style="font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#808080;text-align:center;margin-bottom:6px">Mint / Exchange Machine</div>
   <div style="font-size:10px;color:#666;text-align:center;margin-bottom:14px">{{ helperText }}</div>
   <div style="display:flex;align-items:flex-start;gap:10px">
 
     <!-- TRAY: any mix of denominations, click coins elsewhere then click here to add -->
-    <div onClick="{{ trayClick }}" style="flex:1;min-height:130px;border-radius:0;background:#ffffff;border:2px {{ trayBorderStyle }};display:flex;flex-wrap:wrap;align-content:flex-start;gap:10px;padding:10px;cursor:{{ trayCursor }}">
+    <div onClick="{{ trayClick }}" style="flex:1;min-height:130px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#ffffff;border:2px {{ trayBorderStyle }};display:flex;flex-wrap:wrap;align-content:flex-start;gap:10px;padding:10px;cursor:{{ trayCursor }}">
       <sc-if value="{{ trayEmpty }}" hint-placeholder-val="{{ true }}">
         <div style="width:100%;text-align:center;font-size:11px;color:#666;align-self:center">{{ trayEmptyText }}</div>
       </sc-if>
@@ -28,7 +28,7 @@
     <div style="font-size:18px;color:#555;font-weight:700;margin-top:48px">&#8594;</div>
 
     <!-- RESULT: auto-computed live from the tray, no direction to choose -->
-    <div onClick="{{ resultClick }}" style="flex:1;min-height:130px;border-radius:0;background:#ffffff;border:2px {{ resultBorderStyle }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px;cursor:{{ resultCursor }}">
+    <div onClick="{{ resultClick }}" style="flex:1;min-height:130px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#ffffff;border:2px {{ resultBorderStyle }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px;cursor:{{ resultCursor }}">
       <sc-if value="{{ resultEmpty }}" hint-placeholder-val="{{ true }}">
         <div style="font-size:11px;color:#666;text-align:center;padding:0 8px">{{ resultEmptyText }}</div>
       </sc-if>

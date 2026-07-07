@@ -44,9 +44,28 @@ These are intentionally NOT part of the grayscale rule.
 
 ## Shapes, borders & bevels
 
-- **No rounded corners** on structural UI (panels, buttons, modals) —
-  `border-radius: 0`. Circles only happen where the *pixel art itself*
-  draws a circle (coins), never via CSS `border-radius` on a square box.
+- **No smooth CSS `border-radius` rounding, ever** — real curves read as
+  "modern flat UI," not 8-bit. Corners are rounded a different way: a
+  `clip-path: polygon(...)` that cuts each corner diagonally, giving a
+  chunky pixel-octagon look instead of a smooth curve. Always paired
+  with `border-radius:0` (kept for browsers that don't support
+  `clip-path`, and as a reminder nothing here uses real radius).
+  Three standard cut sizes, by how prominent the rounding should read:
+  ```
+  /* subtle -- most buttons and panels */
+  clip-path: polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);
+
+  /* pronounced -- game frames/surfaces specifically (GameTable) */
+  clip-path: polygon(15% 0,85% 0,100% 15%,100% 85%,85% 100%,15% 100%,0 85%,0 15%);
+
+  /* replaces anything that used to be a smooth border-radius:50% circle
+     (empty coin-slot placeholders, nav/close buttons, quick-slot rings,
+     larger decorative tile icons) -- NOT used on tiny (<18px) decorative
+     dots, where a cut corner wouldn't read as anything at that size */
+  clip-path: polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);
+  ```
+  Coins are the one exception: their "roundness" is drawn directly into
+  the pixel bitmap in `Coin.dc.html`, not via CSS at all.
 - **Windows-95-style raised bevel** on panels/buttons: a solid dark
   outer border, plus a stacked `box-shadow` combining a light inset
   (top-left) and dark inset (bottom-right) to fake a 3D raised edge,
