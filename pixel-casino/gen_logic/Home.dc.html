@@ -18,6 +18,7 @@
     @keyframes welcomePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
     @keyframes modalPop{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
     @keyframes hintFadeIn{0%{opacity:0}100%{opacity:1}}
+    @keyframes bookShake{0%,100%{transform:rotate(0deg) translateX(0)}20%{transform:rotate(-2deg) translateX(-4px)}40%{transform:rotate(2deg) translateX(4px)}60%{transform:rotate(-1.5deg) translateX(-2px)}80%{transform:rotate(1.5deg) translateX(2px)}}
   </style>
 </helmet>
 <div data-screen-label="Home" onClick="{{ deselectAll }}" style="position:relative;height:100vh;width:100%;background:#7b7b7b;color:#000000;font-family:'VT323',monospace;overflow:hidden;display:flex;flex-direction:column">
@@ -36,15 +37,10 @@
 
     <div style="display:flex;align-items:center;gap:12px">
       <div title="How to Play" onClick="{{ openHelp }}" style="width:44px;height:44px;border-radius:0;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#d4d4d4;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
-        <div style="width:20px;height:16px;border-left:3px solid #404040;border-right:3px solid #404040;position:relative">
-          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#404040;opacity:.6"></div>
-        </div>
+        <dc-import name="BookIcon" color="{{ '#404040' }}" size="{{ 26 }}"></dc-import>
       </div>
       <div title="Transaction History" onClick="{{ openHistory }}" style="width:44px;height:44px;border-radius:0;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#d4d4d4;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
-        <div style="width:18px;height:18px;border-radius:50%;border:2px solid #404040;position:relative">
-          <div style="position:absolute;left:calc(50% - 1px);top:2px;width:1.5px;height:6px;background:#404040"></div>
-          <div style="position:absolute;left:50%;top:8px;width:6px;height:1.5px;background:#404040"></div>
-        </div>
+        <dc-import name="ClockIcon" color="{{ '#404040' }}" size="{{ 26 }}"></dc-import>
       </div>
     </div>
   </div>
@@ -116,8 +112,8 @@
   <!-- HELP BOOK MODAL -->
   <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ closeHelp }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
-      <div onClick="{{ stopProp }}" style="position:relative;width:760px;max-width:92vw;height:460px;perspective:1600px;animation:modalPop 220ms ease-out">
-        <div key="{{ helpFlipping }}" style="position:absolute;inset:0;background:#c0c0c0;border-radius:0;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;display:flex;overflow:hidden;transform:{{ helpFlipTransform }};transition:transform 260ms ease-in-out;transform-style:preserve-3d">
+      <div onClick="{{ stopProp }}" style="position:relative;width:760px;max-width:92vw;height:460px;animation:{{ bookAnim }}">
+        <div style="position:absolute;inset:0;background:#c0c0c0;border-radius:0;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;display:flex;overflow:hidden">
 
           <sc-if value="{{ isSpreadToc }}" hint-placeholder-val="{{ false }}">
             <div style="flex:1;padding:36px;border-right:1px solid #333">
@@ -128,7 +124,7 @@
           </sc-if>
           <sc-if value="{{ isSpreadToc }}" hint-placeholder-val="{{ false }}">
             <div style="flex:1;padding:36px;display:flex;align-items:center;justify-content:center">
-              <div style="font-size:15px;color:#777;text-align:center">Flip forward to begin<br/>&#8594;</div>
+              <div style="font-size:15px;color:#777;text-align:center">Turn the page to begin<br/>&#8594;</div>
             </div>
           </sc-if>
 
@@ -152,11 +148,6 @@
               </div>
             </div>
           </sc-if>
-        </div>
-
-        <!-- COVER (flips open on mount) -->
-        <div key="{{ coverOpen }}" style="position:absolute;inset:0;background:#1e1e1e;border-radius:0;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;display:flex;align-items:center;justify-content:center;transform-origin:left center;transform:{{ coverTransform }};opacity:{{ coverOpacity }};transition:transform 550ms cubic-bezier(.4,0,.2,1),opacity 480ms ease;pointer-events:{{ coverPointerEvents }}">
-          <div style="font-size:26px;font-weight:800;color:#404040;letter-spacing:1px">How to Play</div>
         </div>
 
         <div onClick="{{ goToc }}" style="position:absolute;left:-52px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000">
@@ -241,7 +232,7 @@ function addTx(wallet, description){
 
 function totalValue(wallet){
   let sum = DENOMS.reduce((s, d) => s + d * (wallet.counts[d] || 0), 0);
-  if(wallet.mintInput) sum += wallet.mintInput.fromDenom * wallet.mintInput.fromCount;
+  if(wallet.mintInput && wallet.mintInput.counts) { for(const d of Object.keys(wallet.mintInput.counts)) sum += Number(d) * wallet.mintInput.counts[d]; }
   const sb = wallet.sandboxBet || {};
   for(const k of Object.keys(sb)) sum += Number(k) * (sb[k] || 0);
   return sum;
@@ -254,14 +245,13 @@ class Component extends DCLogic {
     selectedDenom: null,
     selectedSource: null,
     helpOpen: false,
-    coverOpen: false,
     helpSpread: 1,
-    helpFlipping: false,
+    shaking: false,
     historyOpen: false
   };
 
   computeHintText(){
-    if(this.state.wallet.mintInput) return 'Click the right box to collect, or the left box to cancel.';
+    if(this.state.wallet.mintInput) return 'Add more coins to the mint tray, or collect/recollect from it.';
     if(this.state.selectedDenom != null) return 'Click a quick slot, or the Mint Machine\u2019s left box to use it.';
     if(this.state.drawerOpen) return 'Click a coin to select it.';
     return 'Click a game tile to start playing, or open the drawer to manage your coins.';
@@ -308,15 +298,15 @@ class Component extends DCLogic {
   };
 
   openHelp = () => {
-    this.setState({ helpOpen: true, helpSpread: 1, coverOpen: true });
-    setTimeout(() => this.setState({ coverOpen: false }), 60);
+    this.setState({ helpOpen: true, helpSpread: 1, shaking: true });
+    setTimeout(() => this.setState({ shaking: false }), 400);
   };
   closeHelp = () => { this.setState({ helpOpen: false }); };
   goSpread = (target) => () => {
-    if(target === this.state.helpSpread || this.state.helpFlipping) return;
-    this.setState({ helpFlipping: true });
-    setTimeout(() => this.setState({ helpSpread: target }), 260);
-    setTimeout(() => this.setState({ helpFlipping: false }), 520);
+    if(target === this.state.helpSpread) return;
+    this.setState({ shaking: true });
+    setTimeout(() => this.setState({ helpSpread: target }), 200);
+    setTimeout(() => this.setState({ shaking: false }), 400);
   };
 
   openHistory = () => { this.setState({ historyOpen: true }); };
@@ -367,14 +357,9 @@ class Component extends DCLogic {
       claimBroke: this.claimBroke,
       hint: { text: this.computeHintText() },
       helpOpen: this.state.helpOpen,
-      helpFlipTransform: this.state.helpFlipping ? 'perspective(1600px) rotateY(85deg)' : 'perspective(1600px) rotateY(0deg)',
-      coverTransform: this.state.coverOpen ? 'rotateY(0deg)' : 'rotateY(-115deg)',
-      coverOpacity: this.state.coverOpen ? 1 : 0,
-      coverOpen: this.state.coverOpen,
-      coverPointerEvents: this.state.coverOpen ? 'auto' : 'none',
+      bookAnim: this.state.shaking ? 'bookShake 400ms ease-in-out' : 'none',
       isSpreadToc: this.state.helpSpread === 0,
       isSpreadWelcome: this.state.helpSpread === 1,
-      helpFlipping: this.state.helpFlipping,
       openHelp: this.openHelp,
       closeHelp: this.closeHelp,
       goToc: this.goSpread(0),
