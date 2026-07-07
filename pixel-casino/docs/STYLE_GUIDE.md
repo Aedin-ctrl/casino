@@ -21,39 +21,62 @@ Both are loaded via Google Fonts in each file's `<helmet>`:
 
 ## Palette
 
+The UI chrome is grayscale — a classic "Windows 95 Minesweeper" look.
+Coins are the one deliberate exception: they keep their own distinct
+colors (see below) since color is how you tell denominations apart at a
+glance.
+
 | Role | Color |
 |---|---|
-| Page background / darkest ink | `#1a1a1a` (pixel-art black) / `#1f0d10` (page backdrop, warmer) |
-| Panel / card background | `#2b1810` |
-| Slot / secondary panel background | `#3a2418` |
-| Input / recessed box background | `#241209` |
-| Primary gold accent | `#d4a017` |
-| Secondary gold (borders, labels) | `#c9a227` |
-| Body text (cream/parchment) | `#f4ecd8` |
-| Felt green (table surface) | `#0a5c36` |
+| Page background | `#7b7b7b` |
+| Panel / card / button background | `#c0c0c0` (classic Windows gray) |
+| Slot / secondary panel background | `#d4d4d4` |
+| Input / recessed box background (sunken fields) | `#ffffff` |
+| Ink / borders / primary text | `#404040` and `#1a1a1a` |
+| Secondary text | `#808080` |
+| Body text on the page background | `#000000` |
+| Felt green (table surface — unchanged, it's a real card-table color) | `#0a5c36` |
 
 Chip colors (from `Coin.dc.html`, ported directly from the reference
 sheet's 8 combos): red / green / blue / gold, each paired with a white
 or black accent ring, mapped one-to-one across the 8 coin denominations.
+These are intentionally NOT part of the grayscale rule.
 
-## Shapes & borders
+## Shapes, borders & bevels
 
 - **No rounded corners** on structural UI (panels, buttons, modals) —
   `border-radius: 0`. Circles only happen where the *pixel art itself*
   draws a circle (coins), never via CSS `border-radius` on a square box.
-- **Chunky borders:** `3px`–`6px` solid `#1a1a1a`, sometimes doubled with
-  a gold ring via `box-shadow` (see the table's border in `GameTable.dc.html`
-  for the reference pattern: `border` + two stacked `box-shadow` rings).
-- **Shadows are hard-edged, never blurred.** Always `Npx Npx 0 #000` —
-  zero blur radius. This is the single most important rule for staying
-  "8-bit" rather than "flat modern dark mode."
+- **Windows-95-style raised bevel** on panels/buttons: a solid dark
+  outer border, plus a stacked `box-shadow` combining a light inset
+  (top-left) and dark inset (bottom-right) to fake a 3D raised edge,
+  plus a hard offset drop shadow. The standard recipe used everywhere:
+  ```
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080, 3px 3px 0 #000;
+  ```
+  (scaled to `2px`/`5px` for bigger panels like the drawer or the game
+  table border). Never add blur — the inset lines are what read as a
+  bevel, blur would just look like a modern soft shadow.
+
+## Hover feedback
+
+Every clickable button/icon/tile does two things on hover, via
+`style-hover="..."`:
+1. A small `transform: scale(...)` pop.
+2. A **pixel shimmer** — a hard-edged outline that blinks between black
+   and white using a 2-step `steps()` animation (`pixelShimmer`,
+   defined once per file's `<helmet><style>`), not a smooth glow:
+   ```
+   outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite
+   ```
 
 ## Selection / feedback
 
 Coins use a **blinking pixel outline** (`pixelSelectBlink`, a 2-step
 `steps()` animation swapping between cream and gold) instead of a smooth
 glow — matches how retro UIs flash a selection cursor rather than
-fading it.
+fading it. Buttons/tiles use the separate `pixelShimmer` keyframe above
+for the same reason — both are deliberately blocky, not eased.
 
 ## Adding a new sprite/asset
 

@@ -9,7 +9,7 @@
 <x-dc>
 <div onClick="{{ containerClick }}" style="position:relative;width:{{ width }}px;height:{{ height }}px;cursor:{{ cursor }}">
   <sc-if value="{{ hasBadge }}" hint-placeholder-val="{{ false }}">
-    <div style="position:absolute;top:-4px;right:-2px;background:#d4a017;color:#1f0d10;font-size:10px;font-weight:800;border-radius:0;padding:1px 5px;z-index:20">{{ badgeText }}</div>
+    <div style="position:absolute;top:-4px;right:-2px;background:#404040;color:#ffffff;font-size:10px;font-weight:800;border-radius:0;padding:1px 5px;z-index:20;border:1px solid #000">{{ badgeText }}</div>
   </sc-if>
   <sc-for list="{{ cells }}" as="c" hint-placeholder-count="4">
     <sc-if value="{{ c.filled }}" hint-placeholder-val="{{ false }}">

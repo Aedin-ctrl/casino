@@ -12,39 +12,40 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    @keyframes pixelShimmer{0%,49%{outline-color:#000000}50%,100%{outline-color:#ffffff}}
     *{box-sizing:border-box}
     body{margin:0}
     @keyframes modalPop{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
     @keyframes hintFadeIn{0%{opacity:0}100%{opacity:1}}
   </style>
 </helmet>
-<div data-screen-label="Sandbox" onClick="{{ deselectAll }}" style="position:relative;height:100vh;width:100%;background:#1f0d10;color:#f4ecd8;font-family:'VT323',monospace;overflow:hidden;display:flex;flex-direction:column">
+<div data-screen-label="Sandbox" onClick="{{ deselectAll }}" style="position:relative;height:100vh;width:100%;background:#7b7b7b;color:#000000;font-family:'VT323',monospace;overflow:hidden;display:flex;flex-direction:column">
 
   <!-- TOP BAR -->
   <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 32px;position:relative;z-index:2">
     <div style="display:flex;align-items:center;gap:16px">
-      <a href="Home.dc.html" style="font-size:13px;font-weight:700;color:#999;text-decoration:none;background:#2b1810;padding:10px 16px;border-radius:0;transition:color 150ms ease" style-hover="color:#d4a017">&#8592; Casino</a>
-      <div style="display:flex;align-items:center;gap:12px;background:#2b1810;border-radius:0;padding:8px 16px 8px 8px;box-shadow:3px 3px 0 #000">
+      <a href="Home.dc.html" style="font-size:13px;font-weight:700;color:#999;text-decoration:none;background:#c0c0c0;padding:10px 16px;border-radius:0;transition:color 150ms ease" style-hover="color:#404040;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">&#8592; Casino</a>
+      <div style="display:flex;align-items:center;gap:12px;background:#c0c0c0;border-radius:0;padding:8px 16px 8px 8px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000">
         <sc-if value="{{ counterDenom }}" hint-placeholder-val="{{ false }}">
           <dc-import name="Coin" denom="{{ counterDenom }}" size="{{ 32 }}"></dc-import>
         </sc-if>
         <sc-if value="{{ !counterDenom }}" hint-placeholder-val="{{ true }}">
           <div style="width:32px;height:32px;border-radius:50%;background:#3a3a3a"></div>
         </sc-if>
-        <div style="font-size:20px;font-weight:700;color:#d4a017;letter-spacing:.2px">{{ counterFormatted }}</div>
+        <div style="font-size:20px;font-weight:700;color:#404040;letter-spacing:.2px">{{ counterFormatted }}</div>
       </div>
     </div>
 
     <div style="display:flex;align-items:center;gap:12px">
-      <div title="How to Play" onClick="{{ openHelp }}" style="width:44px;height:44px;border-radius:0;background:#2b1810;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#3a2418">
-        <div style="width:20px;height:16px;border-left:3px solid #d4a017;border-right:3px solid #d4a017;position:relative">
-          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#d4a017;opacity:.6"></div>
+      <div title="How to Play" onClick="{{ openHelp }}" style="width:44px;height:44px;border-radius:0;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#d4d4d4;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
+        <div style="width:20px;height:16px;border-left:3px solid #404040;border-right:3px solid #404040;position:relative">
+          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#404040;opacity:.6"></div>
         </div>
       </div>
-      <div title="Transaction History" onClick="{{ openHistory }}" style="width:44px;height:44px;border-radius:0;background:#2b1810;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#3a2418">
-        <div style="width:18px;height:18px;border-radius:50%;border:2px solid #d4a017;position:relative">
-          <div style="position:absolute;left:calc(50% - 1px);top:2px;width:1.5px;height:6px;background:#d4a017"></div>
-          <div style="position:absolute;left:50%;top:8px;width:6px;height:1.5px;background:#d4a017"></div>
+      <div title="Transaction History" onClick="{{ openHistory }}" style="width:44px;height:44px;border-radius:0;background:#c0c0c0;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;transition:transform 150ms ease,background 150ms ease" style-hover="transform:scale(1.06);background:#d4d4d4;outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">
+        <div style="width:18px;height:18px;border-radius:50%;border:2px solid #404040;position:relative">
+          <div style="position:absolute;left:calc(50% - 1px);top:2px;width:1.5px;height:6px;background:#404040"></div>
+          <div style="position:absolute;left:50%;top:8px;width:6px;height:1.5px;background:#404040"></div>
         </div>
       </div>
     </div>
@@ -54,7 +55,7 @@
   <sc-if value="{{ brokeVisible }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ claimBroke }}" title="Claim your $1 coin" style="position:absolute;top:88px;left:32px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;z-index:3">
       <dc-import name="Coin" denom="{{ 1 }}" selected="{{ true }}" size="{{ 52 }}"></dc-import>
-      <div style="font-size:11px;color:#d4a017;font-weight:600;background:#2b1810;padding:3px 8px;border-radius:0">Claim $1</div>
+      <div style="font-size:11px;color:#404040;font-weight:600;background:#c0c0c0;padding:3px 8px;border-radius:0">Claim $1</div>
     </div>
   </sc-if>
 
@@ -68,15 +69,15 @@
   <dc-import name="InventoryDrawer" wallet="{{ wallet }}" open="{{ drawerOpen }}" selected-denom="{{ selectedDenom }}" selected-source="{{ selectedSource }}" on-toggle="{{ toggleDrawer }}" on-close="{{ closeDrawer }}" on-select-denom="{{ onSelectDenom }}" on-wallet-change="{{ onWalletChange }}"></dc-import>
 
   <!-- HINT BAR -->
-  <div key="{{ hint.text }}" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#2b1810;color:#ddd;font-size:14px;padding:10px 20px;border-radius:0;box-shadow:3px 3px 0 #000;animation:hintFadeIn 220ms ease;z-index:8;white-space:nowrap">{{ hint.text }}</div>
+  <div key="{{ hint.text }}" style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#c0c0c0;color:#ddd;font-size:14px;padding:10px 20px;border-radius:0;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,3px 3px 0 #000;animation:hintFadeIn 220ms ease;z-index:8;white-space:nowrap">{{ hint.text }}</div>
 
   <!-- HELP BOOK MODAL -->
   <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ closeHelp }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
       <div onClick="{{ stopProp }}" style="position:relative;width:760px;max-width:92vw;height:460px;perspective:1600px;animation:modalPop 220ms ease-out">
-        <div style="position:absolute;inset:0;background:#2b1810;border-radius:0;box-shadow:5px 5px 0 #000;display:flex;overflow:hidden">
+        <div style="position:absolute;inset:0;background:#c0c0c0;border-radius:0;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;display:flex;overflow:hidden">
           <div style="flex:1;padding:36px;border-right:1px solid #333">
-            <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:20px">Sandbox Table</div>
+            <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#404040;margin-bottom:20px">Sandbox Table</div>
             <div style="font-size:15px;color:#ddd;line-height:1.9">
               <div>&#8226; Select one coin from the drawer or a quick slot.</div>
               <div>&#8226; Click the table to place it as a bet, one coin at a time.</div>
@@ -85,7 +86,7 @@
             </div>
           </div>
           <div style="flex:1;padding:36px">
-            <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:20px">Controls</div>
+            <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#404040;margin-bottom:20px">Controls</div>
             <div style="font-size:15px;color:#ddd;line-height:1.9">
               <div>&#8226; Clear Table returns every placed coin to your wallet.</div>
               <div>&#8226; The Mint Machine at the bottom of the drawer still works here.</div>
@@ -93,7 +94,7 @@
             </div>
           </div>
         </div>
-        <div onClick="{{ closeHelp }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#d4a017;color:#1f0d10;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">&#10005;</div>
+        <div onClick="{{ closeHelp }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#404040;color:#ffffff;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;border:2px solid #000">&#10005;</div>
       </div>
     </div>
   </sc-if>
@@ -101,8 +102,8 @@
   <!-- HISTORY MODAL -->
   <sc-if value="{{ historyOpen }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ closeHistory }}" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:20;display:flex;align-items:center;justify-content:center">
-      <div onClick="{{ stopProp }}" style="position:relative;width:520px;max-width:92vw;max-height:70vh;background:#2b1810;border-radius:0;box-shadow:5px 5px 0 #000;padding:28px;overflow-y:auto;animation:modalPop 220ms ease-out">
-        <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#d4a017;margin-bottom:18px">Transaction History</div>
+      <div onClick="{{ stopProp }}" style="position:relative;width:520px;max-width:92vw;max-height:70vh;background:#c0c0c0;border-radius:0;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,5px 5px 0 #000;padding:28px;overflow-y:auto;animation:modalPop 220ms ease-out">
+        <div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#404040;margin-bottom:18px">Transaction History</div>
         <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:10px">
             <sc-for list="{{ historyList }}" as="h" hint-placeholder-count="5">
@@ -116,7 +117,7 @@
         <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ true }}">
           <div style="font-size:13px;color:#777">No transactions yet.</div>
         </sc-if>
-        <div onClick="{{ closeHistory }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#d4a017;color:#1f0d10;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px">&#10005;</div>
+        <div onClick="{{ closeHistory }}" style="position:absolute;top:-16px;right:-16px;width:32px;height:32px;border-radius:50%;background:#404040;color:#ffffff;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;border:2px solid #000">&#10005;</div>
       </div>
     </div>
   </sc-if>

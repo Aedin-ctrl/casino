@@ -32,8 +32,8 @@ because nothing fetches those by name.
 | `gen_logic/ComingSoon.dc.html` | **Page.** Placeholder screen for any game tile not built yet. |
 | `gen_logic/Coin.dc.html` | **Core component.** One coin's pixel-chip artwork. Change a color or size here and it updates everywhere. |
 | `gen_logic/CoinStack.dc.html` | **Core component.** Stacks up to 4 `Coin`s with a ×N badge beyond that. |
-| `gen_logic/MintMachine.dc.html` | **Core component.** The up/down currency-exchange UI. |
-| `gen_logic/InventoryDrawer.dc.html` | **Core component.** Quick slots + slide-out drawer + backdrop; contains `MintMachine` inside it. |
+| `gen_logic/MintMachine.dc.html` | **Core component.** Deposit one coin at a time into a pile; the biggest possible next-tier coin is made automatically (floor division), leftover stays in the pile until recollected. |
+| `gen_logic/InventoryDrawer.dc.html` | **Core component.** Quick slots + slide-out drawer + backdrop; contains `MintMachine` inside it. Opening/closing is choreographed: quick slots fully hide before the panel opens, and only reappear after it's fully closed. Quick-slot membership (max 3) is toggled by clicking a denomination's square border in the grid, not the coin itself. |
 | `gen_logic/GameTable.dc.html` | **Shared game component.** Betting table, pile layout, trapdoor animation. Reusable by any future game page. |
 
 **The rule of thumb:** a *page* owns wallet state, persistence, and
