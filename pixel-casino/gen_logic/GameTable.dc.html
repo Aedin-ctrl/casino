@@ -7,84 +7,91 @@
 </head>
 <body>
 <x-dc>
-<helmet>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-  <style>
-    @keyframes pixelShimmer{0%,49%{outline-color:#000000}50%,100%{outline-color:#ffffff}}
-    *{box-sizing:border-box}
-    @keyframes coinGlowPulse{0%,100%{outline-color:rgba(255,255,255,.7)}50%{outline-color:rgba(255,255,255,1)}}
-  </style>
-</helmet>
-<div style="position:relative;width:100%;max-width:900px;background:#c0c0c0;border:6px solid #1a1a1a;clip-path:polygon(6% 0,94% 0,100% 6%,100% 94%,94% 100%,6% 100%,0 94%,0 6%);box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,0 0 0 4px #808080,0 0 0 10px #1a1a1a,5px 5px 0 #000;padding:32px;display:flex;align-items:center;gap:24px">
-
-  <div onClick="{{ onClear }}" style="flex:none;background:{{ clearBg }};color:{{ clearColor }};font-family:'Press Start 2P',monospace;font-size:11px;padding:14px 18px;border:3px solid #1a1a1a;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);cursor:{{ clearCursor }};transition:transform 150ms ease;white-space:nowrap" style-hover="transform:scale(1.04);outline:2px solid #000;outline-offset:2px;animation:pixelShimmer .5s steps(2,jump-none) infinite">CLEAR</div>
-
-  <div onClick="{{ onTableClick }}" style="flex:1;min-height:220px;border:3px solid #1a1a1a;clip-path:polygon(15% 0,85% 0,100% 15%,100% 85%,85% 100%,15% 100%,0 85%,0 15%);background:{{ surfaceBg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px;transform:{{ trapdoorTransform }};opacity:{{ trapdoorOpacity }};transition:transform 500ms ease-in-out,opacity 500ms ease-in-out">
-
-    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ true }}">
-      <div style="font-size:14px;color:#666">No coins on the table</div>
-    </sc-if>
-
-    <sc-if value="{{ hasBackRow }}" hint-placeholder-val="{{ false }}">
-      <div style="display:flex;gap:44px;align-items:flex-end;justify-content:center">
-        <sc-for list="{{ backRow }}" as="p" hint-placeholder-count="4">
-          <div onClick="{{ p.onClick }}" style="cursor:pointer">
-            <dc-import name="CoinStack" denom="{{ p.denom }}" count="{{ p.count }}" selected="{{ p.isSelected }}"></dc-import>
-          </div>
-        </sc-for>
-      </div>
-    </sc-if>
-
-    <sc-if value="{{ hasFrontRow }}" hint-placeholder-val="{{ false }}">
-      <div style="display:flex;gap:44px;align-items:flex-end;justify-content:center">
-        <sc-for list="{{ frontRow }}" as="p" hint-placeholder-count="4">
-          <div onClick="{{ p.onClick }}" style="cursor:pointer">
-            <dc-import name="CoinStack" denom="{{ p.denom }}" count="{{ p.count }}" selected="{{ p.isSelected }}"></dc-import>
-          </div>
-        </sc-for>
-      </div>
-    </sc-if>
-  </div>
-
-  <div style="flex:none;text-align:right">
-    <div style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#808080;margin-bottom:6px">Total Bet</div>
-    <div style="font-size:22px;font-weight:800;color:#404040">{{ betTotalFormatted }}</div>
+<div style="{{ outerStyle }}">
+  <div style="{{ innerStyle }}">
+    <div style="{{ contentStyle }}">{{ children }}</div>
   </div>
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:900,&quot;height&quot;:300},&quot;piles&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;Array&lt;{denom:number,count:number}&gt;&quot;},&quot;betTotalFormatted&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;$0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;onClear&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onTableClick&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onPileClick&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(denom:number) =&gt; void&quot;},&quot;selectedTableDenom&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;number|null&quot;},&quot;locked&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;trapdoorState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;up&quot;,&quot;options&quot;:[&quot;up&quot;,&quot;down&quot;],&quot;tsType&quot;:&quot;string&quot;}}">
-function formatMoney(v){ return '$' + v.toLocaleString('en-US'); }
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:220,&quot;height&quot;:120},&quot;bg&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;#c0c0c0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;outlineColor&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;#000000&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;bevel&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;padding&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;12px&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dropShadow&quot;:{&quot;editor&quot;:&quot;number&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;},&quot;pixel&quot;:{&quot;editor&quot;:&quot;number&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;any&quot;}}">
+// PIXEL-STEPPED ROUNDED PANEL, adapted from NES.css's proven technique.
+// Produces a rectangle whose corners are cut in an 8-bit staircase (not a
+// smooth radius, not a diagonal cut) with a real solid outline that
+// follows the staircase, plus optional Windows-95-style inset bevel
+// highlights and a hard drop-shadow.
+//
+// TECHNIQUE (the one real pixel-CSS toolkits use):
+//   Layer 1: draw the FILL as a plus-sign of two overlapping rectangles
+//            (a wide short one + a tall narrow one) using box-shadow's
+//            spread parameter to inset the corners by exactly "pixel"
+//            pixels. This produces a rectangle with square-notched
+//            corners, no border yet.
+//   Layer 2: draw the OUTLINE as four thin rectangles hugging each side,
+//            plus four tiny corner "stub" pixels stepping in one further.
+//            Every step happens at a whole-pixel offset, so the corner
+//            reads as a real staircase, not an anti-aliased curve.
+//
+// The inner div holds this whole illusion; the outermost div carries any
+// drop-shadow (which needs to sit outside the clipped area). The content
+// div wraps children with padding so text doesn't collide with the
+// notched corners.
+function buildInnerStyle(bg, outlineColor, bevel, pixel){
+  const p = pixel;
+  const layers = [];
+  // FILL PLUS-SIGN: inset the fill horizontally on the top/bottom row of
+  // pixels, and inset it vertically on the left/right column of pixels.
+  // Because "inset by p" via negative spread only exists via box-shadow,
+  // we use TWO shadows of the fill color offset outward by p, with
+  // negative spread p, which yields the vertical+horizontal expansion.
+  layers.push('0 ' + (-p) + 'px 0 0 ' + bg);       // top slab
+  layers.push('0 ' + p + 'px 0 0 ' + bg);          // bottom slab
+  layers.push((-p) + 'px 0 0 0 ' + bg);            // left slab
+  layers.push(p + 'px 0 0 0 ' + bg);               // right slab
+  // OUTLINE: same four directions but 2p out, in outline color, giving
+  // the staircase its final stepped border. Spread of -p keeps them
+  // stubby (only p thick), so the corners read as real steps.
+  layers.push('0 ' + (-2 * p) + 'px 0 ' + (-p) + 'px ' + outlineColor);
+  layers.push('0 ' + (2 * p) + 'px 0 ' + (-p) + 'px ' + outlineColor);
+  layers.push((-2 * p) + 'px 0 0 ' + (-p) + 'px ' + outlineColor);
+  layers.push((2 * p) + 'px 0 0 ' + (-p) + 'px ' + outlineColor);
+  // OUTLINE SIDE-STRIPS: one-pixel-thick strips hugging each straight
+  // portion of the edge (spanning the middle, avoiding the corners).
+  layers.push('0 ' + (-p) + 'px 0 0 ' + outlineColor);   // sits ON the fill's top slab
+  layers.push('0 ' + p + 'px 0 0 ' + outlineColor);      // sits ON the fill's bottom slab
+  layers.push((-p) + 'px 0 0 0 ' + outlineColor);        // sits ON the fill's left slab
+  layers.push(p + 'px 0 0 0 ' + outlineColor);           // sits ON the fill's right slab
+
+  // Optional inset bevel (thin highlight strips just inside the fill).
+  // Purely decorative; disable with bevel:false for flatter looks.
+  if(bevel){
+    layers.push('inset 0 ' + p + 'px 0 0 rgba(255,255,255,.6)');
+    layers.push('inset ' + p + 'px 0 0 0 rgba(255,255,255,.6)');
+    layers.push('inset 0 ' + (-p) + 'px 0 0 rgba(0,0,0,.28)');
+    layers.push('inset ' + (-p) + 'px 0 0 0 rgba(0,0,0,.28)');
+  }
+  return 'position:relative;background:' + bg + ';box-shadow:' + layers.join(', ');
+}
 
 class Component extends DCLogic {
   renderVals(){
-    const piles = (this.props.piles || []).filter(p => p.count > 0).sort((a,b) => a.denom - b.denom);
-    const locked = !!this.props.locked;
-    const onPileClick = this.props.onPileClick || (() => {});
-    const selectedDenom = this.props.selectedTableDenom;
+    const bg = this.props.bg || '#c0c0c0';
+    const outline = this.props.outlineColor || '#000000';
+    const bevel = this.props.bevel !== false;
+    const padding = this.props.padding || '12px';
+    const drop = typeof this.props.dropShadow === 'number' ? this.props.dropShadow : 3;
+    const pixel = Math.max(1, this.props.pixel || 4);
 
-    const built = piles.map(p => ({
-      denom: p.denom, count: p.count, isSelected: selectedDenom === p.denom,
-      onClick: locked ? (() => {}) : ((e) => { if(e && e.stopPropagation) e.stopPropagation(); onPileClick(p.denom); })
-    }));
-    const backRow = built.slice(0, 4);
-    const frontRow = built.slice(4, 8);
-
+    // Outer wrapper: reserves space for the pixel-outline that sits OUTSIDE
+    // the inner box (via non-inset box-shadows), plus room for the drop
+    // shadow. Without this margin the outline would visually overflow into
+    // adjacent siblings.
+    const margin = pixel * 2 + Math.max(drop, 0);
     return {
-      backRow, frontRow,
-      hasBackRow: backRow.length > 0,
-      hasFrontRow: frontRow.length > 0,
-      isEmpty: built.length === 0,
-      betTotalFormatted: this.props.betTotalFormatted || '$0',
-      onClear: locked ? (() => {}) : (this.props.onClear || (() => {})),
-      onTableClick: locked ? (() => {}) : (this.props.onTableClick || (() => {})),
-      clearBg: locked || built.length === 0 ? '#2a2a2a' : '#404040',
-      clearColor: locked || built.length === 0 ? '#777' : '#7b7b7b',
-      clearCursor: locked || built.length === 0 ? 'default' : 'pointer',
-      surfaceBg: this.props.surfaceBg || '#0a5c36',
-      trapdoorTransform: this.props.trapdoorState === 'down' ? 'translateY(40px)' : 'translateY(0)',
-      trapdoorOpacity: this.props.trapdoorState === 'down' ? 0 : 1
+      outerStyle: 'display:inline-block;padding:' + margin + 'px;box-sizing:border-box',
+      innerStyle: buildInnerStyle(bg, outline, bevel, pixel) +
+        (drop > 0 ? ',' + drop + 'px ' + drop + 'px 0 ' + (2 * pixel) + 'px ' + outline : ''),
+      contentStyle: 'position:relative;padding:' + padding + ';z-index:1'
     };
   }
 }
