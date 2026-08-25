@@ -209,7 +209,7 @@
 
       <div class="section-block">
         <h2>Table</h2>
-        <p class="felt-note">Tap a spot to place a chip, tap the chip to take one back.</p>
+        <p class="felt-note">Left-click (or tap) a spot to place a chip &middot; right-click (or tap the chip) to take one back.</p>
         <div class="roulette-mat">
           <div class="table-zone zone-green zero-col" id="zeroZone" data-num="0">0</div>
           <div class="numbers-grid" id="numbersGrid"></div>
@@ -351,6 +351,12 @@
     history.push({number:winNumber, color});
 
     spinning = false;
+    // Every roulette bet is single-spin, so the table gets swept clean for
+    // the next round — just like a real table. straightNumber is kept (not
+    // nulled) so this round's outcome badge can still render on the number
+    // that was played, even though its stake is now back to zero.
+    bets = {red:0, black:0, odd:0, even:0, low:0, high:0};
+    straightBet = 0;
     renderAll({results, straightResult, winNumber, color});
   }
 
@@ -417,13 +423,19 @@
     if(result) el.classList.add(result.outcome);
 
     const isActive = straightNumber===n && straightBet>0;
-    const chip = buildChip(isActive?straightBet:0, ()=>{
+    const removeChip = ()=>{
+      if(spinning) return;
       straightBet = Math.max(0, straightBet-5);
       if(straightBet===0) straightNumber = null;
       renderAll();
-    });
+    };
+    const chip = buildChip(isActive?straightBet:0, removeChip);
     if(chip) el.appendChild(chip);
-    const badge = buildOutcomeBadge(isActive?result:null);
+    // Badge visibility only depends on whether this number was the one
+    // played (already guaranteed by the caller), not on the live stake —
+    // straightBet is zeroed right after a spin so the table resets, but the
+    // result badge should still show.
+    const badge = buildOutcomeBadge(result);
     if(badge) el.appendChild(badge);
 
     el.addEventListener('click', ()=>{
@@ -435,6 +447,10 @@
         if(straightBet===0) straightBet = 5;
       }
       renderAll();
+    });
+    el.addEventListener('contextmenu', (e)=>{
+      e.preventDefault();
+      if(straightNumber===n) removeChip();
     });
   }
 
@@ -465,10 +481,12 @@
       label.textContent = name;
       el.appendChild(label);
 
-      const chip = buildChip(bet, ()=>{
+      const removeChip = ()=>{
+        if(spinning) return;
         bets[key] = Math.max(0, bets[key]-5);
         renderAll();
-      });
+      };
+      const chip = buildChip(bet, removeChip);
       if(chip) el.appendChild(chip);
       const badge = buildOutcomeBadge(result);
       if(badge) el.appendChild(badge);
@@ -477,6 +495,10 @@
         if(spinning) return;
         bets[key] += 5;
         renderAll();
+      });
+      el.addEventListener('contextmenu', (e)=>{
+        e.preventDefault();
+        removeChip();
       });
       el.title = sub;
       container.appendChild(el);
