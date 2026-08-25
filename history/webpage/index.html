@@ -28,6 +28,10 @@
 --baccaratpractice-active: #155650;
 --baccarathelp: #96731f;
 --baccarathelp-active: #7a5c19;
+--crapspractice: #9c4a1f;
+--crapspractice-active: #813c19;
+--roulettepractice: #7a1f3d;
+--roulettepractice-active: #631831;
 --gold: #d9b65a;
 --radius: 22px;
 }
@@ -230,6 +234,43 @@ background: linear-gradient(180deg, #614a14 0%, var(--baccarathelp-active) 100%)
 color: #faf1dd;
 }
 
+/* ---- Craps Practice tile ---- */
+.tile--crapspractice{
+background: linear-gradient(180deg, #7a3a17 0%, var(--crapspractice) 100%);
+border-color: #c4763c;
+}
+.tile--crapspractice:hover{
+background: linear-gradient(180deg, #86411a 0%, #ac5525 100%);
+border-color: #d6864a;
+}
+.tile--crapspractice.is-pressed{
+background: linear-gradient(180deg, #602c12 0%, var(--crapspractice-active) 100%);
+}
+.tile--crapspractice .label{
+color: #faf0e6;
+}
+
+/* ---- Roulette Practice tile ---- */
+.tile--roulettepractice{
+background: linear-gradient(180deg, #5c1730 0%, var(--roulettepractice) 100%);
+border-color: #a83a5e;
+}
+.tile--roulettepractice:hover{
+background: linear-gradient(180deg, #661a35 0%, #8c2347 100%);
+border-color: #c14b73;
+}
+.tile--roulettepractice.is-pressed{
+background: linear-gradient(180deg, #481226 0%, var(--roulettepractice-active) 100%);
+}
+.tile--roulettepractice .label{
+color: #fbe9ef;
+}
+
+.icon{
+font-size: 34px;
+line-height: 1;
+}
+
 .cards{
 position: relative;
 width: 58px;
@@ -363,6 +404,16 @@ letter-spacing: 0.02em;
 <div class="card right heart">J</div>
 </div>
 <span class="label">Baccarat Help</span>
+</a>
+
+<a class="tile tile--crapspractice" href="https://aedin-ctrl.github.io/crapspractice/" aria-label="Craps Practice">
+<div class="icon">🎲</div>
+<span class="label">Craps Practice</span>
+</a>
+
+<a class="tile tile--roulettepractice" href="https://aedin-ctrl.github.io/roulettepractice/" aria-label="Roulette Practice">
+<div class="icon">🎡</div>
+<span class="label">Roulette Practice</span>
 </a>
 
 <div class="tile tile--empty" aria-disabled="true">
