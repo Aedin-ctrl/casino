@@ -175,27 +175,62 @@
   .result-banner.tie{border-color:var(--tie);color:var(--tie);}
 
   .felt-note{font-size:11.5px;color:var(--text-dim);margin:0 0 12px;line-height:1.5;}
-  .baccarat-mat{display:grid;grid-template-columns:0.65fr 1.3fr 0.9fr 1.3fr 0.65fr;gap:8px;}
-  @media (max-width:560px){ .baccarat-mat{grid-template-columns:1fr;} }
+
+  .felt-frame{
+    position:relative;
+    background:radial-gradient(ellipse at 50% 15%, #1d6b52 0%, #0e4a3a 55%, #0a3a2d 100%);
+    border:3px solid #b8912b;
+    border-radius:22px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.35), inset 0 2px 18px rgba(0,0,0,.4);
+    padding:34px 18px 22px;
+  }
+  .felt-label{
+    position:absolute;top:10px;left:50%;transform:translateX(-50%);
+    font-size:10px;font-weight:800;letter-spacing:.28em;
+    color:rgba(217,182,90,.75);text-transform:uppercase;
+  }
+  .baccarat-mat{display:grid;grid-template-columns:1.5fr 0.85fr 1.5fr;gap:16px;align-items:center;}
+  @media (max-width:560px){
+    .baccarat-mat{grid-template-columns:1fr;gap:26px 0;}
+    .felt-frame{padding:30px 14px 18px;}
+  }
+
+  .pb-group{position:relative;}
+
   .bacc-zone{
-    position:relative;border-radius:12px;border:1.5px solid var(--border);
-    padding:14px 8px;min-height:86px;display:flex;flex-direction:column;
+    position:relative;border-radius:16px 16px 8px 8px;border:1.5px solid var(--border);
+    padding:16px 8px;min-height:92px;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:4px;cursor:pointer;
     text-align:center;transition:filter .1s ease;color:#f4f2ec;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 6px 14px rgba(0,0,0,.3);
   }
   .bacc-zone:hover{filter:brightness(1.1);}
-  .bacc-zone .bacc-name{font-weight:800;font-size:13px;letter-spacing:.02em;}
+  .bacc-zone .bacc-name{font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;}
   .bacc-zone .bacc-sub{font-size:9.5px;color:rgba(244,242,236,.75);}
-  .bacc-zone.player{background:linear-gradient(180deg,#1d4d6a 0%,#173f57 100%);border-color:#3d7fa8;}
-  .bacc-zone.banker{background:linear-gradient(180deg,#63212d 0%,#4f1a24 100%);border-color:#9a3f4f;}
-  .bacc-zone.tie{background:linear-gradient(180deg,#7a5c19 0%,#614a14 100%);border-color:#c99b32;}
-  .bacc-zone.pair{background:var(--panel-2);color:var(--text);min-height:70px;}
-  .bacc-zone.pair .bacc-name{font-size:11px;}
-  .bacc-zone.pair .bacc-sub{color:var(--text-dim);}
-  .bacc-zone.won{box-shadow:0 0 0 2px var(--accent);}
-  .bacc-zone.lost{box-shadow:0 0 0 2px var(--lose);}
-  .bacc-zone.push{box-shadow:0 0 0 2px var(--tie);}
-  .bacc-zone.locked{cursor:not-allowed;filter:grayscale(.25);}
+  .bacc-zone.player{background:linear-gradient(180deg,#246185 0%,#173f57 100%);border-color:#4f96c4;}
+  .bacc-zone.banker{background:linear-gradient(180deg,#7a2a38 0%,#4f1a24 100%);border-color:#c1566a;}
+  .bacc-zone.tie{
+    background:linear-gradient(180deg,#8a6c1f 0%,#614a14 100%);border-color:#dcb54a;
+    min-height:64px;padding:10px 6px;border-radius:14px;
+  }
+  .bacc-zone.tie .bacc-name{font-size:12.5px;}
+
+  .pb-group .bacc-zone.pair{
+    position:absolute;top:-16px;
+    width:64px;min-height:0;height:40px;padding:2px 4px;
+    background:var(--panel-2);color:var(--text);
+    border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.4);
+    z-index:3;gap:0;
+  }
+  .pb-group.player-group .bacc-zone.pair{left:-10px;border-color:#4f96c4;}
+  .pb-group.banker-group .bacc-zone.pair{right:-10px;border-color:#c1566a;}
+  .pb-group .bacc-zone.pair .bacc-name{font-size:9.5px;letter-spacing:.02em;}
+  .pb-group .bacc-zone.pair .bacc-sub{font-size:8px;color:var(--text-dim);}
+
+  .bacc-zone.won{box-shadow:0 0 0 2px var(--accent), inset 0 1px 0 rgba(255,255,255,.12);}
+  .bacc-zone.lost{box-shadow:0 0 0 2px var(--lose), inset 0 1px 0 rgba(255,255,255,.12);}
+  .bacc-zone.push{box-shadow:0 0 0 2px var(--tie), inset 0 1px 0 rgba(255,255,255,.12);}
+  .bacc-zone.locked{cursor:not-allowed;filter:grayscale(.3);}
 
   .zone-chip{
     position:absolute;bottom:-8px;right:-8px;
@@ -203,15 +238,21 @@
     background:var(--tie);color:#241c05;border:2px solid var(--panel);
     display:flex;align-items:center;justify-content:center;
     font-size:10.5px;font-weight:800;box-shadow:0 2px 4px rgba(0,0,0,.5);
-    cursor:pointer;z-index:2;
+    cursor:pointer;z-index:4;
   }
+  .pb-group .bacc-zone.pair .zone-chip{width:20px;height:20px;font-size:9px;bottom:-6px;right:-6px;}
   .zone-chip:hover{filter:brightness(1.1);}
   .zone-outcome-badge{
     position:absolute;top:-9px;left:-6px;
     padding:2px 6px;border-radius:6px;
     font-size:10px;font-weight:800;white-space:nowrap;
-    box-shadow:0 2px 4px rgba(0,0,0,.5);z-index:2;
+    box-shadow:0 2px 4px rgba(0,0,0,.5);z-index:4;
   }
+  .pb-group .bacc-zone.pair .zone-outcome-badge{top:-8px;left:-8px;font-size:8.5px;padding:1px 4px;}
+  /* Player's pair box sits in its top-left corner, so Player's own outcome
+     badge needs to move aside to avoid overlapping it (Banker's pair sits
+     top-right, so Banker's badge is already clear on the left). */
+  .player-group > .bacc-zone.player .zone-outcome-badge{left:auto;right:-6px;}
   .zone-outcome-badge.won{background:var(--accent);color:#06110c;}
   .zone-outcome-badge.lost{background:var(--lose);color:#2a0106;}
   .zone-outcome-badge.push{background:var(--tie);color:#241c05;}
@@ -393,8 +434,11 @@
 
       <div class="section-block">
         <h2>Table</h2>
-        <p class="felt-note">Tap a spot to place a chip, tap the chip to take one back.</p>
-        <div class="baccarat-mat" id="baccaratMat"></div>
+        <p class="felt-note">Left-click (or tap) a spot to place a chip &middot; right-click (or tap the chip) to take one back.</p>
+        <div class="felt-frame">
+          <span class="felt-label">Baccarat</span>
+          <div class="baccarat-mat" id="baccaratMat"></div>
+        </div>
         <button class="btn-deal" id="dealBtn" disabled>Place a bet to deal</button>
       </div>
     </section>
@@ -475,12 +519,15 @@
   // ---------- Payouts ----------
   const PAYOUTS = {player:1, banker:0.95, tie:8, playerpair:11, bankerpair:11};
   const BET_META = [
-    {key:'playerpair', name:'Player Pair', sub:'Pays 11:1', kind:'pair'},
     {key:'player', name:'Player', sub:'Pays 1:1', kind:'player'},
     {key:'tie', name:'Tie', sub:'Pays 8:1', kind:'tie'},
-    {key:'banker', name:'Banker', sub:'Pays 1:1 (5% commission)', kind:'banker'},
-    {key:'bankerpair', name:'Banker Pair', sub:'Pays 11:1', kind:'pair'}
+    {key:'banker', name:'Banker', sub:'Pays 1:1 &middot; 5% comm.', kind:'banker'}
   ];
+  const PAIR_META = [
+    {key:'playerpair', name:'Pair', sub:'11:1', kind:'pair', group:'player-group'},
+    {key:'bankerpair', name:'Pair', sub:'11:1', kind:'pair', group:'banker-group'}
+  ];
+  const ALL_BET_KEYS = ['player','banker','tie','playerpair','bankerpair'];
 
   // ---------- State ----------
   let deckCount = 8;
@@ -546,7 +593,7 @@
 
     const results = {};
     let delta = 0;
-    BET_META.forEach(({key})=>{
+    ALL_BET_KEYS.forEach((key)=>{
       const bet = bets[key];
       if(bet<=0){ results[key]=null; return; }
       let outcome, amt;
@@ -576,6 +623,10 @@
     history.push({winner, playerPair, bankerPair});
     lastHand = {player, banker, playerFinal, bankerFinal, winner, playerPair, bankerPair, natural, results};
     stage = 'resolved';
+    // Every bet resolves this hand, so the table gets swept clean for the
+    // next one — just like a real table. lastHand.results (captured above)
+    // keeps the win/loss badges visible even though the stakes are now zero.
+    bets = {player:0, banker:0, tie:0, playerpair:0, bankerpair:0};
     renderAll();
   }
 
@@ -669,40 +720,61 @@
     return span;
   }
 
+  function buildBetZone({key, name, sub, kind}, locked){
+    const bet = bets[key];
+    const result = lastHand ? lastHand.results[key] : null;
+    const el = document.createElement('div');
+    el.className = 'bacc-zone ' + kind + (locked?' locked':'') + (result?' '+result.outcome:'');
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'bacc-name';
+    nameEl.textContent = name;
+    el.appendChild(nameEl);
+    const subEl = document.createElement('span');
+    subEl.className = 'bacc-sub';
+    subEl.innerHTML = sub;
+    el.appendChild(subEl);
+
+    const removeChip = ()=>{
+      if(locked) return;
+      bets[key] = Math.max(0, bets[key]-5);
+      renderAll();
+    };
+    const chip = buildChip(bet, removeChip);
+    if(chip) el.appendChild(chip);
+    const badge = buildOutcomeBadge(result);
+    if(badge) el.appendChild(badge);
+
+    el.addEventListener('click', ()=>{
+      if(locked) return;
+      bets[key] += 5;
+      renderAll();
+    });
+    el.addEventListener('contextmenu', (e)=>{
+      e.preventDefault();
+      removeChip();
+    });
+    return el;
+  }
+
   function renderBaccaratMat(){
     const container = document.getElementById('baccaratMat');
     container.innerHTML='';
     const locked = stage==='resolved';
-    BET_META.forEach(({key, name, sub, kind})=>{
-      const bet = bets[key];
-      const result = lastHand ? lastHand.results[key] : null;
-      const el = document.createElement('div');
-      el.className = 'bacc-zone ' + kind + (locked?' locked':'') + (result?' '+result.outcome:'');
 
-      const nameEl = document.createElement('span');
-      nameEl.className = 'bacc-name';
-      nameEl.textContent = name;
-      el.appendChild(nameEl);
-      const subEl = document.createElement('span');
-      subEl.className = 'bacc-sub';
-      subEl.textContent = sub;
-      el.appendChild(subEl);
+    const playerGroup = document.createElement('div');
+    playerGroup.className = 'pb-group player-group';
+    playerGroup.appendChild(buildBetZone(BET_META[0], locked));
+    playerGroup.appendChild(buildBetZone(PAIR_META[0], locked));
+    container.appendChild(playerGroup);
 
-      const chip = buildChip(bet, ()=>{
-        bets[key] = Math.max(0, bets[key]-5);
-        renderAll();
-      });
-      if(chip) el.appendChild(chip);
-      const badge = buildOutcomeBadge(result);
-      if(badge) el.appendChild(badge);
+    container.appendChild(buildBetZone(BET_META[1], locked));
 
-      el.addEventListener('click', ()=>{
-        if(locked) return;
-        bets[key] += 5;
-        renderAll();
-      });
-      container.appendChild(el);
-    });
+    const bankerGroup = document.createElement('div');
+    bankerGroup.className = 'pb-group banker-group';
+    bankerGroup.appendChild(buildBetZone(BET_META[2], locked));
+    bankerGroup.appendChild(buildBetZone(PAIR_META[1], locked));
+    container.appendChild(bankerGroup);
   }
 
   function renderDealBtn(){
