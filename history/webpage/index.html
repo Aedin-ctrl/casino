@@ -24,6 +24,10 @@
 --practice-active: #1c4763;
 --pokerpractice: #5b3b8c;
 --pokerpractice-active: #4a2f73;
+--baccaratpractice: #1c6b63;
+--baccaratpractice-active: #155650;
+--baccarathelp: #96731f;
+--baccarathelp-active: #7a5c19;
 --gold: #d9b65a;
 --radius: 22px;
 }
@@ -194,6 +198,38 @@ background: linear-gradient(180deg, #3a2860 0%, var(--pokerpractice-active) 100%
 color: #f0e9fa;
 }
 
+/* ---- Baccarat Practice tile ---- */
+.tile--baccaratpractice{
+background: linear-gradient(180deg, #164f49 0%, var(--baccaratpractice) 100%);
+border-color: #2c9186;
+}
+.tile--baccaratpractice:hover{
+background: linear-gradient(180deg, #1a5951 0%, #21796f 100%);
+border-color: #38a89b;
+}
+.tile--baccaratpractice.is-pressed{
+background: linear-gradient(180deg, #103e39 0%, var(--baccaratpractice-active) 100%);
+}
+.tile--baccaratpractice .label{
+color: #e7f5f2;
+}
+
+/* ---- Baccarat Help tile ---- */
+.tile--baccarathelp{
+background: linear-gradient(180deg, #7a5c19 0%, var(--baccarathelp) 100%);
+border-color: #c99b32;
+}
+.tile--baccarathelp:hover{
+background: linear-gradient(180deg, #86641c 0%, #a97e24 100%);
+border-color: #e0ac3a;
+}
+.tile--baccarathelp.is-pressed{
+background: linear-gradient(180deg, #614a14 0%, var(--baccarathelp-active) 100%);
+}
+.tile--baccarathelp .label{
+color: #faf1dd;
+}
+
 .cards{
 position: relative;
 width: 58px;
@@ -281,12 +317,12 @@ letter-spacing: 0.02em;
 </header>
 
 <div class="grid">
-<a class="tile tile--poker" href="https://aedin-ctrl.github.io/pokerhelp/" aria-label="Poker Help">
+<a class="tile tile--practice" href="https://aedin-ctrl.github.io/blackjackpractice/" aria-label="Blackjack Practice">
 <div class="cards">
-<div class="card left spade">&spades;</div>
-<div class="card right heart">&hearts;</div>
+<div class="card left spade">10</div>
+<div class="card right heart">9</div>
 </div>
-<span class="label">Poker Help</span>
+<span class="label">Blackjack Practice</span>
 </a>
 
 <a class="tile tile--blackjack" href="https://aedin-ctrl.github.io/blackjackhelp/" aria-label="Blackjack Help">
@@ -297,20 +333,36 @@ letter-spacing: 0.02em;
 <span class="label">Blackjack Help</span>
 </a>
 
-<a class="tile tile--practice" href="https://aedin-ctrl.github.io/blackjackpractice/" aria-label="Blackjack Practice">
-<div class="cards">
-<div class="card left spade">10</div>
-<div class="card right heart">9</div>
-</div>
-<span class="label">Blackjack Practice</span>
-</a>
-
 <a class="tile tile--pokerpractice" href="https://aedin-ctrl.github.io/pokerpractice/" aria-label="Poker Practice">
 <div class="cards">
 <div class="card left spade">K</div>
 <div class="card right heart">K</div>
 </div>
 <span class="label">Poker Practice</span>
+</a>
+
+<a class="tile tile--poker" href="https://aedin-ctrl.github.io/pokerhelp/" aria-label="Poker Help">
+<div class="cards">
+<div class="card left spade">&spades;</div>
+<div class="card right heart">&hearts;</div>
+</div>
+<span class="label">Poker Help</span>
+</a>
+
+<a class="tile tile--baccaratpractice" href="https://aedin-ctrl.github.io/baccaratpractice/" aria-label="Baccarat Practice">
+<div class="cards">
+<div class="card left spade">9</div>
+<div class="card right heart">Q</div>
+</div>
+<span class="label">Baccarat Practice</span>
+</a>
+
+<a class="tile tile--baccarathelp" href="https://aedin-ctrl.github.io/baccarathelp/" aria-label="Baccarat Help">
+<div class="cards">
+<div class="card left spade">8</div>
+<div class="card right heart">J</div>
+</div>
+<span class="label">Baccarat Help</span>
 </a>
 
 <div class="tile tile--empty" aria-disabled="true">
