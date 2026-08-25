@@ -38,6 +38,7 @@
     align-items:center;
     justify-content:space-between;
     margin-bottom:28px;
+    gap:12px;
   }
   header h1{
     font-size:22px;
@@ -45,6 +46,7 @@
     letter-spacing:-0.01em;
     margin:0;
   }
+  .header-btns{display:flex;gap:8px;}
   .btn-reset{
     background:transparent;
     border:1px solid var(--border);
@@ -60,6 +62,7 @@
     border-color:var(--lose);
     color:var(--lose);
   }
+  .btn-settings:hover{border-color:var(--accent);color:var(--text);}
   .layout{
     display:grid;
     grid-template-columns:1fr 320px;
@@ -282,6 +285,73 @@
     line-height:1.5;
   }
 
+  .shoe-stats{display:flex;flex-direction:column;gap:8px;}
+  .shoe-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .shoe-row b{color:var(--text);font-size:14px;}
+  .shoe-row b.hot{color:var(--accent);}
+  .shoe-row b.cold{color:var(--lose);}
+  .btn-shuffle{
+    width:100%;
+    margin-top:10px;
+    padding:9px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text-dim);
+    font-weight:700;
+    font-size:12.5px;
+    cursor:pointer;
+  }
+  .btn-shuffle:hover{border-color:var(--accent);color:var(--text);}
+
+  .dealer-reveal-block{
+    margin-top:18px;
+    padding:16px;
+    border-radius:12px;
+    background:var(--panel-2);
+    border:1.5px solid var(--accent);
+  }
+  .dealer-reveal-block.hidden{display:none;}
+  .dealer-reveal-block h3{
+    margin:0 0 12px;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    font-weight:700;
+  }
+  .dealer-reveal-block .card-row{margin-bottom:12px;}
+  .dealer-reveal-block .card-slot{width:60px;height:84px;}
+  .dealer-reveal-block .card-slot .card-rank{font-size:22px;}
+  .dealer-reveal-block .card-slot .card-suit{font-size:16px;}
+  .reveal-btn-row{display:flex;gap:8px;}
+  .btn-add-card, .btn-finish-hand{
+    padding:10px 14px;
+    border-radius:8px;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-add-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text-dim);
+  }
+  .btn-add-card:hover{border-color:var(--accent);color:var(--text);}
+  .btn-finish-hand{
+    flex:1;
+    background:var(--accent);
+    border:none;
+    color:#06110c;
+  }
+  .btn-finish-hand:hover{background:#2ade9c;}
+
   .modal-overlay{
     position:fixed;
     inset:0;
@@ -391,6 +461,21 @@
   }
   .btn-clear:hover{border-color:var(--lose);color:var(--lose);}
 
+  .setting-block{margin-bottom:22px;}
+  .setting-block:last-child{margin-bottom:0;}
+  .setting-label{
+    font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--text-dim);font-weight:700;margin:0 0 10px;
+  }
+  .seg{display:flex;gap:6px;}
+  .seg-btn{
+    flex:1;padding:10px 6px;border-radius:8px;
+    border:1.5px solid var(--border);background:var(--panel-2);
+    color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;
+  }
+  .seg-btn.active{border-color:var(--accent);color:var(--text);background:rgba(34,197,139,.12);}
+  .setting-note{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:10px 0 0;}
+
   @media (max-width: 520px){
     .app{padding:16px 12px 40px;}
     header{margin-bottom:20px;}
@@ -412,7 +497,10 @@
 <div class="app">
   <header>
     <h1>Blackjack Helper</h1>
-    <button class="btn-reset" id="resetBtn">Reset</button>
+    <div class="header-btns">
+      <button class="btn-reset btn-settings" id="settingsBtn">Settings</button>
+      <button class="btn-reset" id="resetBtn">Reset</button>
+    </div>
   </header>
 
   <div class="layout">
@@ -435,6 +523,15 @@
           <button class="action-btn" id="btnSplit">Split</button>
           <button class="action-btn" id="btnInsurance">Insurance</button>
           <button class="action-btn" id="btnSurrender">Surrender</button>
+        </div>
+
+        <div class="dealer-reveal-block hidden" id="dealerRevealBlock">
+          <h3>Dealer's Remaining Cards (for accurate count)</h3>
+          <div class="card-row" id="dealerExtraRow"></div>
+          <div class="reveal-btn-row">
+            <button class="btn-add-card" id="addDealerCardBtn">+ Add Card</button>
+            <button class="btn-finish-hand" id="finishHandBtn">Finish Hand — Next</button>
+          </div>
         </div>
       </div>
     </section>
@@ -480,6 +577,16 @@
           <p class="placeholder">Select both hole cards and dealer's up card</p>
         </div>
       </div>
+
+      <div class="panel-block">
+        <h2>Shoe</h2>
+        <div class="shoe-stats">
+          <div class="shoe-row"><span>Running Count</span><b id="runningCountVal">0</b></div>
+          <div class="shoe-row"><span>True Count</span><b id="trueCountVal">0.0</b></div>
+          <div class="shoe-row"><span>Cards Left</span><b id="cardsLeftVal">312 / 312</b></div>
+        </div>
+        <button class="btn-shuffle" id="shuffleBtn">Shuffle Shoe</button>
+      </div>
     </aside>
   </div>
 </div>
@@ -502,6 +609,28 @@
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="settingsOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Settings</h3>
+      <button class="modal-close" id="settingsClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="setting-block">
+        <p class="setting-label">Shoe Size (Decks)</p>
+        <div class="seg" id="deckSeg">
+          <button class="seg-btn" data-val="1">1</button>
+          <button class="seg-btn" data-val="2">2</button>
+          <button class="seg-btn" data-val="4">4</button>
+          <button class="seg-btn active" data-val="6">6</button>
+          <button class="seg-btn" data-val="8">8</button>
+        </div>
+        <p class="setting-note">Changing deck count reshuffles the shoe and clears the current hand.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   "use strict";
@@ -514,6 +643,8 @@
   function suitColor(s){ return (s==='H'||s==='D') ? 'red' : 'black'; }
   function rankDisplay(r){ return r<=10 ? String(r) : {11:'J',12:'Q',13:'K',14:'A'}[r]; }
   function dealerBucket(r){ if(r===14) return 11; if(r>=10) return 10; return r; }
+  function hiLoValue(r){ if(r>=2 && r<=6) return 1; if(r>=7 && r<=9) return 0; return -1; }
+  function cardKey(c){ return c.r+'_'+c.s; }
 
   // ---------- Hand value ----------
   function handValue(cards){
@@ -561,10 +692,6 @@
     11: {2:'P',3:'P',4:'P',5:'P',6:'P',7:'P',8:'P',9:'P',10:'P',11:'P'}
   };
 
-  function actionWord(code){
-    return {H:'HIT',S:'STAND',D:'DOUBLE DOWN',P:'SPLIT',R:'SURRENDER'}[code] || 'HIT';
-  }
-
   function recommend(cards, dealerR, canSplit, canDouble, canSurrender){
     const dB = dealerBucket(dealerR);
 
@@ -606,15 +733,22 @@
     return {action: act==='S' ? 'STAND' : (act==='P' ? 'STAND' : 'HIT'), reason};
   }
 
-  // ---------- Dealer outcome simulation ----------
-  function buildDeck(){
+  // ---------- Shoe / deck helpers (multi-deck aware) ----------
+  function buildMultiDeck(n){
     const deck=[];
-    for(let r=2;r<=14;r++) for(const s of SUITS) deck.push({r,s});
+    for(let d=0; d<n; d++){
+      for(let r=2;r<=14;r++) for(const s of SUITS) deck.push({r,s});
+    }
     return deck;
   }
-  function removeUsed(deck, used){
-    const usedKeys = new Set(used.map(c=>c.r+c.s));
-    return deck.filter(c=>!usedKeys.has(c.r+c.s));
+  // Removes exactly one physical instance per used card (correct for multi-deck shoes)
+  function removeUsedInstances(deck, used){
+    const remaining = deck.slice();
+    used.forEach(u=>{
+      const idx = remaining.findIndex(c=>c.r===u.r && c.s===u.s);
+      if(idx!==-1) remaining.splice(idx,1);
+    });
+    return remaining;
   }
   function shuffle(arr){
     const a=arr.slice();
@@ -624,9 +758,14 @@
     }
     return a;
   }
+  function occurrenceMap(cards){
+    const map={};
+    cards.forEach(c=>{ const k=cardKey(c); map[k]=(map[k]||0)+1; });
+    return map;
+  }
 
   function simulateDealer(playerTotal, dealerUpCard, knownCards, trials){
-    const baseDeck = removeUsed(buildDeck(), knownCards);
+    const baseDeck = removeUsedInstances(buildMultiDeck(deckCount), finalizedSeenCards.concat(knownCards));
     let win=0, push=0, lose=0;
     const outcomeCounts = {bust:0, 17:0, 18:0, 19:0, 20:0, 21:0};
 
@@ -635,9 +774,7 @@
       let ptr=0;
       const dealerCards = [dealerUpCard, deck[ptr++]];
       let dv = handValue(dealerCards);
-      while(dv.total<17 || (dv.total===17 && dv.soft===true && false)){
-        // dealer stands on all 17s (S17 rule): stop hitting once total>=17
-        if(dv.total>=17) break;
+      while(dv.total<17){
         dealerCards.push(deck[ptr++]);
         dv = handValue(dealerCards);
       }
@@ -662,20 +799,34 @@
   }
 
   // ---------- State ----------
+  let deckCount = 6;
+  let finalizedSeenCards = []; // cards removed from the shoe by completed hands (persists until shuffle)
   let dealerCard = null;
+  let dealerExtraCards = []; // dealer's hole card + hits, entered after your action completes
   let hands = [{ cards:[null,null], done:false, doubled:false, surrendered:false }];
   let activeHandIndex = 0;
-  let activeSlot = null; // {zone:'dealer'|'player', idx}
+  let activeSlot = null; // {zone:'dealer'|'player'|'dealerExtra', idx}
   let pendingSuit = 'S';
   let calcTimer = null;
 
   function activeHand(){ return hands[activeHandIndex]; }
 
+  function shuffleShoe(){
+    finalizedSeenCards = [];
+    renderShoeStats();
+  }
+
   function resetAll(){
     dealerCard = null;
+    dealerExtraCards = [];
     hands = [{ cards:[null,null], done:false, doubled:false, surrendered:false }];
     activeHandIndex = 0;
     renderAll();
+  }
+
+  function fullReset(){
+    finalizedSeenCards = [];
+    resetAll();
   }
 
   // ---------- Rendering ----------
@@ -726,6 +877,19 @@
     renderCardSlot(el, dealerCard);
   }
 
+  function renderDealerExtraRow(){
+    const container = document.getElementById('dealerExtraRow');
+    container.innerHTML='';
+    dealerExtraCards.forEach((c,i)=>{
+      const el = document.createElement('div');
+      el.className='card-slot';
+      el.dataset.zone='dealerExtra';
+      el.dataset.idx=i;
+      renderCardSlot(el, c);
+      container.appendChild(el);
+    });
+  }
+
   function renderHandTotal(){
     const el = document.getElementById('handTotal');
     const hand = activeHand();
@@ -758,6 +922,10 @@
     return !isBust;
   }
 
+  function allHandsDone(){
+    return hands.every(h=>h.done) && hands.some(h=>h.cards.filter(Boolean).length>0) && !!dealerCard;
+  }
+
   function renderActionButtons(){
     const hand = activeHand();
     const ready = hand.cards[0] && hand.cards[1];
@@ -773,6 +941,10 @@
     ['btnHit','btnStand','btnDouble','btnSplit','btnSurrender'].forEach(id=>{
       document.getElementById(id).classList.remove('recommended');
     });
+
+    const revealBlock = document.getElementById('dealerRevealBlock');
+    revealBlock.classList.toggle('hidden', !allHandsDone());
+    if(allHandsDone()) renderDealerExtraRow();
 
     const recBox = document.getElementById('recBox');
     const recAction = document.getElementById('recAction');
@@ -824,7 +996,7 @@
     }
 
     const otherHandsCards = hands.flatMap(h=> h===hand ? [] : h.cards.filter(Boolean));
-    const knownAll = known.concat([dealerCard]).concat(otherHandsCards);
+    const knownAll = known.concat([dealerCard]).concat(otherHandsCards).concat(dealerExtraCards.filter(Boolean));
     const result = simulateDealer(total, dealerCard, knownAll, 2000);
 
     winBar.style.width = result.win+'%';
@@ -849,12 +1021,31 @@
     `).join('');
   }
 
+  function renderShoeStats(){
+    const runningCount = finalizedSeenCards.reduce((sum,c)=>sum+hiLoValue(c.r),0);
+    const totalCards = deckCount*52;
+    const cardsLeft = Math.max(0, totalCards - finalizedSeenCards.length);
+    const decksRemaining = Math.max(cardsLeft/52, 0.5);
+    const trueCount = runningCount / decksRemaining;
+
+    const rcEl = document.getElementById('runningCountVal');
+    rcEl.textContent = (runningCount>0?'+':'')+runningCount;
+    rcEl.className = runningCount>0?'hot':(runningCount<0?'cold':'');
+
+    const tcEl = document.getElementById('trueCountVal');
+    tcEl.textContent = (trueCount>0?'+':'')+trueCount.toFixed(1);
+    tcEl.className = trueCount>0?'hot':(trueCount<0?'cold':'');
+
+    document.getElementById('cardsLeftVal').textContent = `${cardsLeft} / ${totalCards}`;
+  }
+
   function renderAll(){
     renderDealerRow();
     renderHandTabs();
     renderPlayerRow();
     renderHandTotal();
     renderActionButtons();
+    renderShoeStats();
     scheduleOdds();
   }
 
@@ -867,6 +1058,7 @@
   function allUsedCards(){
     const list = [];
     if(dealerCard) list.push(dealerCard);
+    dealerExtraCards.forEach(c=>{ if(c) list.push(c); });
     hands.forEach(h=> h.cards.forEach(c=>{ if(c) list.push(c); }));
     return list;
   }
@@ -875,18 +1067,21 @@
     const all = allUsedCards();
     let exclude = null;
     if(zone==='dealer') exclude = dealerCard;
+    else if(zone==='dealerExtra') exclude = dealerExtraCards[idx];
     else exclude = activeHand().cards[idx];
     if(!exclude) return all;
-    const exKey = exclude.r+exclude.s;
+    const exKey = cardKey(exclude);
     let removed = false;
     return all.filter(c=>{
-      if(!removed && c.r+c.s===exKey){ removed=true; return false; }
+      if(!removed && cardKey(c)===exKey){ removed=true; return false; }
       return true;
     });
   }
 
   function currentCardFor(zone, idx){
-    return zone==='dealer' ? dealerCard : activeHand().cards[idx];
+    if(zone==='dealer') return dealerCard;
+    if(zone==='dealerExtra') return dealerExtraCards[idx];
+    return activeHand().cards[idx];
   }
 
   function renderSuitPicker(current){
@@ -907,18 +1102,20 @@
   }
 
   function renderRankGrid(current){
-    const usedKeys = new Set(usedCardsExcluding(activeSlot.zone, activeSlot.idx).map(c=>c.r+c.s));
+    const otherVisible = usedCardsExcluding(activeSlot.zone, activeSlot.idx);
+    const occ = occurrenceMap(finalizedSeenCards.concat(otherVisible));
     const container = document.getElementById('rankGrid');
     container.className = 'rank-grid-2 '+suitColor(pendingSuit);
     container.innerHTML='';
     for(let r=2;r<=14;r++){
-      const key = r+pendingSuit;
+      const key = r+'_'+pendingSuit;
       const btn = document.createElement('button');
       btn.type='button';
       btn.className='rank-btn2';
       btn.textContent = rankDisplay(r);
       const isCurrent = current && current.r===r && current.s===pendingSuit;
-      if(usedKeys.has(key) && !isCurrent){
+      const usedCount = occ[key]||0;
+      if(usedCount>=deckCount && !isCurrent){
         btn.disabled=true; btn.classList.add('disabled');
       }
       if(isCurrent) btn.classList.add('selected');
@@ -946,6 +1143,8 @@
     const card={r,s};
     if(activeSlot.zone==='dealer'){
       dealerCard = card;
+    } else if(activeSlot.zone==='dealerExtra'){
+      dealerExtraCards[activeSlot.idx] = card;
     } else {
       const hand = activeHand();
       hand.cards[activeSlot.idx] = card;
@@ -961,6 +1160,7 @@
   function clearActive(){
     if(!activeSlot) return;
     if(activeSlot.zone==='dealer') dealerCard = null;
+    else if(activeSlot.zone==='dealerExtra') dealerExtraCards[activeSlot.idx] = null;
     else activeHand().cards[activeSlot.idx] = null;
     closeModal();
     renderAll();
@@ -996,8 +1196,6 @@
       renderAll();
     };
     openModal('player', idx);
-    const origSelect = selectCard;
-    // wrap one-time: after this card is picked, auto-stand
     const modalOverlay = document.getElementById('modalOverlay');
     const observer = new MutationObserver(()=>{
       if(modalOverlay.classList.contains('hidden')){
@@ -1037,6 +1235,35 @@
     if(nextIdx!==-1) activeHandIndex = nextIdx;
   }
 
+  function addDealerCard(){
+    dealerExtraCards.push(null);
+    renderAll();
+    openModal('dealerExtra', dealerExtraCards.length-1);
+  }
+
+  function finishHand(){
+    if(!allHandsDone()) return;
+    const thisHandCards = [dealerCard].concat(dealerExtraCards).concat(hands.flatMap(h=>h.cards.filter(Boolean)));
+    finalizedSeenCards = finalizedSeenCards.concat(thisHandCards.filter(Boolean));
+    resetAll();
+  }
+
+  // ---------- Settings ----------
+  function openSettings(){
+    document.getElementById('settingsOverlay').classList.remove('hidden');
+  }
+  function closeSettings(){
+    document.getElementById('settingsOverlay').classList.add('hidden');
+  }
+  function setDeckCount(n){
+    if(n===deckCount) return;
+    deckCount = n;
+    document.querySelectorAll('#deckSeg .seg-btn').forEach(b=>{
+      b.classList.toggle('active', Number(b.dataset.val)===n);
+    });
+    fullReset();
+  }
+
   // ---------- Events ----------
   document.getElementById('table').addEventListener('click', (e)=>{
     const slot = e.target.closest('.card-slot');
@@ -1059,7 +1286,20 @@
   document.getElementById('btnInsurance').addEventListener('click', doInsurance);
   document.getElementById('btnSurrender').addEventListener('click', doSurrender);
 
-  document.getElementById('resetBtn').addEventListener('click', resetAll);
+  document.getElementById('addDealerCardBtn').addEventListener('click', addDealerCard);
+  document.getElementById('finishHandBtn').addEventListener('click', finishHand);
+
+  document.getElementById('resetBtn').addEventListener('click', fullReset);
+  document.getElementById('shuffleBtn').addEventListener('click', shuffleShoe);
+
+  document.getElementById('settingsBtn').addEventListener('click', openSettings);
+  document.getElementById('settingsClose').addEventListener('click', closeSettings);
+  document.getElementById('settingsOverlay').addEventListener('click', (e)=>{
+    if(e.target.id==='settingsOverlay') closeSettings();
+  });
+  document.getElementById('deckSeg').querySelectorAll('.seg-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> setDeckCount(Number(btn.dataset.val)));
+  });
 
   // ---------- Init ----------
   renderAll();
