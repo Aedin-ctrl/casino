@@ -22,6 +22,8 @@
 --blackjack-active: #64232f;
 --practice: #24567a;
 --practice-active: #1c4763;
+--pokerpractice: #5b3b8c;
+--pokerpractice-active: #4a2f73;
 --gold: #d9b65a;
 --radius: 22px;
 }
@@ -176,6 +178,22 @@ background: linear-gradient(180deg, #163d57 0%, var(--practice-active) 100%);
 color: #eaf2f7;
 }
 
+/* ---- Poker Practice tile ---- */
+.tile--pokerpractice{
+background: linear-gradient(180deg, #4a3272 0%, var(--pokerpractice) 100%);
+border-color: #7d5cb3;
+}
+.tile--pokerpractice:hover{
+background: linear-gradient(180deg, #513879 0%, #6a4599 100%);
+border-color: #9670cc;
+}
+.tile--pokerpractice.is-pressed{
+background: linear-gradient(180deg, #3a2860 0%, var(--pokerpractice-active) 100%);
+}
+.tile--pokerpractice .label{
+color: #f0e9fa;
+}
+
 .cards{
 position: relative;
 width: 58px;
@@ -285,6 +303,14 @@ letter-spacing: 0.02em;
 <div class="card right heart">9</div>
 </div>
 <span class="label">Blackjack Practice</span>
+</a>
+
+<a class="tile tile--pokerpractice" href="https://aedin-ctrl.github.io/pokerpractice/" aria-label="Poker Practice">
+<div class="cards">
+<div class="card left spade">K</div>
+<div class="card right heart">K</div>
+</div>
+<span class="label">Poker Practice</span>
 </a>
 
 <div class="tile tile--empty" aria-disabled="true">
