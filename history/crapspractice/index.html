@@ -194,7 +194,7 @@
 
       <div class="section-block">
         <h2>Table</h2>
-        <p class="felt-note">Tap a spot to place a chip, tap the chip to take one back.</p>
+        <p class="felt-note">Left-click (or tap) a spot to place a chip &middot; right-click (or tap the chip) to take one back.</p>
         <div class="craps-mat" id="crapsMat">
           <div class="craps-zone zone-dontpass" id="zoneDontPass">
             <span class="craps-name">Don't Pass Bar</span>
@@ -294,6 +294,7 @@
         msg = 'Craps! Pass Line loses.';
       } else if(sum===12){
         if(bets.pass>0){ passDelta = -bets.pass; passResolved=true; }
+        if(bets.dontpass>0){ dpDelta = 0; dpResolved=true; }
         category='lose';
         msg = "Craps (12)! Pass Line loses, Don't Pass pushes.";
       } else {
@@ -356,6 +357,12 @@
         document.getElementById('die1').classList.remove('shaking');
         document.getElementById('die2').classList.remove('shaking');
         const result = resolveRoll(finalD1+finalD2);
+        // Field is a one-roll bet, so it's swept every roll like a real
+        // table. Pass/Don't Pass only get swept once they actually resolve
+        // (win, lose, or push) — otherwise they're still riding on the point.
+        bets.field = 0;
+        if(result.passResolved) bets.pass = 0;
+        if(result.dpResolved) bets.dontpass = 0;
         rolling = false;
         renderAll(result, finalD1+finalD2);
       }
@@ -441,23 +448,35 @@
         el.classList.add(outcome);
       }
 
-      const chip = buildChip(bets[key], ()=>{
-        if(isLocked) return;
-        bets[key] = Math.max(0, bets[key]-5);
-        renderAll();
-      });
+      const chip = buildChip(bets[key], ()=> removeBetChip(key));
       if(chip) el.appendChild(chip);
       const badge = buildOutcomeBadge(outcome, delta);
       if(badge) el.appendChild(badge);
     });
   }
 
+  function isZoneLocked(lockable){
+    return rolling || (lockable && phase==='point');
+  }
+
+  function removeBetChip(key){
+    const {lockable} = BET_META.find(b=>b.key===key);
+    if(isZoneLocked(lockable)) return;
+    bets[key] = Math.max(0, bets[key]-5);
+    renderAll();
+  }
+
   function bindCrapsMatClicks(){
     BET_META.forEach(({key, zoneId, lockable})=>{
-      document.getElementById(zoneId).addEventListener('click', ()=>{
-        if(rolling || (lockable && phase==='point')) return;
+      const el = document.getElementById(zoneId);
+      el.addEventListener('click', ()=>{
+        if(isZoneLocked(lockable)) return;
         bets[key] += 5;
         renderAll();
+      });
+      el.addEventListener('contextmenu', (e)=>{
+        e.preventDefault();
+        removeBetChip(key);
       });
     });
   }
