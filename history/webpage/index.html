@@ -8,255 +8,281 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg: #19191c;
-    --tile: #232327;
-    --tile-hover: #29292e;
-    --tile-active: #1e1e22;
-    --border: #333338;
-    --text: #ececee;
-    --muted: #85858d;
-    --felt: #2f6e4f;
-    --felt-active: #285f44;
-    --gold: #d9b65a;
-    --radius: 22px;
-  }
+:root{
+--bg: #19191c;
+--tile: #232327;
+--tile-hover: #29292e;
+--tile-active: #1e1e22;
+--border: #333338;
+--text: #ececee;
+--muted: #85858d;
+--felt: #2f6e4f;
+--felt-active: #285f44;
+--blackjack: #7a2c3b;
+--blackjack-active: #64232f;
+--gold: #d9b65a;
+--radius: 22px;
+}
 
-  *{ box-sizing: border-box; }
+*{ box-sizing: border-box; }
 
-  html, body{
-    margin: 0;
-    padding: 0;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+html, body{
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--text);
+min-height: 100vh;
+}
 
-  body{
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 20px;
-  }
+body{
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 32px 20px;
+}
 
-  /* faint dot grid for texture, not blank */
-  body::before{
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image: radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px);
-    background-size: 22px 22px;
-    pointer-events: none;
-  }
+/* faint dot grid for texture, not blank */
+body::before{
+content: "";
+position: fixed;
+inset: 0;
+background-image: radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px);
+background-size: 22px 22px;
+pointer-events: none;
+}
 
-  main{
-    width: 100%;
-    max-width: 420px;
-    position: relative;
-  }
+main{
+width: 100%;
+max-width: 420px;
+position: relative;
+}
 
-  header{
-    margin-bottom: 36px;
-    text-align: left;
-  }
+header{
+margin-bottom: 36px;
+text-align: left;
+}
 
-  h1{
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-weight: 500;
-    font-size: clamp(2.1rem, 8vw, 2.6rem);
-    margin: 0 0 6px 0;
-    letter-spacing: -0.01em;
-    color: var(--text);
-  }
+h1{
+font-family: 'Fraunces', serif;
+font-style: italic;
+font-weight: 500;
+font-size: clamp(2.1rem, 8vw, 2.6rem);
+margin: 0 0 6px 0;
+letter-spacing: -0.01em;
+color: var(--text);
+}
 
-  header p{
-    margin: 0;
-    font-size: 0.92rem;
-    color: var(--muted);
-    letter-spacing: 0.01em;
-  }
+header p{
+margin: 0;
+font-size: 0.92rem;
+color: var(--muted);
+letter-spacing: 0.01em;
+}
 
-  .grid{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
+.grid{
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 16px;
+}
 
-  .tile{
-    position: relative;
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius);
-    background: var(--tile);
-    border: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    text-decoration: none;
-    color: var(--text);
-    overflow: hidden;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
-  }
+.tile{
+position: relative;
+aspect-ratio: 1 / 1;
+border-radius: var(--radius);
+background: var(--tile);
+border: 1px solid var(--border);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 12px;
+text-decoration: none;
+color: var(--text);
+overflow: hidden;
+cursor: pointer;
+-webkit-tap-highlight-color: transparent;
+transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
 
-  .tile:hover{
-    background: var(--tile-hover);
-    border-color: #3d3d43;
-  }
+.tile:hover{
+background: var(--tile-hover);
+border-color: #3d3d43;
+}
 
-  .tile:active,
-  .tile.is-pressed{
-    transform: scale(0.97);
-  }
+.tile:active,
+.tile.is-pressed{
+transform: scale(0.97);
+}
 
-  .tile:focus-visible{
-    outline: 2px solid var(--gold);
-    outline-offset: 3px;
-  }
+.tile:focus-visible{
+outline: 2px solid var(--gold);
+outline-offset: 3px;
+}
 
-  .tile .label{
-    font-size: 0.88rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-  }
+.tile .label{
+font-size: 0.88rem;
+font-weight: 500;
+letter-spacing: 0.01em;
+}
 
-  /* ---- Poker tile ---- */
-  .tile--poker{
-    background: linear-gradient(180deg, #26523d 0%, var(--felt) 100%);
-    border-color: #3a7a5b;
-  }
-  .tile--poker:hover{
-    background: linear-gradient(180deg, #29583f 0%, #316f4f 100%);
-    border-color: #47906b;
-  }
-  .tile--poker.is-pressed{
-    background: linear-gradient(180deg, #204837 0%, var(--felt-active) 100%);
-  }
-  .tile--poker .label{
-    color: #f1ead7;
-  }
+/* ---- Poker tile ---- */
+.tile--poker{
+background: linear-gradient(180deg, #26523d 0%, var(--felt) 100%);
+border-color: #3a7a5b;
+}
+.tile--poker:hover{
+background: linear-gradient(180deg, #29583f 0%, #316f4f 100%);
+border-color: #47906b;
+}
+.tile--poker.is-pressed{
+background: linear-gradient(180deg, #204837 0%, var(--felt-active) 100%);
+}
+.tile--poker .label{
+color: #f1ead7;
+}
 
-  .cards{
-    position: relative;
-    width: 58px;
-    height: 46px;
-  }
-  .card{
-    position: absolute;
-    top: 0;
-    width: 34px;
-    height: 46px;
-    background: #f7f4ec;
-    border-radius: 5px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.28);
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: 4px 0 0 5px;
-    font-family: 'Fraunces', serif;
-    font-weight: 500;
-    font-size: 13px;
-    line-height: 1;
-  }
-  .card.left{
-    left: 0;
-    transform: rotate(-9deg);
-    z-index: 1;
-  }
-  .card.right{
-    left: 20px;
-    transform: rotate(8deg);
-    z-index: 2;
-  }
-  .card.spade{ color: #2b2b2f; }
-  .card.heart{ color: #b3423a; }
+/* ---- Blackjack tile ---- */
+.tile--blackjack{
+background: linear-gradient(180deg, #63212d 0%, var(--blackjack) 100%);
+border-color: #9a3f4f;
+}
+.tile--blackjack:hover{
+background: linear-gradient(180deg, #6c2530 0%, #833240 100%);
+border-color: #b3505f;
+}
+.tile--blackjack.is-pressed{
+background: linear-gradient(180deg, #501a24 0%, var(--blackjack-active) 100%);
+}
+.tile--blackjack .label{
+color: #f1ead7;
+}
 
-  /* ---- Not yet tile ---- */
-  .tile--empty{
-    background: transparent;
-    border: 1.5px dashed var(--border);
-    cursor: default;
-  }
-  .tile--empty:hover{
-    background: transparent;
-    border-color: var(--border);
-  }
-  .tile--empty .label{
-    color: var(--muted);
-    font-style: italic;
-    font-family: 'Fraunces', serif;
-    font-size: 0.95rem;
-  }
-  .tile--empty .dots{
-    display: flex;
-    gap: 5px;
-  }
-  .tile--empty .dots span{
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #444449;
-  }
+.cards{
+position: relative;
+width: 58px;
+height: 46px;
+}
+.card{
+position: absolute;
+top: 0;
+width: 34px;
+height: 46px;
+background: #f7f4ec;
+border-radius: 5px;
+box-shadow: 0 3px 8px rgba(0,0,0,0.28);
+display: flex;
+align-items: flex-start;
+justify-content: flex-start;
+padding: 4px 0 0 5px;
+font-family: 'Fraunces', serif;
+font-weight: 500;
+font-size: 13px;
+line-height: 1;
+}
+.card.left{
+left: 0;
+transform: rotate(-9deg);
+z-index: 1;
+}
+.card.right{
+left: 20px;
+transform: rotate(8deg);
+z-index: 2;
+}
+.card.spade{ color: #2b2b2f; }
+.card.heart{ color: #b3423a; }
 
-  footer{
-    margin-top: 28px;
-    text-align: left;
-  }
-  footer p{
-    margin: 0;
-    font-size: 0.75rem;
-    color: #55555c;
-    letter-spacing: 0.02em;
-  }
+/* ---- Not yet tile ---- */
+.tile--empty{
+background: transparent;
+border: 1.5px dashed var(--border);
+cursor: default;
+}
+.tile--empty:hover{
+background: transparent;
+border-color: var(--border);
+}
+.tile--empty .label{
+color: var(--muted);
+font-style: italic;
+font-family: 'Fraunces', serif;
+font-size: 0.95rem;
+}
+.tile--empty .dots{
+display: flex;
+gap: 5px;
+}
+.tile--empty .dots span{
+width: 5px;
+height: 5px;
+border-radius: 50%;
+background: #444449;
+}
 
-  @media (prefers-reduced-motion: reduce){
-    .tile{ transition: none; }
-  }
+footer{
+margin-top: 28px;
+text-align: left;
+}
+footer p{
+margin: 0;
+font-size: 0.75rem;
+color: #55555c;
+letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce){
+.tile{ transition: none; }
+}
 </style>
 </head>
 <body>
 
 <main>
-  <header>
-    <h1>My Stuff</h1>
-    <p>A small shelf of things I've made.</p>
-  </header>
+<header>
+<h1>My Stuff</h1>
+<p>A small shelf of things I've made.</p>
+</header>
 
-  <div class="grid">
-    <a class="tile tile--poker" href="https://aedin-ctrl.github.io/pokerhelp/" aria-label="Poker Help">
-      <div class="cards">
-        <div class="card left spade">&spades;</div>
-        <div class="card right heart">&hearts;</div>
-      </div>
-      <span class="label">Poker Help</span>
-    </a>
+<div class="grid">
+<a class="tile tile--poker" href="https://aedin-ctrl.github.io/pokerhelp/" aria-label="Poker Help">
+<div class="cards">
+<div class="card left spade">&spades;</div>
+<div class="card right heart">&hearts;</div>
+</div>
+<span class="label">Poker Help</span>
+</a>
 
-    <div class="tile tile--empty" aria-disabled="true">
-      <div class="dots"><span></span><span></span><span></span></div>
-      <span class="label">Not yet</span>
-    </div>
-  </div>
+<a class="tile tile--blackjack" href="https://aedin-ctrl.github.io/blackjackhelp/" aria-label="Blackjack Help">
+<div class="cards">
+<div class="card left spade">A</div>
+<div class="card right heart">K</div>
+</div>
+<span class="label">Blackjack Help</span>
+</a>
 
-  <footer>
-    <p>More coming soon.</p>
-  </footer>
+<div class="tile tile--empty" aria-disabled="true">
+<div class="dots"><span></span><span></span><span></span></div>
+<span class="label">Not yet</span>
+</div>
+</div>
+
+<footer>
+<p>More coming soon.</p>
+</footer>
 </main>
 
 <script>
-  document.querySelectorAll('.tile[href]').forEach(function(tile){
-    tile.addEventListener('click', function(e){
-      e.preventDefault();
-      var href = tile.getAttribute('href');
-      tile.classList.add('is-pressed');
-      setTimeout(function(){
-        window.location.href = href;
-      }, 140);
-    });
-  });
+document.querySelectorAll('.tile[href]').forEach(function(tile){
+tile.addEventListener('click', function(e){
+e.preventDefault();
+var href = tile.getAttribute('href');
+tile.classList.add('is-pressed');
+setTimeout(function(){
+window.location.href = href;
+}, 140);
+});
+});
 </script>
 
 </body>
