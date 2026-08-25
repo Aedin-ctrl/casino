@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baccarat Helper</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A6%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b0d12;
+    --panel:#12151c;
+    --panel-2:#171b24;
+    --border:#232838;
+    --text:#e8eaf0;
+    --text-dim:#8b93a7;
+    --accent:#22c58b;
+    --accent-dim:#1a9c6d;
+    --lose:#e0475a;
+    --tie:#e0b545;
+    --red:#e0475a;
+    --black:#161821;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .app{
+    max-width:1100px;
+    margin:0 auto;
+    padding:24px 20px 60px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:28px;
+    gap:12px;
+  }
+  header h1{
+    font-size:22px;
+    font-weight:650;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .header-btns{display:flex;gap:8px;}
+  .btn-reset{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:8px 16px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .btn-reset:hover{
+    border-color:var(--lose);
+    color:var(--lose);
+  }
+  .btn-settings:hover{border-color:var(--accent);color:var(--text);}
+  .layout{
+    display:grid;
+    grid-template-columns:1fr 340px;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width: 860px){
+    .layout{grid-template-columns:1fr;}
+  }
+  .table, .odds-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:22px;
+  }
+  .section-block{margin-bottom:26px;}
+  .section-block:last-child{margin-bottom:0;}
+  .section-block h2, .panel-block h2{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .card-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .card-slot{
+    width:76px;
+    height:106px;
+    border-radius:10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    user-select:none;
+    transition:transform .12s ease, box-shadow .12s ease;
+    position:relative;
+    flex-shrink:0;
+  }
+  .card-slot:hover{transform:translateY(-3px);}
+  .card-slot.empty{
+    background:transparent;
+    border:2px dashed var(--border);
+  }
+  .card-slot.empty:hover{border-color:var(--accent-dim);}
+  .card-slot.empty .plus{
+    font-size:26px;
+    color:var(--text-dim);
+    font-weight:300;
+  }
+  .card-slot.filled{
+    background:#f4f2ec;
+    border:1px solid #d8d5cb;
+    box-shadow:0 6px 16px rgba(0,0,0,.35);
+  }
+  .card-slot .card-rank{
+    font-size:30px;
+    font-weight:700;
+    line-height:1;
+  }
+  .card-slot .card-suit{
+    font-size:22px;
+    line-height:1.3;
+  }
+  .card-rank.red, .card-suit.red{color:var(--red);}
+  .card-rank.black, .card-suit.black{color:var(--black);}
+
+  .hand-total{
+    font-size:13px;
+    color:var(--text-dim);
+    margin:10px 0 0;
+    font-weight:600;
+  }
+  .hand-total .val{color:var(--text);font-weight:700;font-size:15px;}
+  .hand-total .tag{
+    display:inline-block;
+    margin-left:8px;
+    padding:2px 8px;
+    border-radius:6px;
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .tag.natural{background:rgba(224,181,69,.16);color:var(--tie);}
+  .tag.winner{background:rgba(34,197,139,.16);color:var(--accent);}
+  .tag.pair{background:rgba(139,147,167,.16);color:var(--text-dim);}
+
+  .finish-block{
+    margin-top:22px;
+    padding:16px;
+    border-radius:12px;
+    background:var(--panel-2);
+    border:1.5px solid var(--accent);
+  }
+  .finish-block.hidden{display:none;}
+  .finish-block h3{
+    margin:0 0 12px;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    font-weight:700;
+  }
+  .btn-finish-hand{
+    width:100%;
+    padding:12px 14px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    background:var(--accent);
+    border:none;
+    color:#06110c;
+  }
+  .btn-finish-hand:hover{background:#2ade9c;}
+
+  .panel-block{margin-bottom:22px;}
+  .panel-block:last-child{margin-bottom:0;}
+  .rec-box{
+    text-align:center;
+    padding:18px 10px;
+    border-radius:12px;
+    background:var(--panel-2);
+    border:1.5px solid var(--accent);
+  }
+  .rec-box .rec-action{
+    font-size:24px;
+    font-weight:800;
+    color:var(--accent);
+    letter-spacing:.02em;
+  }
+  .rec-box .rec-sub{
+    font-size:12px;
+    color:var(--text-dim);
+    margin-top:4px;
+  }
+  .rec-box.neutral{border-color:var(--border);}
+  .rec-box.neutral .rec-action{color:var(--text-dim);font-size:15px;}
+
+  .bet-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 12px;
+    border-radius:10px;
+    background:var(--panel-2);
+    border:1.5px solid var(--border);
+    margin-bottom:8px;
+  }
+  .bet-row:last-child{margin-bottom:0;}
+  .bet-row.best{border-color:var(--accent);background:rgba(34,197,139,.1);}
+  .bet-name-wrap{display:flex;flex-direction:column;gap:2px;}
+  .bet-name{font-weight:700;font-size:13px;}
+  .bet-sub{font-size:11px;color:var(--text-dim);}
+  .bet-edge{font-weight:800;font-size:14px;text-align:right;}
+  .bet-edge.positive{color:var(--accent);}
+  .bet-edge.negative{color:var(--lose);}
+  .best-badge{
+    font-size:9px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--accent);
+    margin-left:6px;
+  }
+
+  .shoe-stats{display:flex;flex-direction:column;gap:8px;}
+  .shoe-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .shoe-row b{color:var(--text);font-size:14px;}
+  .btn-shuffle{
+    width:100%;
+    margin-top:10px;
+    padding:9px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text-dim);
+    font-weight:700;
+    font-size:12.5px;
+    cursor:pointer;
+  }
+  .btn-shuffle:hover{border-color:var(--accent);color:var(--text);}
+  .placeholder{
+    font-size:13px;
+    color:var(--text-dim);
+    margin:0;
+  }
+
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:16px;
+  }
+  .modal-overlay.hidden{display:none;}
+  .modal{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    width:100%;
+    max-width:460px;
+    max-height:88vh;
+    overflow:auto;
+  }
+  .modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 18px;
+    border-bottom:1px solid var(--border);
+  }
+  .modal-header h3{margin:0;font-size:15px;font-weight:650;}
+  .modal-close{
+    background:transparent;
+    border:none;
+    color:var(--text-dim);
+    font-size:22px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .modal-close:hover{color:var(--text);}
+  .modal-body{padding:18px;}
+  .picker-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    font-weight:700;
+    margin:0 0 10px;
+  }
+  .suit-picker{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .suit-btn{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:16px 4px;
+    border-radius:12px;
+    border:1.5px solid var(--border);
+    background:var(--panel-2);
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .suit-btn .symbol{font-size:28px;line-height:1;}
+  .suit-btn .name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);}
+  .suit-btn.black .symbol{color:var(--text);}
+  .suit-btn.red .symbol{color:var(--red);}
+  .suit-btn:hover{border-color:var(--accent);}
+  .suit-btn.active{border-color:var(--accent);background:rgba(34,197,139,.14);}
+  .suit-btn.active .name{color:var(--text);}
+  .rank-grid-2{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(58px,1fr));
+    gap:10px;
+  }
+  .rank-btn2{
+    height:56px;
+    border-radius:12px;
+    border:1.5px solid var(--border);
+    background:var(--panel-2);
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .rank-grid-2.black .rank-btn2{color:var(--text);}
+  .rank-grid-2.red .rank-btn2{color:var(--red);}
+  .rank-btn2:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);}
+  .rank-btn2.selected{background:var(--accent);border-color:var(--accent);color:#06110c;}
+  .rank-btn2.disabled{opacity:.25;cursor:not-allowed;}
+  .modal-footer{
+    padding:14px 18px 18px;
+    border-top:1px solid var(--border);
+  }
+  .btn-clear{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--text-dim);
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .btn-clear:hover{border-color:var(--lose);color:var(--lose);}
+
+  .setting-block{margin-bottom:22px;}
+  .setting-block:last-child{margin-bottom:0;}
+  .setting-label{
+    font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--text-dim);font-weight:700;margin:0 0 10px;
+  }
+  .seg{display:flex;gap:6px;}
+  .seg-btn{
+    flex:1;padding:10px 6px;border-radius:8px;
+    border:1.5px solid var(--border);background:var(--panel-2);
+    color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;
+  }
+  .seg-btn.active{border-color:var(--accent);color:var(--text);background:rgba(34,197,139,.12);}
+  .setting-note{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:10px 0 0;}
+
+  @media (max-width: 520px){
+    .app{padding:16px 12px 40px;}
+    header{margin-bottom:20px;}
+    header h1{font-size:19px;}
+    .table, .odds-panel{padding:16px;border-radius:14px;}
+    .card-row{gap:8px;}
+    .card-slot{width:58px;height:82px;border-radius:9px;}
+    .card-slot .card-rank{font-size:22px;}
+    .card-slot .card-suit{font-size:16px;}
+    .modal{max-width:100%;}
+    .modal-body{padding:16px;}
+    .suit-btn{padding:14px 2px;}
+    .rank-btn2{height:52px;font-size:17px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Baccarat Helper</h1>
+    <div class="header-btns">
+      <button class="btn-reset btn-settings" id="settingsBtn">Settings</button>
+      <button class="btn-reset" id="resetBtn">Reset</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <section class="table" id="table">
+      <div class="section-block">
+        <h2>Player</h2>
+        <div class="card-row" id="playerRow"></div>
+        <p class="hand-total" id="playerTotal"></p>
+      </div>
+      <div class="section-block">
+        <h2>Banker</h2>
+        <div class="card-row" id="bankerRow"></div>
+        <p class="hand-total" id="bankerTotal"></p>
+      </div>
+
+      <div class="finish-block hidden" id="finishBlock">
+        <h3>Hand Resolved</h3>
+        <button class="btn-finish-hand" id="finishHandBtn">Finish Hand — Next</button>
+      </div>
+    </section>
+
+    <aside class="odds-panel">
+      <div class="panel-block">
+        <h2>Recommendation</h2>
+        <div class="rec-box neutral" id="recBox">
+          <div class="rec-action" id="recAction">Select cards</div>
+          <div class="rec-sub" id="recSub">Enter cards as they're dealt, or check odds before betting</div>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <h2>Bet Edge</h2>
+        <div id="betRows">
+          <p class="placeholder">Waiting on shoe data…</p>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <h2>Shoe</h2>
+        <div class="shoe-stats">
+          <div class="shoe-row"><span>Decks</span><b id="deckCountVal">8</b></div>
+          <div class="shoe-row"><span>Cards Left</span><b id="cardsLeftVal">416 / 416</b></div>
+        </div>
+        <button class="btn-shuffle" id="shuffleBtn">Shuffle Shoe</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Choose a Card</h3>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="picker-label">Suit</p>
+      <div class="suit-picker" id="suitPicker"></div>
+      <p class="picker-label">Value</p>
+      <div id="rankGrid" class="rank-grid-2"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-clear" id="clearCardBtn">Clear Card</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="settingsOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Settings</h3>
+      <button class="modal-close" id="settingsClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="setting-block">
+        <p class="setting-label">Shoe Size (Decks)</p>
+        <div class="seg" id="deckSeg">
+          <button class="seg-btn" data-val="1">1</button>
+          <button class="seg-btn" data-val="2">2</button>
+          <button class="seg-btn" data-val="4">4</button>
+          <button class="seg-btn" data-val="6">6</button>
+          <button class="seg-btn active" data-val="8">8</button>
+        </div>
+        <p class="setting-note">Changing deck count reshuffles the shoe and clears the current hand.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Card helpers ----------
+  const SUITS = ['S','H','D','C'];
+  const SUIT_NAMES = {S:'Spades',H:'Hearts',D:'Diamonds',C:'Clubs'};
+
+  function suitSymbol(s){ return {S:'♠',H:'♥',D:'♦',C:'♣'}[s]; }
+  function suitColor(s){ return (s==='H'||s==='D') ? 'red' : 'black'; }
+  function rankDisplay(r){ return r<=10 ? String(r) : {11:'J',12:'Q',13:'K',14:'A'}[r]; }
+  function cardKey(c){ return c.r+'_'+c.s; }
+
+  // ---------- Baccarat value ----------
+  function cardBaccValue(r){ if(r===14) return 1; if(r>=10) return 0; return r; }
+  function handTotalBacc(cards){ return cards.reduce((s,c)=>s+cardBaccValue(c.r),0)%10; }
+
+  // ---------- Shoe / deck helpers (multi-deck aware) ----------
+  function buildMultiDeck(n){
+    const deck=[];
+    for(let d=0; d<n; d++){
+      for(let r=2;r<=14;r++) for(const s of SUITS) deck.push({r,s});
+    }
+    return deck;
+  }
+  function removeUsedInstances(deck, used){
+    const remaining = deck.slice();
+    used.forEach(u=>{
+      const idx = remaining.findIndex(c=>c.r===u.r && c.s===u.s);
+      if(idx!==-1) remaining.splice(idx,1);
+    });
+    return remaining;
+  }
+  // Partial Fisher-Yates: only shuffles the first k positions, which is all a
+  // baccarat hand ever draws (<=6 cards). Equivalent to a full shuffle for
+  // the purpose of drawing k cards without replacement, but far cheaper.
+  function drawRandom(deck, k){
+    const a = deck.slice();
+    for(let i=0;i<k;i++){
+      const j = i + Math.floor(Math.random()*(a.length-i));
+      const tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+    }
+    return a;
+  }
+  function occurrenceMap(cards){
+    const map={};
+    cards.forEach(c=>{ const k=cardKey(c); map[k]=(map[k]||0)+1; });
+    return map;
+  }
+
+  // ---------- Baccarat tableau flow ----------
+  function computeFlow(playerCards, bankerCards){
+    const p0=playerCards[0], p1=playerCards[1], b0=bankerCards[0], b1=bankerCards[1];
+    const flow = {ready:false, natural:false, playerNeedsThird:false, playerThirdResolved:false, bankerNeedsThird:false, bankerThirdResolved:false, complete:false};
+    if(!p0||!p1||!b0||!b1) return flow;
+    flow.ready = true;
+    const pTotal2 = handTotalBacc([p0,p1]);
+    const bTotal2 = handTotalBacc([b0,b1]);
+    if(pTotal2>=8 || bTotal2>=8){
+      flow.natural = true;
+      flow.playerThirdResolved = true;
+      flow.bankerThirdResolved = true;
+      flow.complete = true;
+      return flow;
+    }
+    flow.playerNeedsThird = pTotal2<=5;
+    if(!flow.playerNeedsThird){
+      flow.playerThirdResolved = true;
+      flow.bankerNeedsThird = bTotal2<=5;
+      flow.bankerThirdResolved = true;
+      flow.complete = !flow.bankerNeedsThird || !!bankerCards[2];
+      return flow;
+    }
+    const p2card = playerCards[2];
+    if(!p2card){
+      flow.playerThirdResolved = false;
+      return flow;
+    }
+    flow.playerThirdResolved = true;
+    const pt3 = cardBaccValue(p2card.r);
+    let bankerDraws;
+    if(bTotal2<=2) bankerDraws = true;
+    else if(bTotal2===3) bankerDraws = pt3!==8;
+    else if(bTotal2===4) bankerDraws = pt3>=2 && pt3<=7;
+    else if(bTotal2===5) bankerDraws = pt3>=4 && pt3<=7;
+    else if(bTotal2===6) bankerDraws = pt3===6 || pt3===7;
+    else bankerDraws = false;
+    flow.bankerNeedsThird = bankerDraws;
+    flow.bankerThirdResolved = true;
+    flow.complete = !bankerDraws || !!bankerCards[2];
+    return flow;
+  }
+
+  // Resolves one full random baccarat hand from a shuffled deck queue,
+  // following the standard tableau (third-card) rules.
+  function simulateBaccaratHand(deck){
+    let ptr = 0;
+    const nextCard = ()=> deck[ptr++];
+    const player = [nextCard(), nextCard()];
+    const banker = [nextCard(), nextCard()];
+
+    const pTotal2 = handTotalBacc(player);
+    const bTotal2 = handTotalBacc(banker);
+    const natural = pTotal2>=8 || bTotal2>=8;
+
+    let playerThird = null;
+    if(!natural && pTotal2<=5){
+      playerThird = nextCard();
+      player.push(playerThird);
+    }
+
+    let bankerDraws = false;
+    if(!natural){
+      if(playerThird===null){
+        bankerDraws = bTotal2<=5;
+      } else {
+        const pt3 = cardBaccValue(playerThird.r);
+        if(bTotal2<=2) bankerDraws = true;
+        else if(bTotal2===3) bankerDraws = pt3!==8;
+        else if(bTotal2===4) bankerDraws = pt3>=2 && pt3<=7;
+        else if(bTotal2===5) bankerDraws = pt3>=4 && pt3<=7;
+        else if(bTotal2===6) bankerDraws = pt3===6 || pt3===7;
+        else bankerDraws = false;
+      }
+    }
+    if(bankerDraws) banker.push(nextCard());
+
+    return {
+      playerFinal: handTotalBacc(player),
+      bankerFinal: handTotalBacc(banker),
+      playerPair: player[0].r===player[1].r,
+      bankerPair: banker[0].r===banker[1].r
+    };
+  }
+
+  // Odds for the UPCOMING hand, based on the shoe as it stands right now
+  // (i.e. before the cards currently being recorded were drawn). Betting
+  // happens before any cards are dealt, so this deliberately ignores
+  // whatever is currently filled into the Player/Banker rows.
+  function runSimulation(trials){
+    const baseDeck = removeUsedInstances(buildMultiDeck(deckCount), finalizedSeenCards);
+    let pWin=0, bWin=0, tie=0, pPair=0, bPair=0;
+    for(let t=0;t<trials;t++){
+      const deck = drawRandom(baseDeck, 6);
+      const r = simulateBaccaratHand(deck);
+      if(r.playerFinal>r.bankerFinal) pWin++;
+      else if(r.bankerFinal>r.playerFinal) bWin++;
+      else tie++;
+      if(r.playerPair) pPair++;
+      if(r.bankerPair) bPair++;
+    }
+    const pWinPct=pWin/trials, bWinPct=bWin/trials, tiePct=tie/trials, pPairPct=pPair/trials, bPairPct=bPair/trials;
+    return {
+      bets: [
+        {key:'banker', name:'Banker', sub:`Win ${(bWinPct*100).toFixed(1)}%`, edge: bWinPct*0.95 - pWinPct*1},
+        {key:'player', name:'Player', sub:`Win ${(pWinPct*100).toFixed(1)}%`, edge: pWinPct*1 - bWinPct*1},
+        {key:'tie', name:'Tie', sub:`Win ${(tiePct*100).toFixed(1)}%`, edge: tiePct*8 - (1-tiePct)*1},
+        {key:'playerpair', name:'Player Pair', sub:`Win ${(pPairPct*100).toFixed(1)}%`, edge: pPairPct*11 - (1-pPairPct)*1},
+        {key:'bankerpair', name:'Banker Pair', sub:`Win ${(bPairPct*100).toFixed(1)}%`, edge: bPairPct*11 - (1-bPairPct)*1}
+      ]
+    };
+  }
+
+  // ---------- State ----------
+  let deckCount = 8;
+  let finalizedSeenCards = [];
+  let playerCards = [null,null];
+  let bankerCards = [null,null];
+  let activeSlot = null; // {zone:'player'|'banker', idx}
+  let pendingSuit = 'S';
+
+  function shuffleShoe(){
+    finalizedSeenCards = [];
+    renderShoeStats();
+    renderBetOdds();
+  }
+
+  function resetHand(){
+    playerCards = [null,null];
+    bankerCards = [null,null];
+    renderAll();
+  }
+
+  function fullReset(){
+    finalizedSeenCards = [];
+    resetHand();
+    renderBetOdds();
+  }
+
+  // ---------- Rendering ----------
+  function renderCardSlot(el, card){
+    el.innerHTML='';
+    if(card){
+      el.classList.add('filled'); el.classList.remove('empty');
+      const color = suitColor(card.s);
+      el.innerHTML = `<span class="card-rank ${color}">${rankDisplay(card.r)}</span><span class="card-suit ${color}">${suitSymbol(card.s)}</span>`;
+    } else {
+      el.classList.add('empty'); el.classList.remove('filled');
+      el.innerHTML = `<span class="plus">+</span>`;
+    }
+  }
+
+  function renderHandRow(containerId, cards, zone){
+    const container = document.getElementById(containerId);
+    container.innerHTML='';
+    cards.forEach((c,i)=>{
+      const el = document.createElement('div');
+      el.className='card-slot';
+      el.dataset.zone=zone;
+      el.dataset.idx=i;
+      renderCardSlot(el, c);
+      container.appendChild(el);
+    });
+  }
+
+  function syncThirdSlots(){
+    const p0=playerCards[0], p1=playerCards[1], b0=bankerCards[0], b1=bankerCards[1];
+    if(!p0||!p1||!b0||!b1){
+      if(playerCards.length>2 && !playerCards[2]) playerCards.length=2;
+      if(bankerCards.length>2 && !bankerCards[2]) bankerCards.length=2;
+      return;
+    }
+    const flow = computeFlow(playerCards, bankerCards);
+    if(flow.natural){
+      if(playerCards.length>2 && !playerCards[2]) playerCards.length=2;
+      if(bankerCards.length>2 && !bankerCards[2]) bankerCards.length=2;
+      return;
+    }
+    if(flow.playerNeedsThird){
+      if(playerCards.length<3) playerCards.push(null);
+    } else if(playerCards.length>2 && !playerCards[2]){
+      playerCards.length=2;
+    }
+    if(flow.playerThirdResolved){
+      if(flow.bankerNeedsThird){
+        if(bankerCards.length<3) bankerCards.push(null);
+      } else if(bankerCards.length>2 && !bankerCards[2]){
+        bankerCards.length=2;
+      }
+    } else if(bankerCards.length>2 && !bankerCards[2]){
+      bankerCards.length=2;
+    }
+  }
+
+  function renderHandTotal(elId, cards, isBanker, flow, winner){
+    const el = document.getElementById(elId);
+    const known = cards.filter(Boolean);
+    if(known.length<2){ el.textContent=''; return; }
+    const first2 = handTotalBacc([known[0], known[1]]);
+    const finalTotal = handTotalBacc(known);
+    let html = `Total: <span class="val">${finalTotal}</span>`;
+    if(flow.natural && known.length===2) html += `<span class="tag natural">Natural</span>`;
+    if(known.length===2 && known[0].r===known[1].r) html += `<span class="tag pair">Pair</span>`;
+    if(winner){
+      const isThisWinner = (isBanker && winner==='banker') || (!isBanker && winner==='player');
+      if(isThisWinner) html += `<span class="tag winner">Winner</span>`;
+      else if(winner==='tie') html += `<span class="tag natural">Tie</span>`;
+    }
+    el.innerHTML = html;
+  }
+
+  function renderFinishBlock(flow){
+    const block = document.getElementById('finishBlock');
+    block.classList.toggle('hidden', !flow.complete);
+  }
+
+  function renderShoeStats(){
+    document.getElementById('deckCountVal').textContent = deckCount;
+    const totalCards = deckCount*52;
+    const cardsLeft = Math.max(0, totalCards - finalizedSeenCards.length);
+    document.getElementById('cardsLeftVal').textContent = `${cardsLeft} / ${totalCards}`;
+  }
+
+  function renderBetOdds(){
+    const recBox = document.getElementById('recBox');
+    const recAction = document.getElementById('recAction');
+    const recSub = document.getElementById('recSub');
+    const betRows = document.getElementById('betRows');
+
+    const result = runSimulation(200000);
+    const sorted = result.bets.slice().sort((a,b)=>b.edge-a.edge);
+    const best = sorted[0];
+
+    recBox.className = 'rec-box' + (best.edge>=0 ? '' : '');
+    recAction.textContent = best.name.toUpperCase();
+    recSub.textContent = `Best available edge: ${(best.edge*100>=0?'+':'')}${(best.edge*100).toFixed(2)}%`;
+
+    betRows.innerHTML = sorted.map(b=>{
+      const edgePct = b.edge*100;
+      const cls = edgePct>=0 ? 'positive' : 'negative';
+      const isBest = b.key===best.key;
+      return `
+        <div class="bet-row ${isBest?'best':''}">
+          <div class="bet-name-wrap">
+            <span class="bet-name">${b.name}${isBest?'<span class="best-badge">Best</span>':''}</span>
+            <span class="bet-sub">${b.sub}</span>
+          </div>
+          <div class="bet-edge ${cls}">${edgePct>=0?'+':''}${edgePct.toFixed(2)}%</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function determineWinner(flow){
+    if(!flow.complete) return null;
+    const p = playerCards.filter(Boolean);
+    const b = bankerCards.filter(Boolean);
+    if(p.length<2 || b.length<2) return null;
+    const pt = handTotalBacc(p), bt = handTotalBacc(b);
+    if(pt>bt) return 'player';
+    if(bt>pt) return 'banker';
+    return 'tie';
+  }
+
+  // Card entry (Player/Banker rows) never changes the bet recommendation —
+  // see runSimulation's comment — so renderAll only redraws the hand itself.
+  function renderAll(){
+    const flow = computeFlow(playerCards, bankerCards);
+    const winner = determineWinner(flow);
+    renderHandRow('playerRow', playerCards, 'player');
+    renderHandRow('bankerRow', bankerCards, 'banker');
+    renderHandTotal('playerTotal', playerCards, false, flow, winner);
+    renderHandTotal('bankerTotal', bankerCards, true, flow, winner);
+    renderFinishBlock(flow);
+    renderShoeStats();
+  }
+
+  // ---------- Modal / card picker ----------
+  function allUsedCards(){
+    const list = [];
+    playerCards.forEach(c=>{ if(c) list.push(c); });
+    bankerCards.forEach(c=>{ if(c) list.push(c); });
+    return list;
+  }
+
+  function usedCardsExcluding(zone, idx){
+    const all = allUsedCards();
+    const exclude = zone==='player' ? playerCards[idx] : bankerCards[idx];
+    if(!exclude) return all;
+    const exKey = cardKey(exclude);
+    let removed = false;
+    return all.filter(c=>{
+      if(!removed && cardKey(c)===exKey){ removed=true; return false; }
+      return true;
+    });
+  }
+
+  function currentCardFor(zone, idx){
+    return zone==='player' ? playerCards[idx] : bankerCards[idx];
+  }
+
+  function renderSuitPicker(current){
+    const container = document.getElementById('suitPicker');
+    container.innerHTML='';
+    SUITS.forEach(s=>{
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className = 'suit-btn '+suitColor(s)+(s===pendingSuit ? ' active' : '');
+      btn.innerHTML = `<span class="symbol">${suitSymbol(s)}</span><span class="name">${SUIT_NAMES[s]}</span>`;
+      btn.addEventListener('click', ()=>{
+        pendingSuit = s;
+        renderSuitPicker(current);
+        renderRankGrid(current);
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function renderRankGrid(current){
+    const otherVisible = usedCardsExcluding(activeSlot.zone, activeSlot.idx);
+    const occ = occurrenceMap(finalizedSeenCards.concat(otherVisible));
+    const container = document.getElementById('rankGrid');
+    container.className = 'rank-grid-2 '+suitColor(pendingSuit);
+    container.innerHTML='';
+    for(let r=2;r<=14;r++){
+      const key = r+'_'+pendingSuit;
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className='rank-btn2';
+      btn.textContent = rankDisplay(r);
+      const isCurrent = current && current.r===r && current.s===pendingSuit;
+      const usedCount = occ[key]||0;
+      if(usedCount>=deckCount && !isCurrent){
+        btn.disabled=true; btn.classList.add('disabled');
+      }
+      if(isCurrent) btn.classList.add('selected');
+      btn.addEventListener('click', ()=> selectCard(r, pendingSuit));
+      container.appendChild(btn);
+    }
+  }
+
+  function openModal(zone, idx){
+    activeSlot = {zone, idx};
+    const current = currentCardFor(zone, idx);
+    pendingSuit = current ? current.s : pendingSuit;
+    renderSuitPicker(current);
+    renderRankGrid(current);
+    document.getElementById('modalOverlay').classList.remove('hidden');
+  }
+
+  function closeModal(){
+    document.getElementById('modalOverlay').classList.add('hidden');
+    activeSlot=null;
+  }
+
+  function selectCard(r,s){
+    if(!activeSlot) return;
+    const card={r,s};
+    if(activeSlot.zone==='player') playerCards[activeSlot.idx] = card;
+    else bankerCards[activeSlot.idx] = card;
+    syncThirdSlots();
+    closeModal();
+    renderAll();
+  }
+
+  function clearActive(){
+    if(!activeSlot) return;
+    if(activeSlot.zone==='player') playerCards[activeSlot.idx] = null;
+    else bankerCards[activeSlot.idx] = null;
+    syncThirdSlots();
+    closeModal();
+    renderAll();
+  }
+
+  // ---------- Actions ----------
+  function finishHand(){
+    const flow = computeFlow(playerCards, bankerCards);
+    if(!flow.complete) return;
+    const thisHandCards = playerCards.concat(bankerCards).filter(Boolean);
+    finalizedSeenCards = finalizedSeenCards.concat(thisHandCards);
+    resetHand();
+    renderBetOdds();
+  }
+
+  // ---------- Settings ----------
+  function openSettings(){
+    document.getElementById('settingsOverlay').classList.remove('hidden');
+  }
+  function closeSettings(){
+    document.getElementById('settingsOverlay').classList.add('hidden');
+  }
+  function setDeckCount(n){
+    if(n===deckCount) return;
+    deckCount = n;
+    document.querySelectorAll('#deckSeg .seg-btn').forEach(b=>{
+      b.classList.toggle('active', Number(b.dataset.val)===n);
+    });
+    fullReset();
+  }
+
+  // ---------- Events ----------
+  document.getElementById('table').addEventListener('click', (e)=>{
+    const slot = e.target.closest('.card-slot');
+    if(!slot) return;
+    openModal(slot.dataset.zone, +slot.dataset.idx);
+  });
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalOverlay').addEventListener('click', (e)=>{
+    if(e.target.id==='modalOverlay') closeModal();
+  });
+  document.getElementById('clearCardBtn').addEventListener('click', clearActive);
+
+  document.getElementById('finishHandBtn').addEventListener('click', finishHand);
+
+  document.getElementById('resetBtn').addEventListener('click', fullReset);
+  document.getElementById('shuffleBtn').addEventListener('click', shuffleShoe);
+
+  document.getElementById('settingsBtn').addEventListener('click', openSettings);
+  document.getElementById('settingsClose').addEventListener('click', closeSettings);
+  document.getElementById('settingsOverlay').addEventListener('click', (e)=>{
+    if(e.target.id==='settingsOverlay') closeSettings();
+  });
+  document.getElementById('deckSeg').querySelectorAll('.seg-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> setDeckCount(Number(btn.dataset.val)));
+  });
+
+  // ---------- Init ----------
+  renderAll();
+  renderBetOdds();
+})();
+</script>
+</body>
+</html>
