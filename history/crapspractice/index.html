@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Craps Practice</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%B2%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b0d12;
+    --panel:#12151c;
+    --panel-2:#171b24;
+    --border:#232838;
+    --text:#e8eaf0;
+    --text-dim:#8b93a7;
+    --accent:#22c58b;
+    --accent-dim:#1a9c6d;
+    --lose:#e0475a;
+    --tie:#e0b545;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .app{max-width:1100px;margin:0 auto;padding:24px 20px 60px;}
+  header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:12px;}
+  .header-title h1{font-size:22px;font-weight:650;letter-spacing:-0.01em;margin:0;}
+  .net-line{display:flex;align-items:baseline;gap:8px;margin-top:6px;}
+  .net-label{font-size:12px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+  .net-value{font-size:20px;font-weight:800;}
+  .net-value.pos{color:var(--accent);}
+  .net-value.neg{color:var(--lose);}
+  .net-value.zero{color:var(--text-dim);}
+  .btn-reset{
+    background:transparent;border:1px solid var(--border);color:var(--text-dim);
+    padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+    transition:all .15s ease;
+  }
+  .btn-reset:hover{border-color:var(--lose);color:var(--lose);}
+  .layout{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+  @media (max-width: 860px){.layout{grid-template-columns:1fr;}}
+  .table, .side-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;}
+  .section-block{margin-bottom:24px;}
+  .section-block:last-child{margin-bottom:0;}
+  .section-block h2, .panel-block h2{
+    font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:0 0 12px;font-weight:700;
+  }
+
+  .point-row{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+  .point-puck{
+    width:52px;height:52px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:16px;flex-shrink:0;
+    border:2px solid var(--border);background:var(--panel-2);color:var(--text-dim);
+    transition:all .2s ease;
+  }
+  .point-puck.on{border-color:var(--tie);background:rgba(224,181,69,.14);color:var(--tie);}
+  .point-info{font-size:13px;color:var(--text-dim);}
+  .point-info b{color:var(--text);}
+
+  .dice-stage{
+    display:flex;align-items:center;justify-content:center;gap:22px;
+    padding:30px 10px;background:var(--panel-2);border-radius:14px;border:1px solid var(--border);
+    margin-bottom:16px;
+  }
+  .die{
+    width:68px;height:68px;border-radius:14px;background:#f4f2ec;
+    display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+    padding:10px;box-shadow:0 8px 20px rgba(0,0,0,.4);
+    transition:transform .08s ease;
+  }
+  .die.shaking{animation:diceShake .09s linear infinite;}
+  @keyframes diceShake{
+    0%{transform:rotate(0deg) translate(0,0);}
+    25%{transform:rotate(-8deg) translate(-2px,1px);}
+    50%{transform:rotate(6deg) translate(2px,-2px);}
+    75%{transform:rotate(-4deg) translate(1px,2px);}
+    100%{transform:rotate(0deg) translate(0,0);}
+  }
+  .pip{width:12px;height:12px;border-radius:50%;background:#1a1c22;align-self:center;justify-self:center;}
+  .roll-msg{text-align:center;font-size:15px;font-weight:700;color:var(--text-dim);min-height:22px;margin-bottom:6px;}
+  .roll-msg.win{color:var(--accent);}
+  .roll-msg.lose{color:var(--lose);}
+  .roll-msg.neutral{color:var(--tie);}
+  .roll-sum{text-align:center;font-size:13px;color:var(--text-dim);margin-bottom:18px;}
+  .roll-sum b{color:var(--text);font-size:15px;}
+
+  .btn-roll{
+    width:100%;padding:14px;border-radius:10px;border:none;background:var(--accent);
+    color:#06110c;font-size:14px;font-weight:800;letter-spacing:.02em;cursor:pointer;
+  }
+  .btn-roll:hover:not(:disabled){background:#2ade9c;}
+  .btn-roll:disabled{opacity:.35;cursor:not-allowed;background:var(--panel-2);color:var(--text-dim);}
+
+  .bet-list{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+  .bet-item{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;
+    border-radius:10px;background:var(--panel-2);border:1.5px solid var(--border);
+  }
+  .bet-item.won{border-color:var(--accent);}
+  .bet-item.lost{border-color:var(--lose);}
+  .bet-name-col{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .bet-name{font-weight:700;font-size:13px;}
+  .bet-payout{font-size:10.5px;color:var(--text-dim);}
+  .bet-outcome{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+  .bet-outcome.won{color:var(--accent);}
+  .bet-outcome.lost{color:var(--lose);}
+  .stepper{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .stepper button{
+    width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--panel);
+    color:var(--text);font-size:15px;font-weight:700;cursor:pointer;line-height:1;
+  }
+  .stepper button:hover:not(:disabled){border-color:var(--accent);}
+  .stepper button:disabled{opacity:.3;cursor:not-allowed;}
+  .stepper input{
+    width:56px;text-align:center;background:var(--panel);border:1px solid var(--border);border-radius:7px;
+    color:var(--text);font-size:14px;font-weight:700;padding:6px 2px;
+  }
+  .stepper input:disabled{opacity:.4;}
+  .stepper input:focus{outline:none;border-color:var(--accent);}
+
+  .history-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .history-chip{
+    width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:800;color:#06110c;flex-shrink:0;
+  }
+  .history-chip.win{background:var(--accent);}
+  .history-chip.lose{background:var(--lose);}
+  .history-chip.neutral{background:var(--tie);}
+  .placeholder{font-size:13px;color:var(--text-dim);margin:0;}
+
+  @media (max-width: 520px){
+    .app{padding:16px 12px 40px;}
+    header{margin-bottom:20px;}
+    .header-title h1{font-size:19px;}
+    .table, .side-panel{padding:16px;border-radius:14px;}
+    .die{width:56px;height:56px;}
+    .pip{width:10px;height:10px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-title">
+      <h1>Craps Practice</h1>
+      <div class="net-line">
+        <span class="net-label">Net</span>
+        <span class="net-value zero" id="netVal">0</span>
+      </div>
+    </div>
+    <button class="btn-reset" id="resetBtn">Reset</button>
+  </header>
+
+  <div class="layout">
+    <section class="table">
+      <div class="point-row">
+        <div class="point-puck" id="pointPuck">OFF</div>
+        <div class="point-info" id="pointInfo">Come-out roll &mdash; place your bets and roll.</div>
+      </div>
+
+      <div class="dice-stage">
+        <div class="die" id="die1"></div>
+        <div class="die" id="die2"></div>
+      </div>
+      <p class="roll-msg" id="rollMsg">&nbsp;</p>
+      <p class="roll-sum" id="rollSum">&nbsp;</p>
+
+      <div class="section-block">
+        <h2>Bets</h2>
+        <div class="bet-list" id="betList"></div>
+        <button class="btn-roll" id="rollBtn" disabled>Place a bet to roll</button>
+      </div>
+    </section>
+
+    <aside class="side-panel">
+      <div class="panel-block">
+        <h2>History</h2>
+        <div class="history-row" id="historyRow">
+          <p class="placeholder">No rolls yet</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const PIP_LAYOUTS = {
+    1: [[2,2]],
+    2: [[1,1],[3,3]],
+    3: [[1,1],[2,2],[3,3]],
+    4: [[1,1],[1,3],[3,1],[3,3]],
+    5: [[1,1],[1,3],[2,2],[3,1],[3,3]],
+    6: [[1,1],[1,3],[2,1],[2,3],[3,1],[3,3]]
+  };
+  function renderDie(elId, value){
+    const el = document.getElementById(elId);
+    el.innerHTML='';
+    PIP_LAYOUTS[value].forEach(([r,c])=>{
+      const pip = document.createElement('div');
+      pip.className='pip';
+      pip.style.gridRow = r;
+      pip.style.gridColumn = c;
+      el.appendChild(pip);
+    });
+  }
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  const BET_META = [
+    {key:'pass', name:'Pass Line', sub:'Pays 1:1'},
+    {key:'dontpass', name:"Don't Pass", sub:'Pays 1:1 (bars 12)'},
+    {key:'field', name:'Field', sub:'2 pays 2:1 · 12 pays 3:1 · 3,4,9,10,11 pay 1:1'}
+  ];
+
+  let net = 0;
+  let bets = {pass:0, dontpass:0, field:0};
+  let phase = 'comeout'; // 'comeout' | 'point'
+  let point = null;
+  let rolling = false;
+  let history = [];
+
+  function totalActionBet(){ return bets.pass+bets.dontpass+bets.field; }
+
+  function resolveRoll(sum){
+    let passDelta=0, dpDelta=0, fieldDelta=0;
+    let passResolved=false, dpResolved=false;
+    let category = 'neutral';
+    let msg = '';
+
+    if(bets.field>0){
+      if(sum===2){ fieldDelta = bets.field*2; }
+      else if(sum===12){ fieldDelta = bets.field*3; }
+      else if([3,4,9,10,11].includes(sum)){ fieldDelta = bets.field*1; }
+      else { fieldDelta = -bets.field; }
+    }
+
+    if(phase==='comeout'){
+      if(sum===7 || sum===11){
+        if(bets.pass>0){ passDelta = bets.pass; passResolved=true; }
+        if(bets.dontpass>0){ dpDelta = -bets.dontpass; dpResolved=true; }
+        category='win';
+        msg = sum===7 ? 'Natural 7! Pass Line wins.' : 'Natural 11! Pass Line wins.';
+      } else if(sum===2 || sum===3){
+        if(bets.pass>0){ passDelta = -bets.pass; passResolved=true; }
+        if(bets.dontpass>0){ dpDelta = bets.dontpass; dpResolved=true; }
+        category='lose';
+        msg = 'Craps! Pass Line loses.';
+      } else if(sum===12){
+        if(bets.pass>0){ passDelta = -bets.pass; passResolved=true; }
+        category='lose';
+        msg = "Craps (12)! Pass Line loses, Don't Pass pushes.";
+      } else {
+        phase='point'; point=sum;
+        category='neutral';
+        msg = `Point is now ${sum}.`;
+      }
+    } else {
+      if(sum===point){
+        if(bets.pass>0){ passDelta = bets.pass; passResolved=true; }
+        if(bets.dontpass>0){ dpDelta = -bets.dontpass; dpResolved=true; }
+        category='win';
+        msg = `Point ${point} made! Pass Line wins.`;
+        phase='comeout'; point=null;
+      } else if(sum===7){
+        if(bets.pass>0){ passDelta = -bets.pass; passResolved=true; }
+        if(bets.dontpass>0){ dpDelta = bets.dontpass; dpResolved=true; }
+        category='lose';
+        msg = 'Seven out! Pass Line loses.';
+        phase='comeout'; point=null;
+      } else {
+        category='neutral';
+        msg = `No decision. Point is still ${point}.`;
+      }
+    }
+
+    net += passDelta+dpDelta+fieldDelta;
+    history.push({sum, category});
+
+    return {
+      passDelta, dpDelta, fieldDelta, passResolved, dpResolved,
+      fieldResolved: bets.field>0,
+      category, msg
+    };
+  }
+
+  function rollDice(){
+    if(rolling) return;
+    if(!(phase==='point' || totalActionBet()>0)) return;
+    rolling = true;
+    renderAll();
+
+    const finalD1 = randInt(1,6), finalD2 = randInt(1,6);
+    document.getElementById('die1').classList.add('shaking');
+    document.getElementById('die2').classList.add('shaking');
+    document.getElementById('rollMsg').textContent = ' ';
+    document.getElementById('rollMsg').className = 'roll-msg';
+    document.getElementById('rollSum').innerHTML = ' ';
+
+    let ticks=0;
+    const maxTicks = 11;
+    const interval = setInterval(()=>{
+      renderDie('die1', randInt(1,6));
+      renderDie('die2', randInt(1,6));
+      ticks++;
+      if(ticks>=maxTicks){
+        clearInterval(interval);
+        renderDie('die1', finalD1);
+        renderDie('die2', finalD2);
+        document.getElementById('die1').classList.remove('shaking');
+        document.getElementById('die2').classList.remove('shaking');
+        const result = resolveRoll(finalD1+finalD2);
+        rolling = false;
+        renderAll(result, finalD1+finalD2);
+      }
+    }, 75);
+  }
+
+  function fullReset(){
+    net = 0;
+    bets = {pass:0, dontpass:0, field:0};
+    phase = 'comeout';
+    point = null;
+    rolling = false;
+    history = [];
+    renderDie('die1', 1);
+    renderDie('die2', 1);
+    document.getElementById('rollMsg').textContent = ' ';
+    document.getElementById('rollMsg').className = 'roll-msg';
+    document.getElementById('rollSum').innerHTML = ' ';
+    renderAll();
+  }
+
+  function renderNet(){
+    const el = document.getElementById('netVal');
+    const rounded = Math.round(net*100)/100;
+    el.textContent = (rounded>0?'+':'')+rounded.toFixed(rounded%1===0?0:2);
+    el.className = 'net-value ' + (rounded>0?'pos':(rounded<0?'neg':'zero'));
+  }
+
+  function renderPoint(){
+    const puck = document.getElementById('pointPuck');
+    const info = document.getElementById('pointInfo');
+    if(phase==='point'){
+      puck.textContent = point;
+      puck.classList.add('on');
+      info.innerHTML = `Point is <b>${point}</b> &mdash; roll it again to win, roll a 7 to seven-out.`;
+    } else {
+      puck.textContent = 'OFF';
+      puck.classList.remove('on');
+      info.textContent = 'Come-out roll — place your bets and roll.';
+    }
+  }
+
+  function renderBetList(lastResult){
+    const container = document.getElementById('betList');
+    container.innerHTML='';
+    const locked = phase==='point';
+    BET_META.forEach(({key,name,sub})=>{
+      const bet = bets[key];
+      const row = document.createElement('div');
+      let outcomeHtml = '';
+      if(lastResult){
+        const resolvedMap = {pass:lastResult.passResolved, dontpass:lastResult.dpResolved, field:lastResult.fieldResolved};
+        const deltaMap = {pass:lastResult.passDelta, dontpass:lastResult.dpDelta, field:lastResult.fieldDelta};
+        if(resolvedMap[key]){
+          const delta = deltaMap[key];
+          const outcome = delta>0 ? 'won' : (delta<0 ? 'lost' : 'push');
+          row.className = 'bet-item ' + outcome;
+          const sign = delta>0?'+':'';
+          outcomeHtml = `<span class="bet-outcome ${outcome}">${outcome} ${outcome!=='push'?sign+delta:''}</span>`;
+        } else {
+          row.className = 'bet-item';
+        }
+      } else {
+        row.className = 'bet-item';
+      }
+
+      const nameCol = document.createElement('div');
+      nameCol.className = 'bet-name-col';
+      nameCol.innerHTML = `<span class="bet-name">${name}</span><span class="bet-payout">${sub}</span>${outcomeHtml}`;
+
+      const stepper = document.createElement('div');
+      stepper.className = 'stepper';
+      const isLockable = key==='pass' || key==='dontpass';
+      const disabled = rolling || (isLockable && locked);
+      stepper.innerHTML = `
+        <button type="button" class="step-minus" ${disabled?'disabled':''}>&minus;</button>
+        <input type="number" min="0" step="5" value="${bet}" ${disabled?'disabled':''}>
+        <button type="button" class="step-plus" ${disabled?'disabled':''}>+</button>
+      `;
+      stepper.querySelector('.step-minus').addEventListener('click', ()=>{
+        bets[key] = Math.max(0, bets[key]-5);
+        renderAll();
+      });
+      stepper.querySelector('.step-plus').addEventListener('click', ()=>{
+        bets[key] = bets[key]+5;
+        renderAll();
+      });
+      stepper.querySelector('input').addEventListener('change', (e)=>{
+        bets[key] = Math.max(0, Math.round(Number(e.target.value)||0));
+        renderAll();
+      });
+
+      row.appendChild(nameCol);
+      row.appendChild(stepper);
+      container.appendChild(row);
+    });
+  }
+
+  function renderRollBtn(){
+    const btn = document.getElementById('rollBtn');
+    if(rolling){
+      btn.disabled = true;
+      btn.textContent = 'Rolling…';
+      return;
+    }
+    const canRoll = phase==='point' || totalActionBet()>0;
+    btn.disabled = !canRoll;
+    btn.textContent = canRoll ? 'Roll Dice' : 'Place a bet to roll';
+  }
+
+  function renderHistory(){
+    const container = document.getElementById('historyRow');
+    if(history.length===0){
+      container.innerHTML = '<p class="placeholder">No rolls yet</p>';
+      return;
+    }
+    container.innerHTML = history.slice(-40).map(h=>{
+      return `<span class="history-chip ${h.category}">${h.sum}</span>`;
+    }).join('');
+  }
+
+  function renderAll(lastResult, lastSum){
+    renderNet();
+    renderPoint();
+    renderBetList(lastResult);
+    renderRollBtn();
+    renderHistory();
+    if(lastResult){
+      const msgEl = document.getElementById('rollMsg');
+      msgEl.textContent = lastResult.msg;
+      msgEl.className = 'roll-msg ' + lastResult.category;
+      document.getElementById('rollSum').innerHTML = `Rolled: <b>${lastSum}</b>`;
+    }
+  }
+
+  document.getElementById('rollBtn').addEventListener('click', rollDice);
+  document.getElementById('resetBtn').addEventListener('click', fullReset);
+
+  renderDie('die1', 1);
+  renderDie('die2', 1);
+  renderAll();
+})();
+</script>
+</body>
+</html>
