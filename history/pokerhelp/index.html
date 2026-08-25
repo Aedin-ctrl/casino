@@ -252,37 +252,61 @@
     cursor:pointer;
   }
   .modal-close:hover{color:var(--text);}
-  .modal-body{padding:16px 18px;}
-  .suit-row{
+  .modal-body{padding:18px;}
+  .picker-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    font-weight:700;
+    margin:0 0 10px;
+  }
+  .suit-picker{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .suit-btn{
     display:flex;
+    flex-direction:column;
     align-items:center;
+    justify-content:center;
     gap:6px;
-    margin-bottom:8px;
-  }
-  .suit-row:last-child{margin-bottom:0;}
-  .suit-label{
-    width:22px;
-    font-size:18px;
-    text-align:center;
-    flex-shrink:0;
-  }
-  .rank-btn{
-    flex:1;
-    min-width:0;
-    height:36px;
-    border-radius:6px;
-    border:1px solid var(--border);
+    padding:16px 4px;
+    border-radius:12px;
+    border:1.5px solid var(--border);
     background:var(--panel-2);
-    font-size:13px;
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .suit-btn .symbol{font-size:28px;line-height:1;}
+  .suit-btn .name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);}
+  .suit-btn.black .symbol{color:var(--text);}
+  .suit-btn.red .symbol{color:var(--red);}
+  .suit-btn:hover{border-color:var(--accent);}
+  .suit-btn.active{border-color:var(--accent);background:rgba(34,197,139,.14);}
+  .suit-btn.active .name{color:var(--text);}
+  .rank-grid-2{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(58px,1fr));
+    gap:10px;
+  }
+  .rank-btn2{
+    height:56px;
+    border-radius:12px;
+    border:1.5px solid var(--border);
+    background:var(--panel-2);
+    font-size:18px;
     font-weight:700;
     cursor:pointer;
     transition:all .12s ease;
   }
-  .rank-btn.black, .suit-label.black{color:var(--text);}
-  .rank-btn.red, .suit-label.red{color:var(--red);}
-  .rank-btn:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);}
-  .rank-btn.selected{background:var(--accent);border-color:var(--accent);color:#06110c;}
-  .rank-btn.disabled{opacity:.25;cursor:not-allowed;}
+  .rank-grid-2.black .rank-btn2{color:var(--text);}
+  .rank-grid-2.red .rank-btn2{color:var(--red);}
+  .rank-btn2:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);}
+  .rank-btn2.selected{background:var(--accent);border-color:var(--accent);color:#06110c;}
+  .rank-btn2.disabled{opacity:.25;cursor:not-allowed;}
   .modal-footer{
     padding:14px 18px 18px;
     border-top:1px solid var(--border);
@@ -299,6 +323,22 @@
     cursor:pointer;
   }
   .btn-clear:hover{border-color:var(--lose);color:var(--lose);}
+
+  @media (max-width: 520px){
+    .app{padding:16px 12px 40px;}
+    header{margin-bottom:20px;}
+    header h1{font-size:19px;}
+    .table, .odds-panel{padding:16px;border-radius:14px;}
+    .card-row{gap:8px;}
+    .card-slot{width:58px;height:82px;border-radius:9px;}
+    .card-slot .card-rank{font-size:22px;}
+    .card-slot .card-suit{font-size:16px;}
+    .board-row .card-slot:nth-child(4), .board-row .card-slot:nth-child(5){margin-left:8px;}
+    .modal{max-width:100%;}
+    .modal-body{padding:16px;}
+    .suit-btn{padding:14px 2px;}
+    .rank-btn2{height:52px;font-size:17px;}
+  }
 </style>
 </head>
 <body>
@@ -382,7 +422,10 @@
       <button class="modal-close" id="modalClose">&times;</button>
     </div>
     <div class="modal-body">
-      <div id="rankGrid"></div>
+      <p class="picker-label">Suit</p>
+      <div class="suit-picker" id="suitPicker"></div>
+      <p class="picker-label">Value</p>
+      <div id="rankGrid" class="rank-grid-2"></div>
     </div>
     <div class="modal-footer">
       <button class="btn-clear" id="clearCardBtn">Clear Card</button>
@@ -568,6 +611,7 @@
   let numPlayers = 2;
   let activeSlot = null;
   let calcTimer = null;
+  let pendingSuit = 'S';
 
   // ---------- Rendering ----------
   function renderCardSlot(el, card){
@@ -660,39 +704,52 @@
     return list;
   }
 
-  function renderRankGrid(usedList, current){
-    const usedKeys = new Set(usedList.map(c=>c.r+c.s));
-    const container = document.getElementById('rankGrid');
+  const SUIT_NAMES = {S:'Spades',H:'Hearts',D:'Diamonds',C:'Clubs'};
+
+  function renderSuitPicker(current){
+    const container = document.getElementById('suitPicker');
     container.innerHTML='';
     SUITS.forEach(s=>{
-      const row = document.createElement('div');
-      row.className='suit-row';
-      const label = document.createElement('span');
-      label.className = 'suit-label '+suitColor(s);
-      label.textContent = suitSymbol(s);
-      row.appendChild(label);
-      for(let r=2;r<=14;r++){
-        const key = r+s;
-        const btn = document.createElement('button');
-        btn.type='button';
-        btn.className = 'rank-btn '+suitColor(s);
-        btn.textContent = rankDisplay(r);
-        const isCurrent = current && current.r===r && current.s===s;
-        if(usedKeys.has(key) && !isCurrent){
-          btn.disabled=true; btn.classList.add('disabled');
-        }
-        if(isCurrent) btn.classList.add('selected');
-        btn.addEventListener('click', ()=> selectCard(r,s));
-        row.appendChild(btn);
-      }
-      container.appendChild(row);
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className = 'suit-btn '+suitColor(s)+(s===pendingSuit ? ' active' : '');
+      btn.innerHTML = `<span class="symbol">${suitSymbol(s)}</span><span class="name">${SUIT_NAMES[s]}</span>`;
+      btn.addEventListener('click', ()=>{
+        pendingSuit = s;
+        renderSuitPicker(current);
+        renderRankGrid(current);
+      });
+      container.appendChild(btn);
     });
+  }
+
+  function renderRankGrid(current){
+    const usedKeys = new Set(usedCardsExcluding(activeSlot.zone, activeSlot.idx).map(c=>c.r+c.s));
+    const container = document.getElementById('rankGrid');
+    container.className = 'rank-grid-2 '+suitColor(pendingSuit);
+    container.innerHTML='';
+    for(let r=2;r<=14;r++){
+      const key = r+pendingSuit;
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className='rank-btn2';
+      btn.textContent = rankDisplay(r);
+      const isCurrent = current && current.r===r && current.s===pendingSuit;
+      if(usedKeys.has(key) && !isCurrent){
+        btn.disabled=true; btn.classList.add('disabled');
+      }
+      if(isCurrent) btn.classList.add('selected');
+      btn.addEventListener('click', ()=> selectCard(r, pendingSuit));
+      container.appendChild(btn);
+    }
   }
 
   function openModal(zone, idx){
     activeSlot = {zone, idx};
     const current = zone==='hero' ? hero[idx] : board[idx];
-    renderRankGrid(usedCardsExcluding(zone, idx), current);
+    pendingSuit = current ? current.s : pendingSuit;
+    renderSuitPicker(current);
+    renderRankGrid(current);
     document.getElementById('modalOverlay').classList.remove('hidden');
   }
 
