@@ -32,6 +32,10 @@
 --crapspractice-active: #813c19;
 --roulettepractice: #7a1f3d;
 --roulettepractice-active: #631831;
+--mahjongpractice: #2b3f6b;
+--mahjongpractice-active: #23345a;
+--mahjonghelp: #8a3a24;
+--mahjonghelp-active: #71301e;
 --gold: #d9b65a;
 --radius: 22px;
 }
@@ -271,6 +275,38 @@ font-size: 34px;
 line-height: 1;
 }
 
+/* ---- Mahjong Practice tile ---- */
+.tile--mahjongpractice{
+background: linear-gradient(180deg, #22315a 0%, var(--mahjongpractice) 100%);
+border-color: #4f6bab;
+}
+.tile--mahjongpractice:hover{
+background: linear-gradient(180deg, #283a68 0%, #324a80 100%);
+border-color: #6683c9;
+}
+.tile--mahjongpractice.is-pressed{
+background: linear-gradient(180deg, #1b2748 0%, var(--mahjongpractice-active) 100%);
+}
+.tile--mahjongpractice .label{
+color: #e8ecfa;
+}
+
+/* ---- Mahjong Help tile ---- */
+.tile--mahjonghelp{
+background: linear-gradient(180deg, #6f2f1c 0%, var(--mahjonghelp) 100%);
+border-color: #c96a4a;
+}
+.tile--mahjonghelp:hover{
+background: linear-gradient(180deg, #79341f 0%, #984228 100%);
+border-color: #e0855f;
+}
+.tile--mahjonghelp.is-pressed{
+background: linear-gradient(180deg, #5c2717 0%, var(--mahjonghelp-active) 100%);
+}
+.tile--mahjonghelp .label{
+color: #fbe9df;
+}
+
 .cards{
 position: relative;
 width: 58px;
@@ -414,6 +450,16 @@ letter-spacing: 0.02em;
 <a class="tile tile--roulettepractice" href="https://aedin-ctrl.github.io/roulettepractice/" aria-label="Roulette Practice">
 <div class="icon">🎡</div>
 <span class="label">Roulette Practice</span>
+</a>
+
+<a class="tile tile--mahjongpractice" href="https://aedin-ctrl.github.io/mahjongpractice/" aria-label="Mahjong Practice">
+<div class="icon">&#x1F004;</div>
+<span class="label">Mahjong Practice</span>
+</a>
+
+<a class="tile tile--mahjonghelp" href="https://aedin-ctrl.github.io/mahjonghelp/" aria-label="Mahjong Help">
+<div class="icon">&#x1F004;</div>
+<span class="label">Mahjong Help</span>
 </a>
 
 <div class="tile tile--empty" aria-disabled="true">
