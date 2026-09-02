@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahjong Helper</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%80%84%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b0d12;
+    --panel:#12151c;
+    --panel-2:#171b24;
+    --border:#232838;
+    --text:#e8eaf0;
+    --text-dim:#8b93a7;
+    --accent:#22c58b;
+    --accent-dim:#1a9c6d;
+    --lose:#e0475a;
+    --tie:#e0b545;
+    --man:#e0475a;
+    --pin:#4a9de0;
+    --sou:#3fb570;
+    --honor:#d9b65a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .app{max-width:1100px;margin:0 auto;padding:24px 20px 60px;}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+  header h1{font-size:22px;font-weight:650;letter-spacing:-0.01em;margin:0;}
+  .btn-reset{
+    background:transparent;border:1px solid var(--border);color:var(--text-dim);
+    padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s ease;
+  }
+  .btn-reset:hover{border-color:var(--lose);color:var(--lose);}
+
+  .layout{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;}
+  @media (max-width:900px){ .layout{grid-template-columns:1fr;} }
+  .table, .guide-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;}
+  .section-block{margin-bottom:22px;}
+  .section-block:last-child{margin-bottom:0;}
+  .section-block h2, .panel-block h2{
+    font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:0 0 12px;font-weight:700;
+  }
+  .hint{font-size:12px;color:var(--text-dim);margin:0 0 14px;}
+
+  .hand-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .tile-slot{
+    width:52px;height:72px;border-radius:9px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;cursor:pointer;user-select:none;
+    transition:transform .12s ease, box-shadow .12s ease; position:relative;
+  }
+  .tile-slot:hover{transform:translateY(-3px);}
+  .tile-slot.empty{background:transparent;border:2px dashed var(--border);}
+  .tile-slot.empty:hover{border-color:var(--accent-dim);}
+  .tile-slot.empty .plus{font-size:22px;color:var(--text-dim);font-weight:300;}
+  .tile-slot.filled{background:#f4f0e4;border:1px solid #d8d2bd;box-shadow:0 6px 16px rgba(0,0,0,.35);}
+  .tile-slot .t-rank{font-size:20px;font-weight:700;line-height:1;font-family:Georgia,'Times New Roman',serif;}
+  .tile-slot .t-suit{font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+  .tile-slot.man .t-rank, .tile-slot.man .t-suit{color:var(--man);}
+  .tile-slot.pin .t-rank, .tile-slot.pin .t-suit{color:var(--pin);}
+  .tile-slot.sou .t-rank, .tile-slot.sou .t-suit{color:var(--sou);}
+  .tile-slot.honor .t-rank, .tile-slot.honor .t-suit{color:var(--honor);}
+  .tile-slot.suggest{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .shanten-headline{font-size:18px;font-weight:700;margin:0 0 4px;color:var(--accent);}
+  .shanten-sub{font-size:12.5px;color:var(--text-dim);margin:0;}
+
+  .ukeire-list{display:flex;flex-wrap:wrap;gap:6px;}
+  .ukeire-chip{
+    display:flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--border);
+    border-radius:8px;padding:5px 9px;font-size:12.5px;
+  }
+  .ukeire-chip .tag{font-weight:700;}
+  .ukeire-chip .cnt{color:var(--text-dim);}
+  .ukeire-chip.man .tag{color:var(--man);}
+  .ukeire-chip.pin .tag{color:var(--pin);}
+  .ukeire-chip.sou .tag{color:var(--sou);}
+  .ukeire-chip.honor .tag{color:var(--honor);}
+  .placeholder{color:var(--text-dim);font-size:13px;margin:0;}
+
+  .shape-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);}
+  .shape-row:last-child{border-bottom:none;}
+  .shape-row .v{color:var(--accent);font-weight:700;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;max-width:420px;width:92%;}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .modal-header h3{margin:0;font-size:16px;}
+  .modal-close{background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;line-height:1;}
+  .suit-tabs{display:flex;gap:6px;margin-bottom:14px;}
+  .suit-tab{
+    flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);
+    color:var(--text-dim);font-size:12.5px;font-weight:700;cursor:pointer;text-align:center;
+  }
+  .suit-tab.active{border-color:var(--accent);color:var(--accent);}
+  .rank-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+  .rank-btn{
+    height:48px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);
+    color:var(--text);font-size:14px;font-weight:700;cursor:pointer;font-family:Georgia,'Times New Roman',serif;
+  }
+  .rank-btn:hover{border-color:var(--accent);}
+  .rank-btn:disabled{opacity:.3;cursor:not-allowed;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Mahjong Helper</h1>
+    <button class="btn-reset" id="resetBtn">Reset</button>
+  </header>
+
+  <div class="layout">
+    <section class="table">
+      <div class="section-block">
+        <h2>My Hand <span id="handCount" style="color:var(--text-dim);font-weight:400;"></span></h2>
+        <p class="hint">Tap an empty slot to add a tile you're holding. Tap a filled tile to remove it. Enter 13 tiles while waiting, or all 14 after a draw to see the best discard.</p>
+        <div class="hand-row" id="handRow"></div>
+      </div>
+    </section>
+
+    <aside class="guide-panel">
+      <div class="panel-block">
+        <h2>Hand Shape</h2>
+        <p class="shanten-headline" id="shantenHeadline">Add tiles to begin</p>
+        <p class="shanten-sub" id="shantenSub"></p>
+      </div>
+
+      <div class="panel-block">
+        <h2>Best Discard</h2>
+        <div id="discardArea"><p class="placeholder">Enter 14 tiles to see a suggestion</p></div>
+      </div>
+
+      <div class="panel-block">
+        <h2>Tiles To Look For</h2>
+        <div class="ukeire-list" id="ukeireList"><p class="placeholder">Select at least one tile</p></div>
+      </div>
+
+      <div class="panel-block">
+        <h2>Hand Type Progress</h2>
+        <div id="shapeProgress"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add a Tile</h3>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="suit-tabs" id="suitTabs"></div>
+    <div class="rank-grid" id="rankGrid"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// ---------- Tile helpers (0-8 man, 9-17 pin, 18-26 sou, 27-30 winds, 31-33 dragons) ----------
+const WIND_LABELS = ['East','South','West','North'];
+const WIND_SHORT = ['E','S','W','N'];
+const DRAGON_LABELS = ['White','Green','Red'];
+const DRAGON_SHORT = ['Wh','Gr','Rd'];
+function tileSuit(t){ if(t<9) return 'man'; if(t<18) return 'pin'; if(t<27) return 'sou'; return 'honor'; }
+function tileRankText(t){
+  if(t<9) return String(t+1);
+  if(t<18) return String(t-9+1);
+  if(t<27) return String(t-18+1);
+  if(t<31) return WIND_SHORT[t-27];
+  return DRAGON_SHORT[t-31];
+}
+function tileSuitText(t){ if(t<9) return 'man'; if(t<18) return 'pin'; if(t<27) return 'sou'; if(t<31) return WIND_LABELS[t-27]; return DRAGON_LABELS[t-31]; }
+function tileFullLabel(t){ return tileSuit(t)==='honor' ? tileSuitText(t) : tileRankText(t)+tileSuit(t)[0]; }
+
+// ---------- Verified shanten logic ----------
+function standardShanten(counts){
+  const c = counts.slice();
+  let best = Infinity;
+  function finalize(melds, partials, pairUsed){
+    const cap = Math.max(0, 4 - melds);
+    const p = Math.min(partials, cap);
+    const s = (4 - melds) * 2 - p - (pairUsed ? 1 : 0);
+    if (s < best) best = s;
+  }
+  function scan(pos, melds, partials, pairUsed){
+    if (pos === 34) { finalize(melds, partials, pairUsed); return; }
+    if (c[pos] === 0) { scan(pos + 1, melds, partials, pairUsed); return; }
+    const suited = pos < 27, offset = pos % 9;
+    if (c[pos] >= 3) { c[pos]-=3; scan(pos, melds+1, partials, pairUsed); c[pos]+=3; }
+    if (suited && offset<=6 && c[pos+1]>0 && c[pos+2]>0) { c[pos]--;c[pos+1]--;c[pos+2]--; scan(pos, melds+1, partials, pairUsed); c[pos]++;c[pos+1]++;c[pos+2]++; }
+    if (c[pos] >= 2 && !pairUsed) { c[pos]-=2; scan(pos, melds, partials, true); c[pos]+=2; }
+    if (c[pos] >= 2) { c[pos]-=2; scan(pos, melds, partials+1, pairUsed); c[pos]+=2; }
+    if (suited && offset<=7 && c[pos+1]>0) { c[pos]--;c[pos+1]--; scan(pos, melds, partials+1, pairUsed); c[pos]++;c[pos+1]++; }
+    if (suited && offset<=6 && c[pos+2]>0) { c[pos]--;c[pos+2]--; scan(pos, melds, partials+1, pairUsed); c[pos]++;c[pos+2]++; }
+    c[pos]--; scan(pos, melds, partials, pairUsed); c[pos]++;
+  }
+  scan(0,0,0,false);
+  return best;
+}
+function chiitoiShanten(counts){
+  let pairs=0, kinds=0;
+  for(let i=0;i<34;i++){ if(counts[i]>=1) kinds++; if(counts[i]>=2) pairs++; }
+  pairs = Math.min(pairs,7);
+  return 6 - pairs + Math.max(0, 7-kinds);
+}
+const TERMINAL_HONOR = [0,8,9,17,18,26,27,28,29,30,31,32,33];
+function kokushiShanten(counts){
+  let kinds=0, hasPair=false;
+  for(const i of TERMINAL_HONOR){ if(counts[i]>=1) kinds++; if(counts[i]>=2) hasPair=true; }
+  return 13 - kinds - (hasPair?1:0);
+}
+function shapeShantens(counts){
+  return { standard: standardShanten(counts), chiitoi: chiitoiShanten(counts), kokushi: kokushiShanten(counts) };
+}
+function bestShanten(counts){
+  const s = shapeShantens(counts);
+  return Math.min(s.standard, s.chiitoi, s.kokushi);
+}
+
+// ---------- App state ----------
+let hand = []; // array of tile type indices, up to 14
+
+function counts(){ const c = new Array(34).fill(0); for(const t of hand) c[t]++; return c; }
+
+function render(){
+  document.getElementById('handCount').textContent = hand.length ? '(' + hand.length + '/14)' : '';
+  const row = document.getElementById('handRow');
+  row.innerHTML = '';
+  const sorted = hand.slice().sort((a,b)=>a-b);
+  sorted.forEach(t=>{
+    const d = document.createElement('div');
+    d.className = 'tile-slot filled ' + tileSuit(t);
+    d.innerHTML = '<div class="t-rank">'+tileRankText(t)+'</div><div class="t-suit">'+tileSuitText(t)+'</div>';
+    d.onclick = ()=>{ const idx = hand.indexOf(t); hand.splice(idx,1); render(); };
+    row.appendChild(d);
+  });
+  if(hand.length < 14){
+    const empty = document.createElement('div');
+    empty.className = 'tile-slot empty';
+    empty.innerHTML = '<span class="plus">+</span>';
+    empty.onclick = openModal;
+    row.appendChild(empty);
+  }
+
+  renderGuide();
+}
+
+function shantenLabel(s){
+  if(s <= -1) return 'Complete hand!';
+  if(s === 0) return 'Tenpai — one tile away';
+  return s + ' tiles away from tenpai';
+}
+
+function renderGuide(){
+  const c = counts();
+  const headline = document.getElementById('shantenHeadline');
+  const sub = document.getElementById('shantenSub');
+  const ukeireEl = document.getElementById('ukeireList');
+  const discardEl = document.getElementById('discardArea');
+  const shapeEl = document.getElementById('shapeProgress');
+
+  if(hand.length === 0){
+    headline.textContent = 'Add tiles to begin';
+    sub.textContent = '';
+    ukeireEl.innerHTML = '<p class="placeholder">Select at least one tile</p>';
+    discardEl.innerHTML = '<p class="placeholder">Enter 14 tiles to see a suggestion</p>';
+    shapeEl.innerHTML = '';
+    return;
+  }
+
+  const shapes = shapeShantens(c);
+  const s = Math.min(shapes.standard, shapes.chiitoi, shapes.kokushi);
+  headline.textContent = shantenLabel(s);
+  const bestShape = s===shapes.kokushi ? 'thirteen orphans' : s===shapes.chiitoi ? 'seven pairs' : 'a standard hand';
+  sub.textContent = hand.length + ' tile' + (hand.length===1?'':'s') + ' selected — closest via ' + bestShape + '.';
+
+  // ukeire: tiles that reduce shanten if drawn (based on hand as-is)
+  const useful = [];
+  for(let t=0;t<34;t++){
+    if(c[t] >= 4) continue;
+    c[t]++;
+    const ns = bestShanten(c);
+    c[t]--;
+    if(ns < s) useful.push({ tile:t, remaining: 4 - c[t] });
+  }
+  if(useful.length === 0){
+    ukeireEl.innerHTML = '<p class="placeholder">'+(s<=-1?'Hand is already complete.':'No improving tile found for this hand shape.')+'</p>';
+  } else {
+    useful.sort((a,b)=>a.tile-b.tile);
+    ukeireEl.innerHTML = useful.map(u=>
+      '<div class="ukeire-chip '+tileSuit(u.tile)+'"><span class="tag">'+tileFullLabel(u.tile)+'</span><span class="cnt">x'+u.remaining+' left</span></div>'
+    ).join('');
+  }
+
+  // best discard, only meaningful with 14 tiles
+  if(hand.length === 14){
+    const options = [];
+    for(let t=0;t<34;t++){
+      if(c[t] === 0) continue;
+      c[t]--;
+      const rs = bestShanten(c);
+      let ukeireCount = 0;
+      for(let u=0;u<34;u++){
+        if(c[u] >= 4) continue;
+        c[u]++;
+        const ns2 = bestShanten(c);
+        c[u]--;
+        if(ns2 < rs) ukeireCount += (4 - c[u]);
+      }
+      c[t]++;
+      options.push({ tile:t, shanten: rs, ukeire: ukeireCount });
+    }
+    options.sort((a,b)=> a.shanten - b.shanten || b.ukeire - a.ukeire);
+    const top = options[0];
+    const tied = options.filter(o=>o.shanten===top.shanten && o.ukeire===top.ukeire).slice(0,4);
+    discardEl.innerHTML = tied.map(o=>
+      '<div class="shape-row"><span>Discard '+tileFullLabel(o.tile)+'</span><span class="v">'+o.ukeire+' tiles improve</span></div>'
+    ).join('');
+  } else if(hand.length > 14){
+    discardEl.innerHTML = '<p class="placeholder">Too many tiles selected — remove one.</p>';
+  } else {
+    discardEl.innerHTML = '<p class="placeholder">Enter 14 tiles to see a suggestion</p>';
+  }
+
+  shapeEl.innerHTML =
+    '<div class="shape-row"><span>Standard hand</span><span class="v">'+shantenText(shapes.standard)+'</span></div>' +
+    '<div class="shape-row"><span>Seven pairs</span><span class="v">'+shantenText(shapes.chiitoi)+'</span></div>' +
+    '<div class="shape-row"><span>Thirteen orphans</span><span class="v">'+shantenText(shapes.kokushi)+'</span></div>';
+}
+function shantenText(s){ return s<=-1 ? 'done' : (s===0 ? 'tenpai' : s+' away'); }
+
+// ---------- Tile picker modal ----------
+const SUIT_TABS = [
+  {key:'man', label:'Characters', range:[0,9]},
+  {key:'pin', label:'Circles', range:[9,18]},
+  {key:'sou', label:'Bamboo', range:[18,27]},
+  {key:'honor', label:'Honors', range:[27,34]}
+];
+let activeSuitTab = 'man';
+
+function openModal(){
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  renderSuitTabs();
+  renderRankGrid();
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.add('hidden'); }
+
+function renderSuitTabs(){
+  const wrap = document.getElementById('suitTabs');
+  wrap.innerHTML = '';
+  SUIT_TABS.forEach(s=>{
+    const b = document.createElement('div');
+    b.className = 'suit-tab' + (activeSuitTab===s.key ? ' active' : '');
+    b.textContent = s.label;
+    b.onclick = ()=>{ activeSuitTab = s.key; renderSuitTabs(); renderRankGrid(); };
+    wrap.appendChild(b);
+  });
+}
+function renderRankGrid(){
+  const grid = document.getElementById('rankGrid');
+  grid.innerHTML = '';
+  const tab = SUIT_TABS.find(s=>s.key===activeSuitTab);
+  const c = counts();
+  for(let t=tab.range[0]; t<tab.range[1]; t++){
+    const b = document.createElement('button');
+    b.className = 'rank-btn';
+    b.textContent = tileSuit(t)==='honor' ? DRAGON_SHORT_OR_WIND(t) : tileRankText(t);
+    b.disabled = hand.length>=14 || c[t]>=4;
+    b.onclick = ()=>{ hand.push(t); render(); closeModal(); };
+    grid.appendChild(b);
+  }
+}
+function DRAGON_SHORT_OR_WIND(t){ return t<31 ? WIND_LABELS[t-27] : DRAGON_LABELS[t-31]; }
+
+document.getElementById('modalClose').onclick = closeModal;
+document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
+document.getElementById('resetBtn').onclick = ()=>{ hand = []; render(); };
+
+render();
+})();
+</script>
+</body>
+</html>
