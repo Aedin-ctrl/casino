@@ -114,22 +114,30 @@
   }
   .status-line b{color:var(--text);}
 
+  .poker-table{ display:flex; flex-direction:column; align-items:center; }
   .opponents-row{
     display:flex;
-    gap:10px;
+    gap:22px;
+    justify-content:center;
     flex-wrap:wrap;
+    position:relative;
+    z-index:2;
+    margin-bottom:-18px;
   }
+  .opponents-row .seat:nth-child(1),
+  .opponents-row .seat:nth-child(5){ margin-top:0; }
+  .opponents-row .seat:nth-child(2),
+  .opponents-row .seat:nth-child(4){ margin-top:10px; }
+  .opponents-row .seat:nth-child(3){ margin-top:16px; }
   .seat{
     position:relative;
-    width:112px;
-    padding:10px 8px;
-    border-radius:12px;
-    background:var(--panel-2);
-    border:1.5px solid var(--border);
+    width:94px;
+    padding:8px 6px 12px;
     text-align:center;
-    transition:border-color .15s ease, box-shadow .15s ease;
+    border-bottom:2px solid transparent;
+    transition:border-color .15s ease;
   }
-  .seat.acting{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+  .seat.acting{border-bottom-color:var(--accent);}
   .seat.folded{opacity:.4;}
   .seat-name{
     font-size:11.5px;
@@ -155,12 +163,12 @@
     margin-bottom:6px;
   }
   .mini-card{
-    width:26px;height:36px;
+    width:22px;height:30px;
     border-radius:4px;
     background:repeating-linear-gradient(135deg, #e2e2e6, #e2e2e6 5px, #d3d3d8 5px, #d3d3d8 10px);
     border:1px solid #cfcfd4;
     display:flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:700;
+    font-size:10.5px;font-weight:700;
   }
   .mini-card.revealed{
     background:#f4f2ec;
@@ -193,17 +201,26 @@
   .badge.bb{background:var(--tie);color:#ffffff;}
   .badge.dealer{background:var(--black);color:#ffffff;}
 
+  .table-felt{
+    position:relative; z-index:1;
+    width:100%; max-width:560px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:120px/56px;
+    padding:34px 24px 22px;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    margin-bottom:22px;
+  }
   .community-row{
     display:flex;
     gap:8px;
     align-items:center;
-    margin:18px 0 8px;
+    justify-content:center;
   }
   .pot-line{
     font-size:13px;
     color:var(--text-dim);
     font-weight:600;
-    margin-bottom:14px;
   }
   .pot-line b{color:var(--accent);font-size:15px;}
 
@@ -504,12 +521,13 @@
     <div class="section-block">
       <h2>Table</h2>
       <p class="status-line" id="statusLine">Press Start Hand to begin.</p>
-      <div class="opponents-row" id="opponentsRow"></div>
-    </div>
-
-    <div class="section-block">
-      <div class="pot-line" id="potLine">Pot: <b>0</b></div>
-      <div class="community-row" id="communityRow"></div>
+      <div class="poker-table">
+        <div class="opponents-row" id="opponentsRow"></div>
+        <div class="table-felt">
+          <div class="community-row" id="communityRow"></div>
+          <div class="pot-line" id="potLine">Pot: <b>0</b></div>
+        </div>
+      </div>
     </div>
 
     <div class="section-block">

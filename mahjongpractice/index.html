@@ -135,47 +135,65 @@
     padding:18px;
   }
 
-  .opp-row{display:flex;gap:10px;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;}
-  .seat{
-    flex:1 1 0;
-    min-width:150px;
-    background:var(--panel-2);
-    border:1.5px solid var(--border);
-    border-radius:12px;
-    padding:10px;
-    transition:border-color .15s ease, box-shadow .15s ease;
+  .mj-table{
+    display:grid;
+    grid-template-columns:132px 1fr 132px;
+    grid-template-areas:
+      ".      across  ."
+      "left   center  right"
+      "you    you     you";
+    gap:18px 14px;
+    align-items:start;
+    margin-bottom:22px;
   }
-  .seat.acting{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
-  .seat.riichi{border-color:var(--warn);}
-  .seat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-  .seat-name{font-size:12px;font-weight:700;}
-  .seat-score{font-size:11.5px;color:var(--text-dim);}
-  .seat-hand-back{display:flex;gap:2px;margin-bottom:6px;}
-  .tile-back{width:14px;height:20px;background:linear-gradient(180deg,#e2e2e6,#d3d3d8);border:1px solid #cfcfd4;border-radius:3px;}
+  @media (max-width:720px){
+    .mj-table{grid-template-columns:1fr; grid-template-areas:"across" "left" "right" "center" "you"; gap:14px;}
+  }
+
+  .seat{ padding:2px 0; border-left:2px solid transparent; padding-left:10px; transition:border-color .15s ease; }
+  .seat.acting{ border-left-color:var(--accent); }
+  .seat.riichi{ border-left-color:var(--warn); }
+  .seat--across{ grid-area:across; justify-self:center; width:100%; max-width:300px; border-left:none; border-top:2px solid transparent; padding-left:0; padding-top:10px; }
+  .seat--across.acting{ border-top-color:var(--accent); border-left-color:transparent; }
+  .seat--across.riichi{ border-top-color:var(--warn); border-left-color:transparent; }
+  .seat--left{ grid-area:left; }
+  .seat--right{ grid-area:right; text-align:right; }
+  .seat--right .seat-top{ flex-direction:row-reverse; }
+  .seat--right .seat-hand-back, .seat--right .discard-mini, .seat--right .melds-mini{ justify-content:flex-end; }
+
+  .seat-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+  .seat-name{font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;}
+  .seat-score{font-size:12px;color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;}
+  .seat-hand-back{display:flex;gap:2px;margin-bottom:6px;flex-wrap:wrap;}
+  .tile-back{width:13px;height:19px;background:linear-gradient(180deg,#eceef0,#dcdee2);border:1px solid #cfd2d6;border-radius:3px;}
   .discard-mini{display:flex;flex-wrap:wrap;gap:2px;min-height:22px;}
   .discard-chip{
-    width:18px;height:24px;border-radius:3px;background:var(--tile-face);
-    font-size:9px;display:flex;align-items:center;justify-content:center;color:#222;font-weight:700;
+    width:17px;height:23px;border-radius:3px;background:var(--tile-face);border:1px solid #e6e0cf;
+    font-size:8.5px;display:flex;align-items:center;justify-content:center;color:#585245;font-weight:700;
   }
   .melds-mini{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
   .meld-chip{font-size:9.5px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;padding:2px 5px;color:var(--text-dim);}
 
-  .center-info{
-    display:flex;align-items:center;justify-content:center;gap:22px;
-    padding:14px 0;margin-bottom:14px;
-    border-top:1px dashed var(--border);border-bottom:1px dashed var(--border);
+  .mj-center{ grid-area:center; display:flex; align-items:center; justify-content:center; }
+  .mj-felt{
+    width:100%; max-width:260px; aspect-ratio:15/9;
+    border-radius:20px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; gap:20px;
   }
   .center-stat{text-align:center;}
-  .center-stat .n{font-size:20px;font-weight:700;}
-  .center-stat .l{font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}
+  .center-stat .n{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .center-stat .l{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
 
-  .status-line{text-align:center;font-size:13px;color:var(--text-dim);min-height:20px;margin-bottom:10px;}
+  .status-line{text-align:center;font-size:13px;color:var(--text-dim);min-height:20px;margin-bottom:14px;}
   .status-line b{color:var(--text);}
 
-  .you-block{background:var(--panel-2);border:1.5px solid var(--border);border-radius:12px;padding:12px;}
-  .you-block.acting{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+  .you-block{grid-area:you;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .you-block.acting{border-color:var(--accent);}
   .you-block.riichi{border-color:var(--warn);}
   .you-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .you-top .seat-name{font-size:14px;font-weight:700;color:var(--text);text-transform:none;letter-spacing:normal;}
   .you-discards{display:flex;flex-wrap:wrap;gap:3px;min-height:26px;margin-bottom:10px;}
   .you-melds{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
 
@@ -259,32 +277,35 @@
 
   <div class="board">
     <div class="table-wrap">
-      <div class="opp-row">
-        <div class="seat" id="seatRight">
-          <div class="seat-top"><span class="seat-name">Right</span><span class="seat-score" id="scoreRight">25000</span></div>
-          <div class="seat-hand-back" id="backRight"></div>
-          <div class="discard-mini" id="discardRight"></div>
-          <div class="melds-mini" id="meldRight"></div>
-        </div>
-        <div class="seat" id="seatAcross">
+      <div class="mj-table">
+        <div class="seat seat--across" id="seatAcross">
           <div class="seat-top"><span class="seat-name">Across</span><span class="seat-score" id="scoreAcross">25000</span></div>
           <div class="seat-hand-back" id="backAcross"></div>
           <div class="discard-mini" id="discardAcross"></div>
           <div class="melds-mini" id="meldAcross"></div>
         </div>
-        <div class="seat" id="seatLeft">
+
+        <div class="seat seat--left" id="seatLeft">
           <div class="seat-top"><span class="seat-name">Left</span><span class="seat-score" id="scoreLeft">25000</span></div>
           <div class="seat-hand-back" id="backLeft"></div>
           <div class="discard-mini" id="discardLeft"></div>
           <div class="melds-mini" id="meldLeft"></div>
         </div>
-      </div>
 
-      <div class="center-info">
-        <div class="center-stat"><div class="n" id="wallCount">70</div><div class="l">Wall</div></div>
-        <div class="center-stat"><div class="n" id="handNum">1</div><div class="l">Hand</div></div>
-        <div class="center-stat"><div class="n" id="riichiSticks">0</div><div class="l">Riichi sticks</div></div>
-      </div>
+        <div class="mj-center">
+          <div class="mj-felt">
+            <div class="center-stat"><div class="n" id="wallCount">70</div><div class="l">Wall</div></div>
+            <div class="center-stat"><div class="n" id="handNum">1</div><div class="l">Hand</div></div>
+            <div class="center-stat"><div class="n" id="riichiSticks">0</div><div class="l">Riichi sticks</div></div>
+          </div>
+        </div>
+
+        <div class="seat seat--right" id="seatRight">
+          <div class="seat-top"><span class="seat-name">Right</span><span class="seat-score" id="scoreRight">25000</span></div>
+          <div class="seat-hand-back" id="backRight"></div>
+          <div class="discard-mini" id="discardRight"></div>
+          <div class="melds-mini" id="meldRight"></div>
+        </div>
 
       <div class="you-block" id="youBlock">
         <div class="you-top">
@@ -295,6 +316,7 @@
         <div class="you-discards" id="youDiscards"></div>
         <div class="hand-row" id="youHand"></div>
         <div class="actions-row" id="actionsRow"></div>
+      </div>
       </div>
     </div>
 
