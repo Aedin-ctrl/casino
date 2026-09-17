@@ -32,8 +32,8 @@ a{ color:inherit; text-decoration:none; }
 header{ margin-bottom:40px; }
 .eyebrow{ font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); font-weight:600; }
 h1{
-  font-family:'Fraunces', serif; font-style:italic; font-weight:600;
-  font-size:clamp(2.4rem, 6vw, 3.4rem); margin:8px 0 10px; letter-spacing:-0.01em;
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight:700;
+  font-size:clamp(2.1rem, 5vw, 2.9rem); margin:8px 0 10px; letter-spacing:-0.02em;
 }
 header p{ margin:0; color:var(--muted); font-size:0.98rem; max-width:520px; line-height:1.55; }
 
@@ -54,7 +54,6 @@ header p{ margin:0; color:var(--muted); font-size:0.98rem; max-width:520px; line
 .section.active{ display:block; animation: rise .3s ease both; }
 @keyframes rise{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
 
-.section-note{ color:var(--muted); font-size:13.5px; margin:0 0 28px; max-width:560px; line-height:1.6; }
 
 .grid{
   display:grid;
@@ -108,18 +107,17 @@ footer p{ margin:0; font-size:12px; color:var(--faint); letter-spacing:.02em; }
 <div class="wrap">
   <header>
     <div class="eyebrow">Casino</div>
-    <h1>Table games &amp; advantage tools</h1>
-    <p>Practice games with a real bankroll, games that show you the odds while you play, and calculators for figuring out the odds at a table somewhere else.</p>
+    <h1 id="pageTitle">Table Games</h1>
+    <p id="pageDesc">Play blackjack, poker, baccarat, craps, roulette, and mahjong against the house with a real bankroll.</p>
   </header>
 
   <nav class="tab-nav">
-    <button class="tab-btn active" data-section="games">Games</button>
-    <button class="tab-btn" data-section="advantage">Advantage Games</button>
-    <button class="tab-btn" data-section="calculators">Calculators</button>
+    <button class="tab-btn active" data-section="games" data-title="Table Games" data-desc="Play blackjack, poker, baccarat, craps, roulette, and mahjong against the house with a real bankroll.">Games</button>
+    <button class="tab-btn" data-section="advantage" data-title="Advantage Games" data-desc="The same games, but with a live win-odds panel next to the table as you play.">Advantage Games</button>
+    <button class="tab-btn" data-section="calculators" data-title="Calculators" data-desc="Enter what's already been dealt at a real table and get the optimal play plus win odds &mdash; no bankroll, no gameplay, just the numbers.">Calculators</button>
   </nav>
 
   <section class="section active" id="games">
-    <p class="section-note">Play against the house with a real bankroll &mdash; $1,000 to start, tracked per game.</p>
     <div class="grid">
       <a class="tile tile--blackjack" href="./blackjackpractice/">
         <div class="mini-cards"><div class="mini-card left spade">A</div><div class="mini-card right heart">K</div></div>
@@ -161,7 +159,6 @@ footer p{ margin:0; font-size:12px; color:var(--faint); letter-spacing:.02em; }
   </section>
 
   <section class="section" id="advantage">
-    <p class="section-note">The same games, but with a live win-odds panel visible while you play &mdash; still a real bankroll, still betting.</p>
     <div class="grid">
       <a class="tile tile--blackjack" href="./blackjackadvantage/">
         <div class="mini-cards"><div class="mini-card left spade">A</div><div class="mini-card right heart">K</div></div>
@@ -191,7 +188,6 @@ footer p{ margin:0; font-size:12px; color:var(--faint); letter-spacing:.02em; }
   </section>
 
   <section class="section" id="calculators">
-    <p class="section-note">Enter what's actually been dealt at a real table and get the recommended play plus win odds &mdash; no bankroll, no gameplay, just the numbers.</p>
     <div class="grid">
       <a class="tile tile--blackjack" href="./blackjackhelp/">
         <div class="mini-cards"><div class="mini-card left spade">A</div><div class="mini-card right heart">K</div></div>
@@ -228,9 +224,13 @@ footer p{ margin:0; font-size:12px; color:var(--faint); letter-spacing:.02em; }
 <script>
   const tabs = document.querySelectorAll('.tab-btn');
   const sections = document.querySelectorAll('.section');
+  const pageTitle = document.getElementById('pageTitle');
+  const pageDesc = document.getElementById('pageDesc');
   tabs.forEach(t => t.addEventListener('click', () => {
     tabs.forEach(b => b.classList.toggle('active', b===t));
     sections.forEach(s => s.classList.toggle('active', s.id===t.dataset.section));
+    pageTitle.textContent = t.dataset.title;
+    pageDesc.textContent = t.dataset.desc;
   }));
 </script>
 
