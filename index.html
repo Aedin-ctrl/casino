@@ -9,37 +9,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg: #101014;
-  --bg-glow: radial-gradient(circle at 50% -10%, rgba(217,182,90,0.08), transparent 55%);
-  --tile: #1a1a20;
-  --tile-hover: #202027;
-  --border: #2c2c34;
-  --border-hover: #3d3d46;
-  --text: #ececee;
-  --muted: #8d8d97;
-  --faint: #55555f;
-  --gold: #d9b65a;
+  --bg: #f5f5f6;
+  --tile: #ffffff;
+  --tile-hover: #fafafa;
+  --border: #e2e2e6;
+  --border-hover: #cfcfd4;
+  --text: #101114;
+  --muted: #6b7280;
+  --faint: #9a9aa2;
+  --gold: #a9791f;
   --radius: 18px;
-
-  --poker: #26523d;       --poker-2: #316f4f;
-  --blackjack: #7a2c3b;   --blackjack-2: #9a3f4f;
-  --baccarat: #1c6b63;    --baccarat-2: #21796f;
-  --craps: #9c4a1f;       --craps-2: #ac5525;
-  --roulette: #631831;    --roulette-2: #8c2347;
-  --mahjong: #2b3f6b;     --mahjong-2: #324a80;
 }
 *{ box-sizing: border-box; }
 html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); min-height:100vh; }
 body{
   font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-image: var(--bg-glow);
-}
-body::before{
-  content:"";
-  position:fixed; inset:0;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events:none;
 }
 a{ color:inherit; text-decoration:none; }
 
@@ -86,23 +70,18 @@ header p{ margin:0; color:var(--muted); font-size:0.98rem; max-width:520px; line
   padding:22px 20px;
   display:flex; flex-direction:column; gap:14px;
   min-height:150px;
-  transition: background .15s ease, border-color .15s ease, transform .15s ease;
-  overflow:hidden;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
-.tile::before{
-  content:"";
-  position:absolute; inset:0; opacity:0;
-  background: linear-gradient(160deg, var(--glow-1, transparent) 0%, transparent 55%);
-  transition: opacity .2s ease;
-  pointer-events:none;
+.tile:hover{
+  border-color:var(--border-hover);
+  transform:translateY(-2px);
+  box-shadow:0 10px 24px -12px rgba(16,17,20,.15);
 }
-.tile:hover{ background:var(--tile-hover); border-color:var(--border-hover); transform:translateY(-2px); }
-.tile:hover::before{ opacity:0.5; }
 .tile .icon{ font-size:30px; line-height:1; }
 .mini-cards{ position:relative; width:52px; height:40px; }
 .mini-card{
   position:absolute; top:0; width:30px; height:40px;
-  background:#f4f2ec; border-radius:5px; box-shadow:0 3px 8px rgba(0,0,0,.35);
+  background:#f4f2ec; border:1px solid #d8d5cb; border-radius:5px; box-shadow:0 3px 8px rgba(16,17,20,.10);
   display:flex; align-items:flex-start; justify-content:flex-start;
   padding:3px 0 0 5px; font-family:'Fraunces', serif; font-weight:600; font-size:12px; line-height:1;
 }
@@ -117,19 +96,6 @@ header p{ margin:0; color:var(--muted); font-size:0.98rem; max-width:520px; line
   font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
   color:var(--faint); border:1px solid var(--border); border-radius:6px; padding:3px 8px;
 }
-
-.tile--poker{ --glow-1: rgba(38,82,61,.55); border-color: rgba(58,122,91,.35); }
-.tile--poker:hover{ border-color: var(--poker-2); }
-.tile--blackjack{ --glow-1: rgba(122,44,59,.55); border-color: rgba(154,63,79,.35); }
-.tile--blackjack:hover{ border-color: var(--blackjack-2); }
-.tile--baccarat{ --glow-1: rgba(28,107,99,.55); border-color: rgba(33,121,111,.35); }
-.tile--baccarat:hover{ border-color: var(--baccarat-2); }
-.tile--craps{ --glow-1: rgba(156,74,31,.55); border-color: rgba(172,85,37,.35); }
-.tile--craps:hover{ border-color: var(--craps-2); }
-.tile--roulette{ --glow-1: rgba(99,24,49,.55); border-color: rgba(140,35,71,.35); }
-.tile--roulette:hover{ border-color: var(--roulette-2); }
-.tile--mahjong{ --glow-1: rgba(43,63,107,.55); border-color: rgba(50,74,128,.35); }
-.tile--mahjong:hover{ border-color: var(--mahjong-2); }
 
 footer{ margin-top:56px; text-align:left; }
 footer p{ margin:0; font-size:12px; color:var(--faint); letter-spacing:.02em; }

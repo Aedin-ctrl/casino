@@ -7,18 +7,18 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <style>
   :root{
-    --bg:#0b0d12;
-    --panel:#12151c;
-    --panel-2:#171b24;
-    --border:#232838;
-    --text:#e8eaf0;
-    --text-dim:#8b93a7;
-    --accent:#22c58b;
-    --accent-dim:#1a9c6d;
-    --lose:#e0475a;
-    --tie:#e0b545;
-    --red:#e0475a;
-    --black:#161821;
+    --bg:#f5f5f6;
+    --panel:#ffffff;
+    --panel-2:#f0f0f2;
+    --border:#e2e2e6;
+    --text:#101114;
+    --text-dim:#6b7280;
+    --accent:#158a4d;
+    --accent-dim:#0f6b3c;
+    --lose:#dc2626;
+    --tie:#b45309;
+    --red:#c0362c;
+    --black:#1c1c22;
   }
   *{box-sizing:border-box;}
   body{
@@ -117,7 +117,7 @@
   .card-slot.filled{
     background:#f4f2ec;
     border:1px solid #d8d5cb;
-    box-shadow:0 6px 16px rgba(0,0,0,.35);
+    box-shadow:0 4px 14px rgba(16,17,20,.10);
   }
   .card-slot .card-rank{
     font-size:30px;
@@ -285,7 +285,7 @@
   .suit-btn.black .symbol{color:var(--text);}
   .suit-btn.red .symbol{color:var(--red);}
   .suit-btn:hover{border-color:var(--accent);}
-  .suit-btn.active{border-color:var(--accent);background:rgba(34,197,139,.14);}
+  .suit-btn.active{border-color:var(--accent);background:rgba(21,138,77,.14);}
   .suit-btn.active .name{color:var(--text);}
   .rank-grid-2{
     display:grid;
@@ -305,7 +305,7 @@
   .rank-grid-2.black .rank-btn2{color:var(--text);}
   .rank-grid-2.red .rank-btn2{color:var(--red);}
   .rank-btn2:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);}
-  .rank-btn2.selected{background:var(--accent);border-color:var(--accent);color:#06110c;}
+  .rank-btn2.selected{background:var(--accent);border-color:var(--accent);color:#ffffff;}
   .rank-btn2.disabled{opacity:.25;cursor:not-allowed;}
   .modal-footer{
     padding:14px 18px 18px;
