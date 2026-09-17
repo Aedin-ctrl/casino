@@ -6,484 +6,235 @@
 <title>Casino</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
---bg: #19191c;
---tile: #232327;
---tile-hover: #29292e;
---tile-active: #1e1e22;
---border: #333338;
---text: #ececee;
---muted: #85858d;
---felt: #2f6e4f;
---felt-active: #285f44;
---blackjack: #7a2c3b;
---blackjack-active: #64232f;
---practice: #24567a;
---practice-active: #1c4763;
---pokerpractice: #5b3b8c;
---pokerpractice-active: #4a2f73;
---baccaratpractice: #1c6b63;
---baccaratpractice-active: #155650;
---baccarathelp: #96731f;
---baccarathelp-active: #7a5c19;
---crapspractice: #9c4a1f;
---crapspractice-active: #813c19;
---roulettepractice: #7a1f3d;
---roulettepractice-active: #631831;
---mahjongpractice: #2b3f6b;
---mahjongpractice-active: #23345a;
---mahjonghelp: #8a3a24;
---mahjonghelp-active: #71301e;
---gold: #d9b65a;
---radius: 22px;
-}
+  --bg: #101014;
+  --bg-glow: radial-gradient(circle at 50% -10%, rgba(217,182,90,0.08), transparent 55%);
+  --tile: #1a1a20;
+  --tile-hover: #202027;
+  --border: #2c2c34;
+  --border-hover: #3d3d46;
+  --text: #ececee;
+  --muted: #8d8d97;
+  --faint: #55555f;
+  --gold: #d9b65a;
+  --radius: 18px;
 
+  --poker: #26523d;       --poker-2: #316f4f;
+  --blackjack: #7a2c3b;   --blackjack-2: #9a3f4f;
+  --baccarat: #1c6b63;    --baccarat-2: #21796f;
+  --craps: #9c4a1f;       --craps-2: #ac5525;
+  --roulette: #631831;    --roulette-2: #8c2347;
+  --mahjong: #2b3f6b;     --mahjong-2: #324a80;
+}
 *{ box-sizing: border-box; }
-
-html, body{
-margin: 0;
-padding: 0;
-background: var(--bg);
-color: var(--text);
-min-height: 100vh;
-}
-
+html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); min-height:100vh; }
 body{
-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-display: flex;
-align-items: center;
-justify-content: center;
-padding: 32px 20px;
+  font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-image: var(--bg-glow);
 }
-
-/* faint dot grid for texture, not blank */
 body::before{
-content: "";
-position: fixed;
-inset: 0;
-background-image: radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px);
-background-size: 22px 22px;
-pointer-events: none;
+  content:"";
+  position:fixed; inset:0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events:none;
 }
+a{ color:inherit; text-decoration:none; }
 
-main{
-width: 100%;
-max-width: 420px;
-position: relative;
-}
+.wrap{ max-width:1080px; margin:0 auto; padding:56px 28px 80px; position:relative; }
 
-header{
-margin-bottom: 36px;
-text-align: left;
-}
-
+header{ margin-bottom:40px; }
+.eyebrow{ font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); font-weight:600; }
 h1{
-font-family: 'Fraunces', serif;
-font-style: italic;
-font-weight: 500;
-font-size: clamp(2.1rem, 8vw, 2.6rem);
-margin: 0 0 6px 0;
-letter-spacing: -0.01em;
-color: var(--text);
+  font-family:'Fraunces', serif; font-style:italic; font-weight:600;
+  font-size:clamp(2.4rem, 6vw, 3.4rem); margin:8px 0 10px; letter-spacing:-0.01em;
 }
+header p{ margin:0; color:var(--muted); font-size:0.98rem; max-width:520px; line-height:1.55; }
 
-header p{
-margin: 0;
-font-size: 0.92rem;
-color: var(--muted);
-letter-spacing: 0.01em;
+.tab-nav{
+  display:flex; gap:6px; margin:32px 0 8px;
+  border-bottom:1px solid var(--border);
 }
+.tab-btn{
+  font-family:inherit; font-size:14px; font-weight:600; color:var(--muted);
+  background:none; border:none; cursor:pointer;
+  padding:11px 6px; margin-right:22px; border-bottom:2px solid transparent;
+  transition: color .15s ease, border-color .15s ease;
+}
+.tab-btn:hover{ color:var(--text); }
+.tab-btn.active{ color:var(--gold); border-bottom-color:var(--gold); }
+
+.section{ display:none; padding-top:32px; }
+.section.active{ display:block; animation: rise .3s ease both; }
+@keyframes rise{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+.section-note{ color:var(--muted); font-size:13.5px; margin:0 0 28px; max-width:560px; line-height:1.6; }
 
 .grid{
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 16px;
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap:16px;
 }
 
 .tile{
-position: relative;
-aspect-ratio: 1 / 1;
-border-radius: var(--radius);
-background: var(--tile);
-border: 1px solid var(--border);
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 12px;
-text-decoration: none;
-color: var(--text);
-overflow: hidden;
-cursor: pointer;
--webkit-tap-highlight-color: transparent;
-transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+  position:relative;
+  border-radius:var(--radius);
+  background:var(--tile);
+  border:1px solid var(--border);
+  padding:22px 20px;
+  display:flex; flex-direction:column; gap:14px;
+  min-height:150px;
+  transition: background .15s ease, border-color .15s ease, transform .15s ease;
+  overflow:hidden;
+}
+.tile::before{
+  content:"";
+  position:absolute; inset:0; opacity:0;
+  background: linear-gradient(160deg, var(--glow-1, transparent) 0%, transparent 55%);
+  transition: opacity .2s ease;
+  pointer-events:none;
+}
+.tile:hover{ background:var(--tile-hover); border-color:var(--border-hover); transform:translateY(-2px); }
+.tile:hover::before{ opacity:0.5; }
+.tile .icon{ font-size:30px; line-height:1; }
+.mini-cards{ position:relative; width:52px; height:40px; }
+.mini-card{
+  position:absolute; top:0; width:30px; height:40px;
+  background:#f4f2ec; border-radius:5px; box-shadow:0 3px 8px rgba(0,0,0,.35);
+  display:flex; align-items:flex-start; justify-content:flex-start;
+  padding:3px 0 0 5px; font-family:'Fraunces', serif; font-weight:600; font-size:12px; line-height:1;
+}
+.mini-card.left{ left:0; transform:rotate(-8deg); z-index:1; }
+.mini-card.right{ left:18px; transform:rotate(7deg); z-index:2; }
+.mini-card.spade{ color:#1c1c22; }
+.mini-card.heart{ color:#b3423a; }
+.tile .name{ font-size:1.05rem; font-weight:650; letter-spacing:-0.01em; }
+.tile .desc{ font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:-6px; }
+.tile .tag{
+  margin-top:auto; align-self:flex-start;
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--faint); border:1px solid var(--border); border-radius:6px; padding:3px 8px;
 }
 
-.tile:hover{
-background: var(--tile-hover);
-border-color: #3d3d43;
-}
+.tile--poker{ --glow-1: rgba(38,82,61,.55); border-color: rgba(58,122,91,.35); }
+.tile--poker:hover{ border-color: var(--poker-2); }
+.tile--blackjack{ --glow-1: rgba(122,44,59,.55); border-color: rgba(154,63,79,.35); }
+.tile--blackjack:hover{ border-color: var(--blackjack-2); }
+.tile--baccarat{ --glow-1: rgba(28,107,99,.55); border-color: rgba(33,121,111,.35); }
+.tile--baccarat:hover{ border-color: var(--baccarat-2); }
+.tile--craps{ --glow-1: rgba(156,74,31,.55); border-color: rgba(172,85,37,.35); }
+.tile--craps:hover{ border-color: var(--craps-2); }
+.tile--roulette{ --glow-1: rgba(99,24,49,.55); border-color: rgba(140,35,71,.35); }
+.tile--roulette:hover{ border-color: var(--roulette-2); }
+.tile--mahjong{ --glow-1: rgba(43,63,107,.55); border-color: rgba(50,74,128,.35); }
+.tile--mahjong:hover{ border-color: var(--mahjong-2); }
 
-.tile:active,
-.tile.is-pressed{
-transform: scale(0.97);
-}
+footer{ margin-top:56px; text-align:left; }
+footer p{ margin:0; font-size:12px; color:var(--faint); letter-spacing:.02em; }
 
-.tile:focus-visible{
-outline: 2px solid var(--gold);
-outline-offset: 3px;
-}
-
-.tile .label{
-font-size: 0.88rem;
-font-weight: 500;
-letter-spacing: 0.01em;
-}
-
-/* ---- Poker tile ---- */
-.tile--poker{
-background: linear-gradient(180deg, #26523d 0%, var(--felt) 100%);
-border-color: #3a7a5b;
-}
-.tile--poker:hover{
-background: linear-gradient(180deg, #29583f 0%, #316f4f 100%);
-border-color: #47906b;
-}
-.tile--poker.is-pressed{
-background: linear-gradient(180deg, #204837 0%, var(--felt-active) 100%);
-}
-.tile--poker .label{
-color: #f1ead7;
-}
-
-/* ---- Blackjack tile ---- */
-.tile--blackjack{
-background: linear-gradient(180deg, #63212d 0%, var(--blackjack) 100%);
-border-color: #9a3f4f;
-}
-.tile--blackjack:hover{
-background: linear-gradient(180deg, #6c2530 0%, #833240 100%);
-border-color: #b3505f;
-}
-.tile--blackjack.is-pressed{
-background: linear-gradient(180deg, #501a24 0%, var(--blackjack-active) 100%);
-}
-.tile--blackjack .label{
-color: #f1ead7;
-}
-
-/* ---- Blackjack Practice tile ---- */
-.tile--practice{
-background: linear-gradient(180deg, #1d4d6a 0%, var(--practice) 100%);
-border-color: #3d7fa8;
-}
-.tile--practice:hover{
-background: linear-gradient(180deg, #245c82 0%, #2c6d95 100%);
-border-color: #4f96bf;
-}
-.tile--practice.is-pressed{
-background: linear-gradient(180deg, #163d57 0%, var(--practice-active) 100%);
-}
-.tile--practice .label{
-color: #eaf2f7;
-}
-
-/* ---- Poker Practice tile ---- */
-.tile--pokerpractice{
-background: linear-gradient(180deg, #4a3272 0%, var(--pokerpractice) 100%);
-border-color: #7d5cb3;
-}
-.tile--pokerpractice:hover{
-background: linear-gradient(180deg, #513879 0%, #6a4599 100%);
-border-color: #9670cc;
-}
-.tile--pokerpractice.is-pressed{
-background: linear-gradient(180deg, #3a2860 0%, var(--pokerpractice-active) 100%);
-}
-.tile--pokerpractice .label{
-color: #f0e9fa;
-}
-
-/* ---- Baccarat Practice tile ---- */
-.tile--baccaratpractice{
-background: linear-gradient(180deg, #164f49 0%, var(--baccaratpractice) 100%);
-border-color: #2c9186;
-}
-.tile--baccaratpractice:hover{
-background: linear-gradient(180deg, #1a5951 0%, #21796f 100%);
-border-color: #38a89b;
-}
-.tile--baccaratpractice.is-pressed{
-background: linear-gradient(180deg, #103e39 0%, var(--baccaratpractice-active) 100%);
-}
-.tile--baccaratpractice .label{
-color: #e7f5f2;
-}
-
-/* ---- Baccarat Help tile ---- */
-.tile--baccarathelp{
-background: linear-gradient(180deg, #7a5c19 0%, var(--baccarathelp) 100%);
-border-color: #c99b32;
-}
-.tile--baccarathelp:hover{
-background: linear-gradient(180deg, #86641c 0%, #a97e24 100%);
-border-color: #e0ac3a;
-}
-.tile--baccarathelp.is-pressed{
-background: linear-gradient(180deg, #614a14 0%, var(--baccarathelp-active) 100%);
-}
-.tile--baccarathelp .label{
-color: #faf1dd;
-}
-
-/* ---- Craps Practice tile ---- */
-.tile--crapspractice{
-background: linear-gradient(180deg, #7a3a17 0%, var(--crapspractice) 100%);
-border-color: #c4763c;
-}
-.tile--crapspractice:hover{
-background: linear-gradient(180deg, #86411a 0%, #ac5525 100%);
-border-color: #d6864a;
-}
-.tile--crapspractice.is-pressed{
-background: linear-gradient(180deg, #602c12 0%, var(--crapspractice-active) 100%);
-}
-.tile--crapspractice .label{
-color: #faf0e6;
-}
-
-/* ---- Roulette Practice tile ---- */
-.tile--roulettepractice{
-background: linear-gradient(180deg, #5c1730 0%, var(--roulettepractice) 100%);
-border-color: #a83a5e;
-}
-.tile--roulettepractice:hover{
-background: linear-gradient(180deg, #661a35 0%, #8c2347 100%);
-border-color: #c14b73;
-}
-.tile--roulettepractice.is-pressed{
-background: linear-gradient(180deg, #481226 0%, var(--roulettepractice-active) 100%);
-}
-.tile--roulettepractice .label{
-color: #fbe9ef;
-}
-
-.icon{
-font-size: 34px;
-line-height: 1;
-}
-
-/* ---- Mahjong Practice tile ---- */
-.tile--mahjongpractice{
-background: linear-gradient(180deg, #22315a 0%, var(--mahjongpractice) 100%);
-border-color: #4f6bab;
-}
-.tile--mahjongpractice:hover{
-background: linear-gradient(180deg, #283a68 0%, #324a80 100%);
-border-color: #6683c9;
-}
-.tile--mahjongpractice.is-pressed{
-background: linear-gradient(180deg, #1b2748 0%, var(--mahjongpractice-active) 100%);
-}
-.tile--mahjongpractice .label{
-color: #e8ecfa;
-}
-
-/* ---- Mahjong Help tile ---- */
-.tile--mahjonghelp{
-background: linear-gradient(180deg, #6f2f1c 0%, var(--mahjonghelp) 100%);
-border-color: #c96a4a;
-}
-.tile--mahjonghelp:hover{
-background: linear-gradient(180deg, #79341f 0%, #984228 100%);
-border-color: #e0855f;
-}
-.tile--mahjonghelp.is-pressed{
-background: linear-gradient(180deg, #5c2717 0%, var(--mahjonghelp-active) 100%);
-}
-.tile--mahjonghelp .label{
-color: #fbe9df;
-}
-
-.cards{
-position: relative;
-width: 58px;
-height: 46px;
-}
-.card{
-position: absolute;
-top: 0;
-width: 34px;
-height: 46px;
-background: #f7f4ec;
-border-radius: 5px;
-box-shadow: 0 3px 8px rgba(0,0,0,0.28);
-display: flex;
-align-items: flex-start;
-justify-content: flex-start;
-padding: 4px 0 0 5px;
-font-family: 'Fraunces', serif;
-font-weight: 500;
-font-size: 13px;
-line-height: 1;
-}
-.card.left{
-left: 0;
-transform: rotate(-9deg);
-z-index: 1;
-}
-.card.right{
-left: 20px;
-transform: rotate(8deg);
-z-index: 2;
-}
-.card.spade{ color: #2b2b2f; }
-.card.heart{ color: #b3423a; }
-
-/* ---- Not yet tile ---- */
-.tile--empty{
-background: transparent;
-border: 1.5px dashed var(--border);
-cursor: default;
-}
-.tile--empty:hover{
-background: transparent;
-border-color: var(--border);
-}
-.tile--empty .label{
-color: var(--muted);
-font-style: italic;
-font-family: 'Fraunces', serif;
-font-size: 0.95rem;
-}
-.tile--empty .dots{
-display: flex;
-gap: 5px;
-}
-.tile--empty .dots span{
-width: 5px;
-height: 5px;
-border-radius: 50%;
-background: #444449;
-}
-
-footer{
-margin-top: 28px;
-text-align: left;
-}
-footer p{
-margin: 0;
-font-size: 0.75rem;
-color: #55555c;
-letter-spacing: 0.02em;
-}
-
-@media (prefers-reduced-motion: reduce){
-.tile{ transition: none; }
-}
+@media (prefers-reduced-motion: reduce){ .tile, .section{ transition:none; animation:none; } }
 </style>
 </head>
 <body>
 
-<main>
-<header>
-<h1>Casino</h1>
-<p>Games and practice tools.</p>
-</header>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Casino</div>
+    <h1>Table games &amp; advantage tools</h1>
+    <p>Practice games with a real bankroll, plus live-odds advisors to use while you're playing somewhere else.</p>
+  </header>
 
-<div class="grid">
-<a class="tile tile--practice" href="./blackjackpractice/" aria-label="Blackjack Practice">
-<div class="cards">
-<div class="card left spade">10</div>
-<div class="card right heart">9</div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-section="games">Games</button>
+    <button class="tab-btn" data-section="advantage">Advantage Games</button>
+  </nav>
+
+  <section class="section active" id="games">
+    <p class="section-note">Play against the house with a real bankroll &mdash; $1,000 to start, tracked per game.</p>
+    <div class="grid">
+      <a class="tile tile--blackjack" href="./blackjackpractice/">
+        <div class="mini-cards"><div class="mini-card left spade">A</div><div class="mini-card right heart">K</div></div>
+        <span class="name">Blackjack</span>
+        <span class="desc">Hit, stand, split, double &mdash; beat the dealer to 21.</span>
+        <span class="tag">Bankroll</span>
+      </a>
+      <a class="tile tile--poker" href="./pokerpractice/">
+        <div class="mini-cards"><div class="mini-card left spade">K</div><div class="mini-card right heart">K</div></div>
+        <span class="name">Poker</span>
+        <span class="desc">Texas Hold'em against the house, best hand wins the pot.</span>
+        <span class="tag">Bankroll</span>
+      </a>
+      <a class="tile tile--baccarat" href="./baccaratpractice/">
+        <div class="mini-cards"><div class="mini-card left spade">9</div><div class="mini-card right heart">Q</div></div>
+        <span class="name">Baccarat</span>
+        <span class="desc">Bet Player, Banker, or Tie &mdash; closest to 9 takes it.</span>
+        <span class="tag">Bankroll</span>
+      </a>
+      <a class="tile tile--craps" href="./crapspractice/">
+        <span class="icon">🎲</span>
+        <span class="name">Craps</span>
+        <span class="desc">Pass line, point, and odds &mdash; ride the dice.</span>
+        <span class="tag">Bankroll</span>
+      </a>
+      <a class="tile tile--roulette" href="./roulettepractice/">
+        <span class="icon">🎡</span>
+        <span class="name">Roulette</span>
+        <span class="desc">Straight-up, splits, or the outside &mdash; place your bets.</span>
+        <span class="tag">Bankroll</span>
+      </a>
+      <a class="tile tile--mahjong" href="./mahjongpractice/">
+        <span class="icon">🀄</span>
+        <span class="name">Mahjong</span>
+        <span class="desc">Build your hand and go out before the table does.</span>
+        <span class="tag">Bankroll</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="section" id="advantage">
+    <p class="section-note">Enter what's actually been dealt at a real table and get the recommended play plus live win odds &mdash; no bankroll, just the numbers.</p>
+    <div class="grid">
+      <a class="tile tile--blackjack" href="./blackjackhelp/">
+        <div class="mini-cards"><div class="mini-card left spade">A</div><div class="mini-card right heart">K</div></div>
+        <span class="name">Blackjack Helper</span>
+        <span class="desc">Optimal hit/stand/double/split, plus win odds for your hand.</span>
+        <span class="tag">Odds</span>
+      </a>
+      <a class="tile tile--poker" href="./pokerhelp/">
+        <div class="mini-cards"><div class="mini-card left spade">K</div><div class="mini-card right heart">K</div></div>
+        <span class="name">Poker Helper</span>
+        <span class="desc">Hole cards + board in, win/tie/lose odds out.</span>
+        <span class="tag">Odds</span>
+      </a>
+      <a class="tile tile--baccarat" href="./baccarathelp/">
+        <div class="mini-cards"><div class="mini-card left spade">9</div><div class="mini-card right heart">Q</div></div>
+        <span class="name">Baccarat Helper</span>
+        <span class="desc">Track the shoe and see which side has the edge.</span>
+        <span class="tag">Odds</span>
+      </a>
+      <a class="tile tile--mahjong" href="./mahjonghelp/">
+        <span class="icon">🀄</span>
+        <span class="name">Mahjong Helper</span>
+        <span class="desc">Enter your tiles, get the best discard and hand shape.</span>
+        <span class="tag">Odds</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <p>Practice tools &mdash; not for real-money play.</p>
+  </footer>
 </div>
-<span class="label">Blackjack Practice</span>
-</a>
-
-<a class="tile tile--blackjack" href="./blackjackhelp/" aria-label="Blackjack Help">
-<div class="cards">
-<div class="card left spade">A</div>
-<div class="card right heart">K</div>
-</div>
-<span class="label">Blackjack Help</span>
-</a>
-
-<a class="tile tile--pokerpractice" href="./pokerpractice/" aria-label="Poker Practice">
-<div class="cards">
-<div class="card left spade">K</div>
-<div class="card right heart">K</div>
-</div>
-<span class="label">Poker Practice</span>
-</a>
-
-<a class="tile tile--poker" href="./pokerhelp/" aria-label="Poker Help">
-<div class="cards">
-<div class="card left spade">&spades;</div>
-<div class="card right heart">&hearts;</div>
-</div>
-<span class="label">Poker Help</span>
-</a>
-
-<a class="tile tile--baccaratpractice" href="./baccaratpractice/" aria-label="Baccarat Practice">
-<div class="cards">
-<div class="card left spade">9</div>
-<div class="card right heart">Q</div>
-</div>
-<span class="label">Baccarat Practice</span>
-</a>
-
-<a class="tile tile--baccarathelp" href="./baccarathelp/" aria-label="Baccarat Help">
-<div class="cards">
-<div class="card left spade">8</div>
-<div class="card right heart">J</div>
-</div>
-<span class="label">Baccarat Help</span>
-</a>
-
-<a class="tile tile--crapspractice" href="./crapspractice/" aria-label="Craps Practice">
-<div class="icon">🎲</div>
-<span class="label">Craps Practice</span>
-</a>
-
-<a class="tile tile--roulettepractice" href="./roulettepractice/" aria-label="Roulette Practice">
-<div class="icon">🎡</div>
-<span class="label">Roulette Practice</span>
-</a>
-
-<a class="tile tile--mahjongpractice" href="./mahjongpractice/" aria-label="Mahjong Practice">
-<div class="icon">&#x1F004;</div>
-<span class="label">Mahjong Practice</span>
-</a>
-
-<a class="tile tile--mahjonghelp" href="./mahjonghelp/" aria-label="Mahjong Help">
-<div class="icon">&#x1F004;</div>
-<span class="label">Mahjong Help</span>
-</a>
-
-<div class="tile tile--empty" aria-disabled="true">
-<div class="dots"><span></span><span></span><span></span></div>
-<span class="label">Not yet</span>
-</div>
-</div>
-
-<footer>
-<p>More coming soon.</p>
-</footer>
-</main>
 
 <script>
-document.querySelectorAll('.tile[href]').forEach(function(tile){
-tile.addEventListener('click', function(e){
-e.preventDefault();
-var href = tile.getAttribute('href');
-tile.classList.add('is-pressed');
-setTimeout(function(){
-window.location.href = href;
-}, 140);
-});
-});
+  const tabs = document.querySelectorAll('.tab-btn');
+  const sections = document.querySelectorAll('.section');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.toggle('active', b===t));
+    sections.forEach(s => s.classList.toggle('active', s.id===t.dataset.section));
+  }));
 </script>
 
 </body>

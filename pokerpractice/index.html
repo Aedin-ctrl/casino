@@ -19,6 +19,7 @@
     --tie:#e0b545;
     --red:#e0475a;
     --black:#161821;
+    --gold:#d9b65a;
   }
   *{box-sizing:border-box;}
   body{
@@ -60,17 +61,35 @@
   }
   .btn-icon:hover{border-color:var(--accent);color:var(--text);}
   .btn-icon.danger:hover{border-color:var(--lose);color:var(--lose);}
-  .layout{
-    display:grid;
-    grid-template-columns:280px 1fr;
-    gap:20px;
-    align-items:start;
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--text-dim);
+    text-decoration:none;
+    margin-bottom:14px;
   }
-  @media (max-width: 900px){
-    .layout{grid-template-columns:1fr;}
-    .table{order:-1;}
+  .back-link:hover{color:var(--text);}
+
+  .bank-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
   }
-  .table, .odds-panel{
+  .bank-card{
+    flex:1;
+    min-width:160px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 16px;
+  }
+  .bank-card .label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim);}
+  .bank-card .amount{font-size:22px; font-weight:800; margin-top:4px; font-variant-numeric:tabular-nums;}
+  .bank-card.you .amount{color:var(--gold);}
+  .bank-card.house .amount{color:var(--text);}
+
+  .table{
     background:var(--panel);
     border:1px solid var(--border);
     border-radius:16px;
@@ -78,7 +97,7 @@
   }
   .section-block{margin-bottom:22px;}
   .section-block:last-child{margin-bottom:0;}
-  .section-block h2, .panel-block h2{
+  .section-block h2{
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:.08em;
@@ -323,7 +342,32 @@
     cursor:pointer;
     transition:transform .12s ease, background .12s ease;
   }
-  .btn-deal:hover{background:#2ade9c;transform:translateY(-1px);}
+  .btn-deal:hover:not(:disabled){background:#2ade9c;transform:translateY(-1px);}
+  .btn-deal:disabled{opacity:.4; cursor:not-allowed;}
+
+  .bet-row{
+    margin-top:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; justify-content:center;}
+  .chip-btn{
+    width:56px; height:56px; border-radius:50%;
+    border:2px dashed rgba(255,255,255,.35);
+    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.15), transparent 60%), var(--panel-2);
+    color:var(--text);
+    font-size:13px; font-weight:800;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .1s ease, border-color .1s ease;
+  }
+  .chip-btn:hover{transform:translateY(-2px); border-color:var(--gold);}
+  .chip-btn.active{border-color:var(--gold); border-style:solid; box-shadow:0 0 0 3px rgba(217,182,90,.25);}
+  .stake-line{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-dim);}
+  .stake-line b{color:var(--gold); font-size:16px;}
+  .broke-note{font-size:12.5px; color:var(--lose); text-align:center;}
 
   .showdown-panel{
     margin-top:18px;
@@ -346,36 +390,6 @@
   .showdown-row .sd-name{font-size:12.5px;font-weight:700;min-width:64px;}
   .showdown-row .sd-desc{font-size:12px;color:var(--text-dim);flex:1;}
   .showdown-row.winner .sd-desc{color:var(--accent);font-weight:700;}
-
-  .panel-block{margin-bottom:24px;}
-  .panel-block:last-child{margin-bottom:0;}
-  .odds-bars, .hand-chances{display:flex;flex-direction:column;gap:10px;}
-  .odds-row{
-    display:grid;
-    grid-template-columns:44px 1fr 52px;
-    align-items:center;
-    gap:10px;
-    font-size:13px;
-    color:var(--text-dim);
-  }
-  .bar{height:8px;background:var(--panel-2);border-radius:6px;overflow:hidden;}
-  .bar.small{height:6px;}
-  .bar-fill{height:100%;width:0%;border-radius:6px;transition:width .35s ease;}
-  .bar-fill.win{background:var(--accent);}
-  .bar-fill.tie{background:var(--tie);}
-  .bar-fill.lose{background:var(--lose);}
-  .bar-fill.chance{background:var(--accent-dim);}
-  .odds-row span:last-child{text-align:right;font-weight:700;color:var(--text);}
-  .chance-row{
-    display:grid;
-    grid-template-columns:1fr 70px 50px;
-    align-items:center;
-    gap:10px;
-    font-size:12.5px;
-    color:var(--text-dim);
-  }
-  .chance-pct{text-align:right;font-weight:700;color:var(--text);}
-  .placeholder{font-size:13px;color:var(--text-dim);margin:0;}
 
   /* ---- Settings modal ---- */
   .modal-overlay{
@@ -454,7 +468,7 @@
     .app{padding:16px 12px 40px;}
     header{margin-bottom:20px;}
     header h1{font-size:19px;}
-    .table, .odds-panel{padding:16px;border-radius:14px;}
+    .table{padding:16px;border-radius:14px;}
     .seat{width:92px;}
     .card-slot{width:52px;height:74px;}
     .card-slot .card-rank{font-size:20px;}
@@ -466,6 +480,7 @@
 </head>
 <body>
 <div class="app">
+  <a class="back-link" href="../index.html">&larr; Casino</a>
   <header>
     <h1>Poker Practice</h1>
     <div class="header-btns">
@@ -474,87 +489,67 @@
     </div>
   </header>
 
-  <div class="layout">
-    <aside class="odds-panel">
-      <div class="panel-block">
-        <h2>Your Hand</h2>
-        <p class="hand-desc" id="handDesc">Start a hand to play</p>
-      </div>
-      <div class="panel-block">
-        <h2>Win Odds</h2>
-        <div class="odds-bars">
-          <div class="odds-row">
-            <span>Win</span>
-            <div class="bar"><div class="bar-fill win" id="winBar"></div></div>
-            <span id="winPct">–</span>
-          </div>
-          <div class="odds-row">
-            <span>Tie</span>
-            <div class="bar"><div class="bar-fill tie" id="tieBar"></div></div>
-            <span id="tiePct">–</span>
-          </div>
-          <div class="odds-row">
-            <span>Lose</span>
-            <div class="bar"><div class="bar-fill lose" id="loseBar"></div></div>
-            <span id="losePct">–</span>
-          </div>
-        </div>
-      </div>
-      <div class="panel-block">
-        <h2>Final Hand Chances</h2>
-        <div class="hand-chances" id="handChances">
-          <p class="placeholder">Start a hand to see odds</p>
-        </div>
-      </div>
-    </aside>
-
-    <section class="table">
-      <div class="section-block">
-        <h2>Table</h2>
-        <p class="status-line" id="statusLine">Press Start Hand to begin.</p>
-        <div class="opponents-row" id="opponentsRow"></div>
-      </div>
-
-      <div class="section-block">
-        <div class="pot-line" id="potLine">Pot: <b>0</b></div>
-        <div class="community-row" id="communityRow"></div>
-      </div>
-
-      <div class="section-block">
-        <h2>You <span id="humanBadges"></span></h2>
-        <div class="human-row" id="humanRow"></div>
-
-        <div class="action-row" id="actionRow" style="display:none;">
-          <button class="action-btn fold" id="btnFold">Fold</button>
-          <button class="action-btn" id="btnCheckCall">Check</button>
-          <button class="action-btn" id="btnBetRaise">Bet</button>
-        </div>
-
-        <div class="bet-controls hidden" id="betControls">
-          <div class="bet-presets">
-            <button class="bet-preset-btn" id="presetMin">Min</button>
-            <button class="bet-preset-btn" id="presetHalf">1/2 Pot</button>
-            <button class="bet-preset-btn" id="presetPot">Pot</button>
-            <button class="bet-preset-btn" id="preset2x">2x Pot</button>
-          </div>
-          <div class="bet-amount-row">
-            <input type="range" id="betSlider" min="0" max="1000" step="10">
-            <input type="number" id="betInput" min="0" step="10">
-          </div>
-          <div class="bet-confirm-row">
-            <button class="cancel" id="betCancel">Cancel</button>
-            <button class="confirm" id="betConfirm">Confirm</button>
-          </div>
-        </div>
-
-        <div class="showdown-panel hidden" id="showdownPanel"></div>
-
-        <div class="deal-row" id="dealRow">
-          <button class="btn-deal" id="dealBtn">Start Hand</button>
-        </div>
-      </div>
-    </section>
+  <div class="bank-row">
+    <div class="bank-card you">
+      <div class="label">You</div>
+      <div class="amount" id="playerBank">$1,000</div>
+    </div>
+    <div class="bank-card house">
+      <div class="label">House</div>
+      <div class="amount" id="houseBank">$1,000</div>
+    </div>
   </div>
+
+  <section class="table">
+    <div class="section-block">
+      <h2>Table</h2>
+      <p class="status-line" id="statusLine">Press Start Hand to begin.</p>
+      <div class="opponents-row" id="opponentsRow"></div>
+    </div>
+
+    <div class="section-block">
+      <div class="pot-line" id="potLine">Pot: <b>0</b></div>
+      <div class="community-row" id="communityRow"></div>
+    </div>
+
+    <div class="section-block">
+      <h2>You <span id="humanBadges"></span></h2>
+      <div class="human-row" id="humanRow"></div>
+      <p class="hand-desc" id="handDesc">Start a hand to play</p>
+
+      <div class="action-row" id="actionRow" style="display:none;">
+        <button class="action-btn fold" id="btnFold">Fold</button>
+        <button class="action-btn" id="btnCheckCall">Check</button>
+        <button class="action-btn" id="btnBetRaise">Bet</button>
+      </div>
+
+      <div class="bet-controls hidden" id="betControls">
+        <div class="bet-presets">
+          <button class="bet-preset-btn" id="presetMin">Min</button>
+          <button class="bet-preset-btn" id="presetHalf">1/2 Pot</button>
+          <button class="bet-preset-btn" id="presetPot">Pot</button>
+          <button class="bet-preset-btn" id="preset2x">2x Pot</button>
+        </div>
+        <div class="bet-amount-row">
+          <input type="range" id="betSlider" min="0" max="1000" step="10">
+          <input type="number" id="betInput" min="0" step="10">
+        </div>
+        <div class="bet-confirm-row">
+          <button class="cancel" id="betCancel">Cancel</button>
+          <button class="confirm" id="betConfirm">Confirm</button>
+        </div>
+      </div>
+
+      <div class="showdown-panel hidden" id="showdownPanel"></div>
+
+      <div class="deal-row bet-row" id="dealRow">
+        <div class="chip-row" id="chipRow"></div>
+        <div class="stake-line">Bet: <b id="betAmountLabel">$25</b></div>
+        <button class="btn-deal" id="dealBtn">Start Hand</button>
+        <p class="broke-note" id="brokeNote" style="display:none;">You're out of chips &mdash; hit Reset to reload $1,000.</p>
+      </div>
+    </div>
+  </section>
 </div>
 
 <div class="modal-overlay hidden" id="settingsOverlay">
@@ -622,7 +617,6 @@
 
   const RANK_NAMES = {2:'Two',3:'Three',4:'Four',5:'Five',6:'Six',7:'Seven',8:'Eight',9:'Nine',10:'Ten',11:'Jack',12:'Queen',13:'King',14:'Ace'};
   const RANK_PLURAL = {2:'Twos',3:'Threes',4:'Fours',5:'Fives',6:'Sixes',7:'Sevens',8:'Eights',9:'Nines',10:'Tens',11:'Jacks',12:'Queens',13:'Kings',14:'Aces'};
-  const CATEGORY_LABELS = ["High Card","Pair","Two Pair","Three of a Kind","Straight","Flush","Full House","Four of a Kind","Straight Flush"];
 
   // ---------- Hand evaluator (5-card) ----------
   function evaluate5(cards){
@@ -726,7 +720,7 @@
     return a;
   }
 
-  // ---------- Equity simulation ----------
+  // ---------- Equity simulation (used by AI decision-making) ----------
   function runSimulation(heroCards, boardCards, numOpponents, trials){
     const knownBoard = boardCards.filter(Boolean);
     const used = heroCards.concat(knownBoard);
@@ -734,10 +728,9 @@
     const neededBoard = 5 - knownBoard.length;
 
     let win=0, tie=0, lose=0;
-    const categoryCounts = new Array(9).fill(0);
 
     if(numOpponents<=0){
-      return { win:100, tie:0, lose:0, categoryPct: categoryCounts.map(()=>0) };
+      return { win:100, tie:0, lose:0 };
     }
 
     for(let t=0;t<trials;t++){
@@ -748,7 +741,6 @@
       const fullBoard = knownBoard.concat(deck.slice(ptr, ptr+neededBoard));
 
       const heroScore = evaluateBestOf(heroCards.concat(fullBoard));
-      categoryCounts[heroScore[0]]++;
 
       let bestScore = heroScore;
       const oppScores = opponents.map(o=>evaluateBestOf(o.concat(fullBoard)));
@@ -763,9 +755,38 @@
     }
 
     return {
-      win: win/trials*100, tie: tie/trials*100, lose: lose/trials*100,
-      categoryPct: categoryCounts.map(c=>c/trials*100)
+      win: win/trials*100, tie: tie/trials*100, lose: lose/trials*100
     };
+  }
+
+  // ---------- Bank ----------
+  const BANK_KEY = 'poker_practice_bank_v1';
+  const STARTING_BANK = 1000;
+  const CHIPS = [5, 25, 100, 200];
+  let bank = { player: STARTING_BANK, house: STARTING_BANK };
+  let betAmount = 25;
+  let currentHandBet = 0;
+
+  function loadBank(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(BANK_KEY));
+      if(saved && typeof saved.player==='number' && typeof saved.house==='number') bank = saved;
+    }catch(e){}
+  }
+  function saveBank(){
+    try{ localStorage.setItem(BANK_KEY, JSON.stringify(bank)); }catch(e){}
+  }
+  function fmt(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+  function renderBank(){
+    document.getElementById('playerBank').textContent = fmt(bank.player);
+    document.getElementById('houseBank').textContent = fmt(bank.house);
+  }
+  // Positive amount = house pays player that much; negative = player pays house.
+  function settle(amount){
+    bank.player += amount;
+    bank.house -= amount;
+    saveBank();
+    renderBank();
   }
 
   // ---------- Settings ----------
@@ -792,7 +813,6 @@
   let minRaise = 0;
   let raisesThisStreet = 0;
   const MAX_RAISES_PER_STREET = 4;
-  let calcTimer = null;
   let statusText = 'Press Start Hand to begin.';
   let uncontestedWin = false;
 
@@ -821,6 +841,10 @@
 
   // ---------- Hand lifecycle ----------
   function startHand(){
+    const bet = Math.min(betAmount, bank.player);
+    if(bet<=0) return;
+    currentHandBet = bet;
+    settle(-bet); // player stakes the bet up front, against the house
     if(players.length!==totalPlayers()) buildPlayers();
     deck = shuffle(buildDeck());
     community = [];
@@ -862,7 +886,6 @@
 
     statusText = 'New hand dealt.';
     renderAll();
-    scheduleOdds();
     proceedTurn();
   }
 
@@ -921,7 +944,6 @@
     else if(street==='turn'){ street='river'; community.push(deck.pop()); statusText='River dealt.'; }
     actingIndex = nextActiveIndex(dealerIndex);
     renderAll();
-    scheduleOdds();
     proceedTurn();
   }
 
@@ -966,6 +988,8 @@
     statusText = `${p.name} wins the pot (${pot}) — everyone else folded.`;
     street = 'showdown';
     uncontestedWin = true;
+    if(winnerIdx===0) settle(currentHandBet*2); // human wins the bank bet outright
+    // otherwise the human folded earlier and the house keeps the staked bet
     renderShowdown([winnerIdx], null, true);
     renderAll();
   }
@@ -986,6 +1010,11 @@
 
     const winnerNames = winners.map(i=>players[i].name).join(' & ');
     statusText = `${winnerNames} win${winners.length===1?'s':''} the pot (${pot}) with ${describeHand(best[0],best.slice(1))}.`;
+    if(winners.includes(0)){
+      if(winners.length===1) settle(currentHandBet*2); // human wins outright
+      else settle(currentHandBet); // split pot / tie — return the stake
+    }
+    // otherwise the human lost at showdown and the house keeps the staked bet
     renderShowdown(winners, scores, false);
     renderAll();
   }
@@ -1174,11 +1203,17 @@
     const row = document.getElementById('actionRow');
     const dealRow = document.getElementById('dealRow');
     const dealBtn = document.getElementById('dealBtn');
+    const brokeNote = document.getElementById('brokeNote');
     if(street==='idle' || street==='showdown'){
       row.style.display='none';
       closeBetControls();
       dealRow.classList.remove('hidden');
+      renderChips();
+      document.getElementById('betAmountLabel').textContent = fmt(Math.min(betAmount, bank.player || betAmount));
+      const broke = bank.player<=0;
+      dealBtn.disabled = broke;
       dealBtn.textContent = street==='showdown' ? 'Next Hand' : 'Start Hand';
+      brokeNote.style.display = broke ? 'block' : 'none';
       return;
     }
     dealRow.classList.add('hidden');
@@ -1232,52 +1267,27 @@
     document.getElementById('statusLine').innerHTML = statusText;
   }
 
+  function renderChips(){
+    const row = document.getElementById('chipRow');
+    row.innerHTML='';
+    CHIPS.forEach(v=>{
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className = 'chip-btn' + (v===betAmount?' active':'');
+      btn.textContent = '$'+v;
+      btn.disabled = v>bank.player;
+      btn.addEventListener('click', ()=>{ betAmount=v; renderAll(); });
+      row.appendChild(btn);
+    });
+  }
+
   function renderAll(){
     renderOpponents();
     renderCommunity();
     renderHuman();
     renderActionRow();
     renderStatus();
-  }
-
-  function scheduleOdds(){
-    clearTimeout(calcTimer);
-    calcTimer = setTimeout(()=>{
-      const human = players[0];
-      if(!human || human.cards.length<2 || human.folded || street==='idle'){ updateOddsDisplay(null); return; }
-      const activeOthers = activeIndices().filter(i=>i!==0).length;
-      if(activeOthers<=0){ updateOddsDisplay(null); return; }
-      const result = runSimulation(human.cards, community, activeOthers, 1500);
-      updateOddsDisplay(result);
-    }, 30);
-  }
-
-  function updateOddsDisplay(result){
-    const winBar=document.getElementById('winBar'), tieBar=document.getElementById('tieBar'), loseBar=document.getElementById('loseBar');
-    const winPct=document.getElementById('winPct'), tiePct=document.getElementById('tiePct'), losePct=document.getElementById('losePct');
-    const chances=document.getElementById('handChances');
-    if(!result){
-      winBar.style.width='0%'; tieBar.style.width='0%'; loseBar.style.width='0%';
-      winPct.textContent='–'; tiePct.textContent='–'; losePct.textContent='–';
-      chances.innerHTML = '<p class="placeholder">Start a hand to see odds</p>';
-      return;
-    }
-    winBar.style.width=result.win+'%'; tieBar.style.width=result.tie+'%'; loseBar.style.width=result.lose+'%';
-    winPct.textContent=result.win.toFixed(1)+'%';
-    tiePct.textContent=result.tie.toFixed(1)+'%';
-    losePct.textContent=result.lose.toFixed(1)+'%';
-
-    const rows = CATEGORY_LABELS
-      .map((label,i)=>({label, pct: result.categoryPct[i]}))
-      .filter(r=>r.pct>0.05)
-      .sort((a,b)=>b.pct-a.pct);
-    chances.innerHTML = rows.map(r=>`
-      <div class="chance-row">
-        <span>${r.label}</span>
-        <div class="bar small"><div class="bar-fill chance" style="width:${r.pct}%"></div></div>
-        <span class="chance-pct">${r.pct.toFixed(1)}%</span>
-      </div>
-    `).join('');
+    renderBank();
   }
 
   // ---------- Reset / New hand ----------
@@ -1291,10 +1301,11 @@
     deck=[]; community=[]; pot=0; street='idle'; dealerIndex=-1; actingIndex=-1;
     currentBet=0; minRaise=0; raisesThisStreet=0;
     statusText = 'Press Start Hand to begin.';
+    bank = { player: STARTING_BANK, house: STARTING_BANK };
+    saveBank();
     clearShowdown();
     renderAll();
     renderCommunity();
-    updateOddsDisplay(null);
   }
 
   // ---------- Settings UI ----------
@@ -1435,6 +1446,8 @@
 
   // ---------- Init ----------
   fullReset();
+  loadBank();
+  renderAll();
 })();
 </script>
 </body>

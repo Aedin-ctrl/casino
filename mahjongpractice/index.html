@@ -22,6 +22,7 @@
     --sou:#3fb570;
     --honor:#d9b65a;
     --tile-face:#f4f0e4;
+    --gold:#d9b65a;
   }
   *{box-sizing:border-box;}
   body{
@@ -31,7 +32,16 @@
     color:var(--text);
     min-height:100vh;
   }
+  a{color:inherit;}
   .app{max-width:1180px;margin:0 auto;padding:20px 16px 60px;}
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--text-dim);
+    text-decoration:none;
+    margin-bottom:14px;
+  }
+  .back-link:hover{color:var(--text);}
   header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
   header h1{font-size:21px;font-weight:700;letter-spacing:-0.01em;margin:0;}
   .header-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -51,6 +61,65 @@
   .btn.primary:hover{background:var(--accent);}
   .btn:disabled{opacity:.35;cursor:default;}
   .btn:disabled:hover{border-color:var(--border);}
+  .btn-reset{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:8px 16px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .15s ease;
+    flex-shrink:0;
+  }
+  .btn-reset:hover{
+    border-color:var(--lose);
+    color:var(--lose);
+  }
+
+  .bank-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .bank-card{
+    flex:1;
+    min-width:160px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 16px;
+  }
+  .bank-card .label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim);}
+  .bank-card .amount{font-size:22px; font-weight:800; margin-top:4px; font-variant-numeric:tabular-nums;}
+  .bank-card.you .amount{color:var(--gold);}
+  .bank-card.house .amount{color:var(--text);}
+
+  .bet-row{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+  }
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; justify-content:center;}
+  .chip-btn{
+    width:48px; height:48px; border-radius:50%;
+    border:2px dashed rgba(255,255,255,.35);
+    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.15), transparent 60%), var(--panel-2);
+    color:var(--text);
+    font-size:12px; font-weight:800;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .1s ease, border-color .1s ease;
+  }
+  .chip-btn:hover{transform:translateY(-2px); border-color:var(--gold);}
+  .chip-btn.active{border-color:var(--gold); border-style:solid; box-shadow:0 0 0 3px rgba(217,182,90,.25);}
+  .chip-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+  .bet-amount-row{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-dim);}
+  .bet-amount-row b{color:var(--gold); font-size:16px;}
+  .broke-note{font-size:12.5px; color:var(--lose); text-align:center; margin:0;}
 
   .board{
     display:grid;
@@ -158,6 +227,7 @@
 </head>
 <body>
 <div class="app">
+  <a class="back-link" href="../index.html">&larr; Casino</a>
   <header>
     <h1>Mahjong Practice</h1>
     <div class="header-controls">
@@ -170,8 +240,20 @@
         </select>
       </label>
       <button class="btn" id="newHandBtn">New Hand</button>
+      <button class="btn-reset" id="resetBtn">Reset</button>
     </div>
   </header>
+
+  <div class="bank-row">
+    <div class="bank-card you">
+      <div class="label">You</div>
+      <div class="amount" id="playerBank">$1,000</div>
+    </div>
+    <div class="bank-card house">
+      <div class="label">Table</div>
+      <div class="amount" id="houseBank">$1,000</div>
+    </div>
+  </div>
 
   <div class="status-line" id="statusLine">Dealing…</div>
 
@@ -217,6 +299,14 @@
     </div>
 
     <div class="side">
+      <div class="panel">
+        <h2>Bet</h2>
+        <div class="bet-row" id="betRow">
+          <div class="chip-row" id="chipRow"></div>
+          <div class="bet-amount-row">Bet: <b id="betAmount">$25</b></div>
+          <p class="broke-note" id="brokeNote" style="display:none;">You're out of chips &mdash; hit Reset to reload $1,000.</p>
+        </div>
+      </div>
       <div class="panel">
         <h2>Scores</h2>
         <div id="scorePanel"></div>
@@ -420,6 +510,55 @@ const SEAT_LABEL = {you:'You', right:'Right', across:'Across', left:'Left'};
 let state = null;
 let speedMs = 700;
 
+// ---------- Bank ----------
+const BANK_KEY = 'mahjong_practice_bank_v1';
+const STARTING_BANK = 1000;
+const CHIPS = [5, 25, 100, 200];
+let bank = { player: STARTING_BANK, house: STARTING_BANK };
+let betAmount = 25;
+
+function loadBank(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(BANK_KEY));
+    if(saved && typeof saved.player==='number' && typeof saved.house==='number') bank = saved;
+  }catch(e){}
+}
+function saveBank(){
+  try{ localStorage.setItem(BANK_KEY, JSON.stringify(bank)); }catch(e){}
+}
+function fmt(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+function renderBank(){
+  document.getElementById('playerBank').textContent = fmt(bank.player);
+  document.getElementById('houseBank').textContent = fmt(bank.house);
+}
+// Positive amount = table pays player that much; negative = player pays the table.
+function settle(amount){
+  bank.player += amount;
+  bank.house -= amount;
+  saveBank();
+  renderBank();
+}
+function renderChips(){
+  const row = document.getElementById('chipRow');
+  row.innerHTML='';
+  CHIPS.forEach(v=>{
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className = 'chip-btn' + (v===betAmount?' active':'');
+    btn.textContent = '$'+v;
+    btn.disabled = v>bank.player;
+    btn.addEventListener('click', ()=>{ betAmount=v; renderBetPanel(); });
+    row.appendChild(btn);
+  });
+}
+function renderBetPanel(){
+  renderChips();
+  document.getElementById('betAmount').textContent = fmt(Math.min(betAmount, bank.player || betAmount));
+  const broke = bank.player<=0;
+  document.getElementById('brokeNote').style.display = broke ? 'block' : 'none';
+  document.getElementById('newHandBtn').disabled = broke;
+}
+
 function buildWall(){
   const wall = [];
   for(let t=0;t<34;t++) for(let i=0;i<4;i++) wall.push(t);
@@ -429,6 +568,9 @@ function buildWall(){
 function countsFromTiles(tiles){ const c=new Array(34).fill(0); for(const t of tiles) c[t]++; return c; }
 
 function newHand(handNum, scores){
+  if(bank.player<=0){ renderBetPanel(); return; } // out of chips, refuse to deal
+  const bet = Math.min(betAmount, bank.player);
+  settle(-bet); // player stakes the bet up front for this hand
   const wall = buildWall();
   const dead = wall.splice(wall.length-14, 14); // dead wall unused
   const hands = {};
@@ -444,9 +586,11 @@ function newHand(handNum, scores){
     turnIdx: 0, // index into SEATS, 'you' starts
     drawnTile: null,
     over: false,
-    log: []
+    log: [],
+    bet: bet
   };
-  logMsg('New hand dealt. ' + state.wall.length + ' tiles left in live wall.');
+  logMsg('New hand dealt. ' + state.wall.length + ' tiles left in live wall. Bet: ' + fmt(bet));
+  renderBetPanel();
   render();
   setTimeout(takeTurn, 300);
 }
@@ -524,8 +668,9 @@ function seat_delay(){ return SEATS[state.turnIdx]==='you' ? 150 : Math.max(80, 
 
 function endExhaustive(){
   state.over = true;
+  settle(state.bet); // draw: no winner, stake is simply returned
   logMsg('Wall empty — hand ends in a draw.');
-  showResult('Exhaustive Draw', 'No more tiles in the wall. No score change.');
+  showResult('Exhaustive Draw', 'No more tiles in the wall. Your ' + fmt(state.bet) + ' bet was returned.');
 }
 
 function finishWin(seat, kind, win, winTile){
@@ -544,9 +689,25 @@ function finishWin(seat, kind, win, winTile){
     state.scores[seat] += amt;
   }
   if(state.riichi.you) state.scores.you -= 0; // riichi stick already deducted at declare time
+
+  // Real-money settlement (separate from the 25000-point mahjong score above).
+  // A 1-han hand pays even money — stake back plus an equal profit, same
+  // baseline as a plain win elsewhere in this casino (bet*2). Bigger hands
+  // scale the profit linearly with han, so yakuhai stacks, honitsu/chinitsu,
+  // chiitoitsu (2+ han) and kokushi (han=13) pay proportionally more:
+  //   payout = bet * (1 + han)
+  // If a bot wins instead, your staked bet (already taken at deal time)
+  // simply stays with the table — no further settlement needed.
+  let payoutNote = '';
+  if(seat === 'you'){
+    const payout = state.bet * (1 + win.han);
+    settle(payout);
+    payoutNote = ' You win ' + fmt(payout) + ' (bet ' + fmt(state.bet) + ' x ' + (1+win.han) + ').';
+  }
+
   logMsg(SEAT_LABEL[seat] + ' wins by ' + kind.toUpperCase() + ' — ' + win.labels.join(', ') + ' (' + win.han + ' han, ' + amt + ' pts)');
   render();
-  showResult(SEAT_LABEL[seat] + ' wins!', win.labels.join(', ') + ' — ' + win.han + ' han, ' + amt + ' points (' + kind + ').');
+  showResult(SEAT_LABEL[seat] + ' wins!', win.labels.join(', ') + ' — ' + win.han + ' han, ' + amt + ' points (' + kind + ').' + payoutNote);
 }
 
 // ---------- Human turn ----------
@@ -821,12 +982,27 @@ document.getElementById('resultOkBtn').onclick = ()=>{
 };
 
 document.getElementById('newHandBtn').onclick = ()=>{
+  if(bank.player<=0) return;
   document.getElementById('riichiTag').style.display='none';
   document.getElementById('youBlock').classList.remove('riichi');
   newHand(1, null);
 };
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  bank = { player: STARTING_BANK, house: STARTING_BANK };
+  saveBank();
+  renderBank();
+  document.getElementById('riichiTag').style.display='none';
+  document.getElementById('youBlock').classList.remove('riichi');
+  document.getElementById('resultModal').classList.add('hidden');
+  document.getElementById('callModal').classList.add('hidden');
+  newHand(1, null);
+});
 document.getElementById('speedSelect').onchange = (e)=>{ speedMs = parseInt(e.target.value,10); };
 
+// ---------- Init ----------
+loadBank();
+renderBank();
+renderBetPanel();
 newHand(1, null);
 })();
 </script>

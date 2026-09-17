@@ -20,6 +20,7 @@
     --wheel-red:#c1293e;
     --wheel-black:#1c1e26;
     --wheel-green:#1a8a54;
+    --gold:#d9b65a;
   }
   *{box-sizing:border-box;}
   body{
@@ -30,6 +31,15 @@
     min-height:100vh;
   }
   .app{max-width:1100px;margin:0 auto;padding:24px 20px 60px;}
+  a{color:inherit;}
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--text-dim);
+    text-decoration:none;
+    margin-bottom:14px;
+  }
+  .back-link:hover{color:var(--text);}
   header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:12px;}
   .header-title h1{font-size:22px;font-weight:650;letter-spacing:-0.01em;margin:0;}
   .net-line{display:flex;align-items:baseline;gap:8px;margin-top:6px;}
@@ -44,6 +54,52 @@
     transition:all .15s ease;
   }
   .btn-reset:hover{border-color:var(--lose);color:var(--lose);}
+
+  .bank-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .bank-card{
+    flex:1;
+    min-width:160px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 16px;
+  }
+  .bank-card .label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim);}
+  .bank-card .amount{font-size:22px; font-weight:800; margin-top:4px; font-variant-numeric:tabular-nums;}
+  .bank-card.you .amount{color:var(--gold);}
+  .bank-card.house .amount{color:var(--text);}
+
+  .bet-row{
+    margin-top:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+  .bet-row.hidden{display:none;}
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; justify-content:center;}
+  .chip-btn{
+    width:56px; height:56px; border-radius:50%;
+    border:2px dashed rgba(255,255,255,.35);
+    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.15), transparent 60%), var(--panel-2);
+    color:var(--text);
+    font-size:13px; font-weight:800;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .1s ease, border-color .1s ease;
+  }
+  .chip-btn:hover{transform:translateY(-2px); border-color:var(--gold);}
+  .chip-btn.active{border-color:var(--gold); border-style:solid; box-shadow:0 0 0 3px rgba(217,182,90,.25);}
+  .chip-btn:disabled{opacity:.35; cursor:not-allowed; transform:none;}
+  .bet-amount-row{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-dim);}
+  .bet-amount-row b{color:var(--gold); font-size:16px;}
+  .broke-note{font-size:12.5px; color:var(--lose); text-align:center; margin-top:10px;}
+
   .layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
   @media (max-width: 900px){.layout{grid-template-columns:1fr;}}
   .table, .side-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;}
@@ -183,6 +239,7 @@
 </head>
 <body>
 <div class="app">
+  <a class="back-link" href="../index.html">&larr; Casino</a>
   <header>
     <div class="header-title">
       <h1>Roulette Practice</h1>
@@ -193,6 +250,17 @@
     </div>
     <button class="btn-reset" id="resetBtn">Reset</button>
   </header>
+
+  <div class="bank-row">
+    <div class="bank-card you">
+      <div class="label">You</div>
+      <div class="amount" id="playerBank">$1,000</div>
+    </div>
+    <div class="bank-card house">
+      <div class="label">House</div>
+      <div class="amount" id="houseBank">$1,000</div>
+    </div>
+  </div>
 
   <div class="layout">
     <section class="table">
@@ -209,7 +277,11 @@
 
       <div class="section-block">
         <h2>Table</h2>
-        <p class="felt-note">Left-click (or tap) a spot to place a chip &middot; right-click (or tap the chip) to take one back.</p>
+        <div class="bet-row" style="margin-top:0;margin-bottom:16px;">
+          <div class="chip-row" id="chipRow"></div>
+          <div class="bet-amount-row">Chip: <b id="betAmount">$25</b></div>
+        </div>
+        <p class="felt-note">Left-click (or tap) a spot to place your chip &middot; right-click (or tap the chip) to remove that bet.</p>
         <div class="roulette-mat">
           <div class="table-zone zone-green zero-col" id="zeroZone" data-num="0">0</div>
           <div class="numbers-grid" id="numbersGrid"></div>
@@ -217,6 +289,7 @@
         <div class="outside-row" id="outsideRow"></div>
 
         <button class="btn-spin" id="spinBtn" disabled style="margin-top:16px;">Place a bet to spin</button>
+        <p class="broke-note" id="brokeNote" style="display:none;">You're out of chips &mdash; hit Reset to reload $1,000.</p>
       </div>
     </section>
 
@@ -251,6 +324,35 @@
     {key:'low', name:'1 to 18', sub:'Pays 1:1', swatch:'low'},
     {key:'high', name:'19 to 36', sub:'Pays 1:1', swatch:'high'}
   ];
+
+  // ---------- Bank ----------
+  const BANK_KEY = 'roulette_practice_bank_v1';
+  const STARTING_BANK = 1000;
+  const CHIPS = [5, 25, 100, 200];
+  let bank = { player: STARTING_BANK, house: STARTING_BANK };
+  let betAmount = 25;
+
+  function loadBank(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(BANK_KEY));
+      if(saved && typeof saved.player==='number' && typeof saved.house==='number') bank = saved;
+    }catch(e){}
+  }
+  function saveBank(){
+    try{ localStorage.setItem(BANK_KEY, JSON.stringify(bank)); }catch(e){}
+  }
+  function fmt(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+  function renderBank(){
+    document.getElementById('playerBank').textContent = fmt(bank.player);
+    document.getElementById('houseBank').textContent = fmt(bank.house);
+  }
+  // Positive amount = house pays player that much; negative = player pays house.
+  function settle(amount){
+    bank.player += amount;
+    bank.house -= amount;
+    saveBank();
+    renderBank();
+  }
 
   let net = 0;
   let bets = {red:0, black:0, odd:0, even:0, low:0, high:0};
@@ -335,6 +437,7 @@
       else if(key==='low') win = isLow;
       else if(key==='high') win = isHigh;
       const amt = win ? bet*1 : -bet;
+      if(win) settle(bet*2); // 1:1 payout: return stake + winnings
       results[key] = {outcome: win?'won':'lost', amt};
       delta += amt;
     });
@@ -343,6 +446,7 @@
     if(straightBet>0){
       const win = straightNumber===winNumber;
       const amt = win ? straightBet*35 : -straightBet;
+      if(win) settle(straightBet*36); // 35:1 payout: return stake + winnings
       straightResult = {outcome: win?'won':'lost', amt};
       delta += amt;
     }
@@ -367,6 +471,8 @@
     straightBet = 0;
     spinning = false;
     history = [];
+    bank = { player: STARTING_BANK, house: STARTING_BANK };
+    saveBank();
     wheelAngle = wheelAngle % 360;
     ballAngle = ballAngle % 360;
     document.getElementById('wheel').style.transition = 'none';
@@ -425,8 +531,9 @@
     const isActive = straightNumber===n && straightBet>0;
     const removeChip = ()=>{
       if(spinning) return;
-      straightBet = Math.max(0, straightBet-5);
-      if(straightBet===0) straightNumber = null;
+      if(straightBet>0) settle(straightBet); // refund the stake to the player
+      straightBet = 0;
+      straightNumber = null;
       renderAll();
     };
     const chip = buildChip(isActive?straightBet:0, removeChip);
@@ -439,12 +546,17 @@
     if(badge) el.appendChild(badge);
 
     el.addEventListener('click', ()=>{
-      if(spinning) return;
+      if(spinning || bank.player<=0 || betAmount>bank.player) return;
       if(straightNumber===n){
-        straightBet += 5;
+        straightBet += betAmount;
+        settle(-betAmount);
       } else {
         straightNumber = n;
-        if(straightBet===0) straightBet = 5;
+        if(straightBet===0){
+          straightBet = betAmount;
+          settle(-betAmount);
+        }
+        // else: moving an existing stake to a new number costs nothing extra
       }
       renderAll();
     });
@@ -483,7 +595,8 @@
 
       const removeChip = ()=>{
         if(spinning) return;
-        bets[key] = Math.max(0, bets[key]-5);
+        if(bets[key]>0) settle(bets[key]); // refund the stake to the player
+        bets[key] = 0;
         renderAll();
       };
       const chip = buildChip(bet, removeChip);
@@ -492,8 +605,9 @@
       if(badge) el.appendChild(badge);
 
       el.addEventListener('click', ()=>{
-        if(spinning) return;
-        bets[key] += 5;
+        if(spinning || bank.player<=0 || betAmount>bank.player) return;
+        bets[key] += betAmount;
+        settle(-betAmount);
         renderAll();
       });
       el.addEventListener('contextmenu', (e)=>{
@@ -505,16 +619,35 @@
     });
   }
 
+  function renderChips(){
+    const row = document.getElementById('chipRow');
+    row.innerHTML='';
+    CHIPS.forEach(v=>{
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className = 'chip-btn' + (v===betAmount?' active':'');
+      btn.textContent = '$'+v;
+      btn.disabled = v>bank.player;
+      btn.addEventListener('click', ()=>{ betAmount=v; renderAll(); });
+      row.appendChild(btn);
+    });
+    document.getElementById('betAmount').textContent = fmt(betAmount);
+  }
+
   function renderSpinBtn(){
     const btn = document.getElementById('spinBtn');
+    const brokeNote = document.getElementById('brokeNote');
     if(spinning){
       btn.disabled = true;
       btn.textContent = 'Spinning…';
+      brokeNote.style.display = 'none';
       return;
     }
-    const canSpin = totalActionBet()>0;
+    const broke = bank.player<=0;
+    const canSpin = totalActionBet()>0 && !broke;
     btn.disabled = !canSpin;
-    btn.textContent = canSpin ? 'Spin' : 'Place a bet to spin';
+    btn.textContent = broke ? 'Out of chips' : (canSpin ? 'Spin' : 'Place a bet to spin');
+    brokeNote.style.display = broke ? 'block' : 'none';
   }
 
   function renderHistory(){
@@ -538,16 +671,19 @@
 
   function renderAll(lastResult){
     renderNet();
+    renderChips();
     renderNumbersGrid(lastResult);
     renderOutsideRow(lastResult);
     renderSpinBtn();
     renderHistory();
     renderResultBanner(lastResult);
+    renderBank();
   }
 
   document.getElementById('spinBtn').addEventListener('click', spin);
   document.getElementById('resetBtn').addEventListener('click', fullReset);
 
+  loadBank();
   buildWheel();
   renderAll();
 })();
