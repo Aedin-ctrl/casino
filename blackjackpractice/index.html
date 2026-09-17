@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackjack Practice</title>
+<title>Blackjack</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%83%8F%3C/text%3E%3C/svg%3E">
 <style>
   :root{
@@ -19,6 +19,7 @@
     --tie:#e0b545;
     --red:#e0475a;
     --black:#161821;
+    --gold:#d9b65a;
   }
   *{box-sizing:border-box;}
   body{
@@ -28,16 +29,25 @@
     color:var(--text);
     min-height:100vh;
   }
+  a{color:inherit;}
   .app{
-    max-width:1100px;
+    max-width:900px;
     margin:0 auto;
     padding:24px 20px 60px;
   }
+  .back-link{
+    display:inline-block;
+    font-size:12.5px;
+    color:var(--text-dim);
+    text-decoration:none;
+    margin-bottom:14px;
+  }
+  .back-link:hover{color:var(--text);}
   header{
     display:flex;
     align-items:flex-start;
     justify-content:space-between;
-    margin-bottom:28px;
+    margin-bottom:20px;
     gap:16px;
     flex-wrap:wrap;
   }
@@ -89,17 +99,27 @@
     border-color:var(--lose);
     color:var(--lose);
   }
-  .layout{
-    display:grid;
-    grid-template-columns:300px 1fr;
-    gap:20px;
-    align-items:start;
+
+  .bank-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
   }
-  @media (max-width: 860px){
-    .layout{grid-template-columns:1fr;}
-    .table{order:-1;}
+  .bank-card{
+    flex:1;
+    min-width:160px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px 16px;
   }
-  .table, .odds-panel{
+  .bank-card .label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim);}
+  .bank-card .amount{font-size:22px; font-weight:800; margin-top:4px; font-variant-numeric:tabular-nums;}
+  .bank-card.you .amount{color:var(--gold);}
+  .bank-card.house .amount{color:var(--text);}
+
+  .table{
     background:var(--panel);
     border:1px solid var(--border);
     border-radius:16px;
@@ -107,7 +127,7 @@
   }
   .section-block{margin-bottom:26px;}
   .section-block:last-child{margin-bottom:0;}
-  .section-block h2, .panel-block h2{
+  .section-block h2{
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:.08em;
@@ -189,6 +209,7 @@
     min-height:19px;
   }
   .hand-total .val{color:var(--text);font-weight:700;}
+  .hand-total .bet-tag{color:var(--gold); font-weight:700;}
   .hand-total .tag{
     display:inline-block;
     margin-left:8px;
@@ -256,12 +277,29 @@
   }
   .insurance-banner button:hover{border-color:var(--tie);}
 
-  .deal-row{
+  .bet-row{
     margin-top:18px;
     display:flex;
-    justify-content:center;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
   }
-  .deal-row.hidden{display:none;}
+  .bet-row.hidden{display:none;}
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; justify-content:center;}
+  .chip-btn{
+    width:56px; height:56px; border-radius:50%;
+    border:2px dashed rgba(255,255,255,.35);
+    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.15), transparent 60%), var(--panel-2);
+    color:var(--text);
+    font-size:13px; font-weight:800;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .1s ease, border-color .1s ease;
+  }
+  .chip-btn:hover{transform:translateY(-2px); border-color:var(--gold);}
+  .chip-btn.active{border-color:var(--gold); border-style:solid; box-shadow:0 0 0 3px rgba(217,182,90,.25);}
+  .bet-amount-row{display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-dim);}
+  .bet-amount-row b{color:var(--gold); font-size:16px;}
   .btn-deal{
     padding:14px 40px;
     border-radius:12px;
@@ -274,65 +312,15 @@
     cursor:pointer;
     transition:transform .12s ease, background .12s ease;
   }
-  .btn-deal:hover{background:#2ade9c;transform:translateY(-1px);}
-
-  .panel-block{margin-bottom:24px;}
-  .panel-block:last-child{margin-bottom:0;}
-  .odds-bars, .hand-chances{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-  .odds-row{
-    display:grid;
-    grid-template-columns:44px 1fr 52px;
-    align-items:center;
-    gap:10px;
-    font-size:13px;
-    color:var(--text-dim);
-  }
-  .bar{
-    height:8px;
-    background:var(--panel-2);
-    border-radius:6px;
-    overflow:hidden;
-  }
-  .bar.small{height:6px;}
-  .bar-fill{
-    height:100%;
-    width:0%;
-    border-radius:6px;
-    transition:width .35s ease;
-  }
-  .bar-fill.win{background:var(--accent);}
-  .bar-fill.tie{background:var(--tie);}
-  .bar-fill.lose{background:var(--lose);}
-  .bar-fill.chance{background:var(--accent-dim);}
-  .odds-row span:last-child{
-    text-align:right;
-    font-weight:700;
-    color:var(--text);
-  }
-  .chance-row{
-    display:grid;
-    grid-template-columns:1fr 70px 50px;
-    align-items:center;
-    gap:10px;
-    font-size:12.5px;
-    color:var(--text-dim);
-  }
-  .chance-pct{text-align:right;font-weight:700;color:var(--text);}
-  .placeholder{
-    font-size:13px;
-    color:var(--text-dim);
-    margin:0;
-  }
+  .btn-deal:hover:not(:disabled){background:#2ade9c;transform:translateY(-1px);}
+  .btn-deal:disabled{opacity:.4; cursor:not-allowed;}
+  .broke-note{font-size:12.5px; color:var(--lose); text-align:center;}
 
   @media (max-width: 520px){
     .app{padding:16px 12px 40px;}
     header{margin-bottom:20px;}
     .header-left h1{font-size:19px;}
-    .table, .odds-panel{padding:16px;border-radius:14px;}
+    .table{padding:16px;border-radius:14px;}
     .card-row{gap:8px;}
     .card-slot{width:58px;height:82px;border-radius:9px;}
     .card-slot.back::after{width:26px;height:38px;}
@@ -344,6 +332,7 @@
 </head>
 <body>
 <div class="app">
+  <a class="back-link" href="../index.html">&larr; Casino</a>
   <header>
     <div class="header-left">
       <h1>Blackjack</h1>
@@ -356,69 +345,52 @@
     <button class="btn-reset" id="resetBtn">Reset</button>
   </header>
 
-  <div class="layout">
-    <aside class="odds-panel">
-      <div class="panel-block">
-        <h2>Win Odds</h2>
-        <div class="odds-bars">
-          <div class="odds-row">
-            <span>Win</span>
-            <div class="bar"><div class="bar-fill win" id="winBar"></div></div>
-            <span id="winPct">–</span>
-          </div>
-          <div class="odds-row">
-            <span>Push</span>
-            <div class="bar"><div class="bar-fill tie" id="pushBar"></div></div>
-            <span id="pushPct">–</span>
-          </div>
-          <div class="odds-row">
-            <span>Lose</span>
-            <div class="bar"><div class="bar-fill lose" id="loseBar"></div></div>
-            <span id="losePct">–</span>
-          </div>
-        </div>
-      </div>
-      <div class="panel-block">
-        <h2>Dealer Outcome</h2>
-        <div class="hand-chances" id="dealerChances">
-          <p class="placeholder">Press Deal to start a hand</p>
-        </div>
-      </div>
-    </aside>
-
-    <section class="table">
-      <div class="section-block">
-        <h2>Dealer</h2>
-        <div class="card-row" id="dealerRow"></div>
-      </div>
-      <div class="section-block">
-        <h2>You</h2>
-        <div class="hand-tabs hidden" id="handTabs"></div>
-        <div class="card-row" id="playerRow"></div>
-        <p class="hand-total" id="handTotal"></p>
-
-        <div class="action-row" id="actionRow">
-          <button class="action-btn" id="btnHit">Hit</button>
-          <button class="action-btn" id="btnStand">Stand</button>
-          <button class="action-btn" id="btnDouble">Double</button>
-          <button class="action-btn" id="btnSplit">Split</button>
-          <button class="action-btn" id="btnSurrender">Surrender</button>
-        </div>
-
-        <div class="insurance-banner" id="insuranceBanner" style="display:none;">
-          <p>Dealer is showing an Ace. Take insurance?</p>
-          <div class="btn-row">
-            <button id="btnInsuranceYes">Take Insurance</button>
-            <button id="btnInsuranceNo">No Insurance</button>
-          </div>
-        </div>
-
-        <div class="deal-row" id="dealRow">
-          <button class="btn-deal" id="dealBtn">Deal</button>
-        </div>
-      </div>
-    </section>
+  <div class="bank-row">
+    <div class="bank-card you">
+      <div class="label">You</div>
+      <div class="amount" id="playerBank">$1,000</div>
+    </div>
+    <div class="bank-card house">
+      <div class="label">House</div>
+      <div class="amount" id="houseBank">$1,000</div>
+    </div>
   </div>
+
+  <section class="table">
+    <div class="section-block">
+      <h2>Dealer</h2>
+      <div class="card-row" id="dealerRow"></div>
+    </div>
+    <div class="section-block">
+      <h2>You</h2>
+      <div class="hand-tabs hidden" id="handTabs"></div>
+      <div class="card-row" id="playerRow"></div>
+      <p class="hand-total" id="handTotal"></p>
+
+      <div class="action-row" id="actionRow">
+        <button class="action-btn" id="btnHit">Hit</button>
+        <button class="action-btn" id="btnStand">Stand</button>
+        <button class="action-btn" id="btnDouble">Double</button>
+        <button class="action-btn" id="btnSplit">Split</button>
+        <button class="action-btn" id="btnSurrender">Surrender</button>
+      </div>
+
+      <div class="insurance-banner" id="insuranceBanner" style="display:none;">
+        <p>Dealer is showing an Ace. Take insurance (half your bet, pays 2:1)?</p>
+        <div class="btn-row">
+          <button id="btnInsuranceYes">Take Insurance</button>
+          <button id="btnInsuranceNo">No Insurance</button>
+        </div>
+      </div>
+
+      <div class="bet-row" id="betRow">
+        <div class="chip-row" id="chipRow"></div>
+        <div class="bet-amount-row">Bet: <b id="betAmount">$25</b></div>
+        <button class="btn-deal" id="dealBtn">Deal</button>
+        <p class="broke-note" id="brokeNote" style="display:none;">You're out of chips &mdash; hit Reset to reload $1,000.</p>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>
@@ -429,7 +401,6 @@
   function suitSymbol(s){ return {S:'♠',H:'♥',D:'♦',C:'♣'}[s]; }
   function suitColor(s){ return (s==='H'||s==='D') ? 'red' : 'black'; }
   function rankDisplay(r){ return r<=10 ? String(r) : {11:'J',12:'Q',13:'K',14:'A'}[r]; }
-  function dealerBucket(r){ if(r===14) return 11; if(r>=10) return 10; return r; }
 
   function handValue(cards){
     let total=0, aces=0;
@@ -447,10 +418,6 @@
     for(let r=2;r<=14;r++) for(const s of SUITS) deck.push({r,s});
     return deck;
   }
-  function removeUsed(deck, used){
-    const usedKeys = new Set(used.map(c=>c.r+c.s));
-    return deck.filter(c=>!usedKeys.has(c.r+c.s));
-  }
   function shuffle(arr){
     const a=arr.slice();
     for(let i=a.length-1;i>0;i--){
@@ -460,38 +427,33 @@
     return a;
   }
 
-  function simulateDealer(playerTotal, dealerUpCard, knownCards, trials){
-    const baseDeck = removeUsed(buildDeck(), knownCards);
-    let win=0, push=0, lose=0;
-    const outcomeCounts = {bust:0, 17:0, 18:0, 19:0, 20:0, 21:0};
+  // ---------- Bank ----------
+  const BANK_KEY = 'bj_practice_bank_v1';
+  const STARTING_BANK = 1000;
+  const CHIPS = [5, 25, 100, 200];
+  let bank = { player: STARTING_BANK, house: STARTING_BANK };
+  let betAmount = 25;
 
-    for(let t=0;t<trials;t++){
-      const deck = shuffle(baseDeck);
-      let ptr=0;
-      const dealerCards = [dealerUpCard, deck[ptr++]];
-      let dv = handValue(dealerCards);
-      while(dv.total<17){
-        dealerCards.push(deck[ptr++]);
-        dv = handValue(dealerCards);
-      }
-      if(dv.isBust){
-        outcomeCounts.bust++;
-        win++;
-      } else {
-        const key = Math.min(dv.total,21);
-        if(outcomeCounts[key]!==undefined) outcomeCounts[key]++;
-        if(dv.total>playerTotal) lose++;
-        else if(dv.total===playerTotal) push++;
-        else win++;
-      }
-    }
-
-    return {
-      win: win/trials*100,
-      push: push/trials*100,
-      lose: lose/trials*100,
-      outcomes: Object.fromEntries(Object.entries(outcomeCounts).map(([k,v])=>[k, v/trials*100]))
-    };
+  function loadBank(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(BANK_KEY));
+      if(saved && typeof saved.player==='number' && typeof saved.house==='number') bank = saved;
+    }catch(e){}
+  }
+  function saveBank(){
+    try{ localStorage.setItem(BANK_KEY, JSON.stringify(bank)); }catch(e){}
+  }
+  function fmt(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+  function renderBank(){
+    document.getElementById('playerBank').textContent = fmt(bank.player);
+    document.getElementById('houseBank').textContent = fmt(bank.house);
+  }
+  // Positive amount = house pays player that much; negative = player pays house.
+  function settle(amount){
+    bank.player += amount;
+    bank.house -= amount;
+    saveBank();
+    renderBank();
   }
 
   // ---------- Game state ----------
@@ -503,20 +465,21 @@
   let insuranceTaken = false;
   let pendingPlayerBJ = false;
   let counters = { win:0, push:0, lose:0 };
-  let calcTimer = null;
 
   function activeHand(){ return hands[activeHandIndex]; }
   function drawCard(){ if(deck.length===0) deck = shuffle(buildDeck()); return deck.pop(); }
-  function otherHandsCards(h){
-    const list=[];
-    hands.forEach(x=>{ if(x!==h) x.cards.forEach(c=>list.push(c)); });
-    return list;
+
+  function currentBaseBet(){
+    return Math.min(betAmount, bank.player);
   }
 
   function startRound(){
+    const bet = currentBaseBet();
+    if(bet<=0) return;
+    settle(-bet); // player stakes the bet up front
     deck = shuffle(buildDeck());
     dealer = { cards:[drawCard(), drawCard()], holeHidden:true };
-    hands = [{ cards:[drawCard(), drawCard()], done:false, doubled:false, surrendered:false, acesSplit:false, result:null }];
+    hands = [{ cards:[drawCard(), drawCard()], bet, done:false, doubled:false, surrendered:false, acesSplit:false, insurance:0, result:null }];
     activeHandIndex = 0;
     insuranceTaken = false;
     resolveInitialDeal();
@@ -538,10 +501,15 @@
     }
     phase='player';
     renderAll();
-    scheduleOdds();
   }
 
   function takeInsurance(taken){
+    const hand = hands[0];
+    if(taken){
+      const ins = Math.min(hand.bet/2, bank.player);
+      hand.insurance = ins;
+      settle(-ins);
+    }
     insuranceTaken = taken;
     peekDealer(pendingPlayerBJ);
   }
@@ -550,31 +518,31 @@
     dealer.holeHidden = false;
     const dv = handValue(dealer.cards);
     const dealerBJ = dv.total===21;
+    const hand = hands[0];
     if(dealerBJ){
-      const hand = hands[0];
+      if(hand.insurance>0) settle(hand.insurance*3); // return stake + 2:1 payout
       hand.done = true;
-      hand.result = (playerBJ || insuranceTaken) ? 'push' : 'lose';
+      hand.result = playerBJ ? 'push' : 'lose';
+      if(hand.result==='push') settle(hand.bet);
       finishRound();
       return;
     }
     if(playerBJ){
-      const hand = hands[0];
       hand.done = true;
       hand.result = 'blackjack';
+      settle(hand.bet*2.5);
       finishRound();
       return;
     }
     dealer.holeHidden = true;
     phase='player';
     renderAll();
-    scheduleOdds();
   }
 
   function finishRound(){
     phase='result';
     updateCounters();
     renderAll();
-    updateOddsDisplay(null);
   }
 
   function updateCounters(){
@@ -604,6 +572,9 @@
     if(phase!=='player') return;
     const hand = activeHand();
     if(!(hand.cards.length===2 && !hand.done)) return;
+    const extra = Math.min(hand.bet, bank.player);
+    settle(-extra);
+    hand.bet += extra;
     hand.doubled = true;
     hand.cards.push(drawCard());
     const {isBust} = handValue(hand.cards);
@@ -616,10 +587,12 @@
     if(phase!=='player') return;
     const hand = activeHand();
     if(!(hand.cards.length===2 && hand.cards[0].r===hand.cards[1].r && hands.length<4 && !hand.done)) return;
+    if(bank.player < hand.bet) return; // need to fund the second hand's bet
+    settle(-hand.bet);
     const [c1,c2] = hand.cards;
     const isAce = c1.r===14;
-    const handA = { cards:[c1, drawCard()], done:false, doubled:false, surrendered:false, acesSplit:isAce, result:null };
-    const handB = { cards:[c2, drawCard()], done:false, doubled:false, surrendered:false, acesSplit:isAce, result:null };
+    const handA = { cards:[c1, drawCard()], bet:hand.bet, done:false, doubled:false, surrendered:false, acesSplit:isAce, insurance:0, result:null };
+    const handB = { cards:[c2, drawCard()], bet:hand.bet, done:false, doubled:false, surrendered:false, acesSplit:isAce, insurance:0, result:null };
     if(isAce){ handA.done=true; handB.done=true; }
     hands.splice(activeHandIndex, 1, handA, handB);
     advance();
@@ -632,6 +605,7 @@
     hand.done = true;
     hand.surrendered = true;
     hand.result = 'surrender';
+    settle(hand.bet/2);
     advance();
   }
 
@@ -641,7 +615,6 @@
     if(nextIdx!==-1){
       activeHandIndex = nextIdx;
       renderAll();
-      scheduleOdds();
       return;
     }
     dealerTurn();
@@ -668,12 +641,16 @@
   function resolveResults(){
     const dv = handValue(dealer.cards);
     hands.forEach(h=>{
-      if(h.result) return;
+      if(h.result) return; // already settled (bust) or blackjack/push above
       const pv = handValue(h.cards);
       if(dv.isBust) h.result='win';
       else if(pv.total>dv.total) h.result='win';
       else if(pv.total===dv.total) h.result='push';
       else h.result='lose';
+
+      if(h.result==='win') settle(h.bet*2);
+      else if(h.result==='push') settle(h.bet);
+      // 'lose' and already-settled 'bust' keep the house's stake, no further settle needed
     });
   }
 
@@ -718,7 +695,6 @@
       btn.addEventListener('click', ()=>{
         activeHandIndex=i;
         renderAll();
-        if(phase==='player') scheduleOdds();
       });
       container.appendChild(btn);
     });
@@ -741,7 +717,7 @@
     const hand = activeHand();
     if(!hand || hand.cards.length===0){ el.textContent=''; return; }
     const {total, soft} = handValue(hand.cards);
-    let html = `Total: <span class="val">${soft && total<=21 ? 'Soft ' : ''}${total}</span>`;
+    let html = `Total: <span class="val">${soft && total<=21 ? 'Soft ' : ''}${total}</span> &middot; Bet: <span class="bet-tag">${fmt(hand.bet)}</span>`;
     if(hand.result==='bust') html += `<span class="tag bust">Bust</span>`;
     else if(hand.result==='blackjack') html += `<span class="tag blackjack">Blackjack!</span>`;
     else if(hand.result==='win') html += `<span class="tag win">Win</span>`;
@@ -753,35 +729,55 @@
     el.innerHTML = html;
   }
 
+  function renderChips(){
+    const row = document.getElementById('chipRow');
+    row.innerHTML='';
+    CHIPS.forEach(v=>{
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className = 'chip-btn' + (v===betAmount?' active':'');
+      btn.textContent = '$'+v;
+      btn.disabled = v>bank.player;
+      btn.addEventListener('click', ()=>{ betAmount=v; renderAll(); });
+      row.appendChild(btn);
+    });
+  }
+
   function renderActionArea(){
     const actionRow = document.getElementById('actionRow');
     const insuranceBanner = document.getElementById('insuranceBanner');
-    const dealRow = document.getElementById('dealRow');
+    const betRow = document.getElementById('betRow');
     const dealBtn = document.getElementById('dealBtn');
+    const brokeNote = document.getElementById('brokeNote');
 
     if(phase==='insurance'){
       actionRow.style.display='none';
       insuranceBanner.style.display='block';
-      dealRow.classList.add('hidden');
+      betRow.classList.add('hidden');
       return;
     }
     insuranceBanner.style.display='none';
 
     if(phase==='idle' || phase==='result'){
       actionRow.style.display='none';
-      dealRow.classList.remove('hidden');
+      betRow.classList.remove('hidden');
+      renderChips();
+      document.getElementById('betAmount').textContent = fmt(Math.min(betAmount,bank.player || betAmount));
+      const broke = bank.player<=0;
+      dealBtn.disabled = broke;
       dealBtn.textContent = phase==='result' ? 'Deal Next Hand' : 'Deal';
+      brokeNote.style.display = broke ? 'block' : 'none';
       return;
     }
 
-    dealRow.classList.add('hidden');
+    betRow.classList.add('hidden');
     actionRow.style.display='flex';
     const hand = activeHand();
     const ready = phase==='player' && hand && !hand.done;
     document.getElementById('btnHit').disabled = !ready;
     document.getElementById('btnStand').disabled = !ready;
-    document.getElementById('btnDouble').disabled = !(ready && hand.cards.length===2);
-    document.getElementById('btnSplit').disabled = !(ready && hand.cards.length===2 && hand.cards[0].r===hand.cards[1].r && hands.length<4);
+    document.getElementById('btnDouble').disabled = !(ready && hand.cards.length===2 && bank.player>=hand.bet);
+    document.getElementById('btnSplit').disabled = !(ready && hand.cards.length===2 && hand.cards[0].r===hand.cards[1].r && hands.length<4 && bank.player>=hand.bet);
     document.getElementById('btnSurrender').disabled = !(ready && hand.cards.length===2 && hands.length===1);
   }
 
@@ -798,59 +794,7 @@
     renderHandTotal();
     renderActionArea();
     renderCounters();
-  }
-
-  function updateOddsDisplay(result){
-    const winBar=document.getElementById('winBar'), pushBar=document.getElementById('pushBar'), loseBar=document.getElementById('loseBar');
-    const winPct=document.getElementById('winPct'), pushPct=document.getElementById('pushPct'), losePct=document.getElementById('losePct');
-    const chances=document.getElementById('dealerChances');
-
-    if(!result){
-      winBar.style.width='0%'; pushBar.style.width='0%'; loseBar.style.width='0%';
-      winPct.textContent='–'; pushPct.textContent='–'; losePct.textContent='–';
-      chances.innerHTML = phase==='idle' ? '<p class="placeholder">Press Deal to start a hand</p>' : '<p class="placeholder">Round over</p>';
-      return;
-    }
-    if(result==='bust'){
-      winBar.style.width='0%'; pushBar.style.width='0%'; loseBar.style.width='100%';
-      winPct.textContent='0.0%'; pushPct.textContent='0.0%'; losePct.textContent='100.0%';
-      chances.innerHTML = '<p class="placeholder">Your hand is bust</p>';
-      return;
-    }
-
-    winBar.style.width = result.win+'%';
-    pushBar.style.width = result.push+'%';
-    loseBar.style.width = result.lose+'%';
-    winPct.textContent = result.win.toFixed(1)+'%';
-    pushPct.textContent = result.push.toFixed(1)+'%';
-    losePct.textContent = result.lose.toFixed(1)+'%';
-
-    const labels = [['bust','Dealer Bust'],[17,'Dealer 17'],[18,'Dealer 18'],[19,'Dealer 19'],[20,'Dealer 20'],[21,'Dealer 21']];
-    const rows = labels
-      .map(([key,label])=>({label, pct: result.outcomes[key]}))
-      .filter(r=>r.pct>0.05)
-      .sort((a,b)=>b.pct-a.pct);
-
-    chances.innerHTML = rows.map(r=>`
-      <div class="chance-row">
-        <span>${r.label}</span>
-        <div class="bar small"><div class="bar-fill chance" style="width:${r.pct}%"></div></div>
-        <span class="chance-pct">${r.pct.toFixed(1)}%</span>
-      </div>
-    `).join('');
-  }
-
-  function scheduleOdds(){
-    clearTimeout(calcTimer);
-    calcTimer = setTimeout(()=>{
-      const hand = activeHand();
-      if(!hand || hand.cards.length<2 || phase!=='player'){ return; }
-      const {total, isBust} = handValue(hand.cards);
-      if(isBust){ updateOddsDisplay('bust'); return; }
-      const known = hand.cards.concat([dealer.cards[0]]).concat(otherHandsCards(hand));
-      const result = simulateDealer(total, dealer.cards[0], known, 2000);
-      updateOddsDisplay(result);
-    }, 30);
+    renderBank();
   }
 
   // ---------- Events ----------
@@ -865,13 +809,14 @@
   document.getElementById('resetBtn').addEventListener('click', ()=>{
     deck=[]; dealer={cards:[],holeHidden:true}; hands=[]; activeHandIndex=0;
     phase='idle'; insuranceTaken=false; counters={win:0,push:0,lose:0};
+    bank = { player: STARTING_BANK, house: STARTING_BANK };
+    saveBank();
     renderAll();
-    updateOddsDisplay(null);
   });
 
   // ---------- Init ----------
+  loadBank();
   renderAll();
-  updateOddsDisplay(null);
 })();
 </script>
 </body>
