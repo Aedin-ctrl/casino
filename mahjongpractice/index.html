@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahjong Practice</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%80%84%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b0d12;
+    --panel:#12151c;
+    --panel-2:#171b24;
+    --border:#232838;
+    --text:#e8eaf0;
+    --text-dim:#8b93a7;
+    --accent:#22c58b;
+    --accent-dim:#1a9c6d;
+    --warn:#e0b545;
+    --lose:#e0475a;
+    --man:#e0475a;
+    --pin:#4a9de0;
+    --sou:#3fb570;
+    --honor:#d9b65a;
+    --tile-face:#f4f0e4;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .app{max-width:1180px;margin:0 auto;padding:20px 16px 60px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  header h1{font-size:21px;font-weight:700;letter-spacing:-0.01em;margin:0;}
+  .header-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .header-controls label{font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:6px;}
+  select, .btn{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:7px 12px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn:hover, select:hover{border-color:var(--accent);}
+  .btn.primary{background:var(--accent-dim);border-color:var(--accent-dim);color:#04150e;}
+  .btn.primary:hover{background:var(--accent);}
+  .btn:disabled{opacity:.35;cursor:default;}
+  .btn:disabled:hover{border-color:var(--border);}
+
+  .board{
+    display:grid;
+    grid-template-columns:1fr 220px;
+    gap:16px;
+  }
+  @media (max-width:880px){ .board{grid-template-columns:1fr;} .side{order:-1;} }
+
+  .table-wrap{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px;
+  }
+
+  .opp-row{display:flex;gap:10px;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;}
+  .seat{
+    flex:1 1 0;
+    min-width:150px;
+    background:var(--panel-2);
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    padding:10px;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .seat.acting{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+  .seat.riichi{border-color:var(--warn);}
+  .seat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .seat-name{font-size:12px;font-weight:700;}
+  .seat-score{font-size:11.5px;color:var(--text-dim);}
+  .seat-hand-back{display:flex;gap:2px;margin-bottom:6px;}
+  .tile-back{width:14px;height:20px;background:linear-gradient(180deg,#2a3550,#1c2438);border:1px solid #3a4666;border-radius:3px;}
+  .discard-mini{display:flex;flex-wrap:wrap;gap:2px;min-height:22px;}
+  .discard-chip{
+    width:18px;height:24px;border-radius:3px;background:var(--tile-face);
+    font-size:9px;display:flex;align-items:center;justify-content:center;color:#222;font-weight:700;
+  }
+  .melds-mini{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+  .meld-chip{font-size:9.5px;background:#1c2130;border:1px solid var(--border);border-radius:5px;padding:2px 5px;color:var(--text-dim);}
+
+  .center-info{
+    display:flex;align-items:center;justify-content:center;gap:22px;
+    padding:14px 0;margin-bottom:14px;
+    border-top:1px dashed var(--border);border-bottom:1px dashed var(--border);
+  }
+  .center-stat{text-align:center;}
+  .center-stat .n{font-size:20px;font-weight:700;}
+  .center-stat .l{font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}
+
+  .status-line{text-align:center;font-size:13px;color:var(--text-dim);min-height:20px;margin-bottom:10px;}
+  .status-line b{color:var(--text);}
+
+  .you-block{background:var(--panel-2);border:1.5px solid var(--border);border-radius:12px;padding:12px;}
+  .you-block.acting{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+  .you-block.riichi{border-color:var(--warn);}
+  .you-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .you-discards{display:flex;flex-wrap:wrap;gap:3px;min-height:26px;margin-bottom:10px;}
+  .you-melds{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+
+  .hand-row{display:flex;gap:4px;flex-wrap:wrap;align-items:flex-end;min-height:64px;}
+  .tile{
+    width:34px;height:48px;border-radius:6px;background:var(--tile-face);
+    border:1px solid #d8d2bd;
+    display:flex;align-items:center;justify-content:center;
+    font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:15px;
+    color:#222;cursor:pointer;user-select:none;
+    box-shadow:0 2px 4px rgba(0,0,0,.35);
+    transition:transform .1s ease;
+    position:relative;
+  }
+  .tile:hover{transform:translateY(-4px);}
+  .tile.new-draw{outline:2px solid var(--accent);outline-offset:2px;}
+  .tile.selectable:hover{transform:translateY(-6px);}
+  .tile.man{color:var(--man);}
+  .tile.pin{color:var(--pin);}
+  .tile.sou{color:var(--sou);}
+  .tile.honor{color:var(--honor);font-size:13px;}
+  .tile.small{width:22px;height:30px;font-size:10px;border-radius:4px;}
+
+  .actions-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .actions-row .btn{padding:9px 14px;}
+  .actions-row .btn.win{background:var(--warn);border-color:var(--warn);color:#241a00;}
+  .actions-row .btn.win:hover{filter:brightness(1.08);}
+
+  .side{display:flex;flex-direction:column;gap:14px;}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;}
+  .panel h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:0 0 10px;font-weight:700;}
+  .score-row{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border);}
+  .score-row:last-child{border-bottom:none;}
+  .log{font-size:11.5px;color:var(--text-dim);max-height:220px;overflow-y:auto;line-height:1.6;}
+  .log div{padding:2px 0;border-bottom:1px dashed #1d2230;}
+  .rules-note{font-size:11px;color:var(--text-dim);line-height:1.6;}
+
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);
+    display:flex;align-items:center;justify-content:center;z-index:50;
+  }
+  .modal-overlay.hidden{display:none;}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;max-width:360px;width:92%;text-align:center;}
+  .modal h3{margin:0 0 10px;font-size:16px;}
+  .modal p{color:var(--text-dim);font-size:13px;margin:0 0 14px;}
+  .modal .btn{margin:4px;}
+  .chi-options{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Mahjong Practice</h1>
+    <div class="header-controls">
+      <label>Bot speed
+        <select id="speedSelect">
+          <option value="1400">Slow</option>
+          <option value="700" selected>Normal</option>
+          <option value="250">Fast</option>
+          <option value="0">Instant</option>
+        </select>
+      </label>
+      <button class="btn" id="newHandBtn">New Hand</button>
+    </div>
+  </header>
+
+  <div class="status-line" id="statusLine">Dealing…</div>
+
+  <div class="board">
+    <div class="table-wrap">
+      <div class="opp-row">
+        <div class="seat" id="seatRight">
+          <div class="seat-top"><span class="seat-name">Right</span><span class="seat-score" id="scoreRight">25000</span></div>
+          <div class="seat-hand-back" id="backRight"></div>
+          <div class="discard-mini" id="discardRight"></div>
+          <div class="melds-mini" id="meldRight"></div>
+        </div>
+        <div class="seat" id="seatAcross">
+          <div class="seat-top"><span class="seat-name">Across</span><span class="seat-score" id="scoreAcross">25000</span></div>
+          <div class="seat-hand-back" id="backAcross"></div>
+          <div class="discard-mini" id="discardAcross"></div>
+          <div class="melds-mini" id="meldAcross"></div>
+        </div>
+        <div class="seat" id="seatLeft">
+          <div class="seat-top"><span class="seat-name">Left</span><span class="seat-score" id="scoreLeft">25000</span></div>
+          <div class="seat-hand-back" id="backLeft"></div>
+          <div class="discard-mini" id="discardLeft"></div>
+          <div class="melds-mini" id="meldLeft"></div>
+        </div>
+      </div>
+
+      <div class="center-info">
+        <div class="center-stat"><div class="n" id="wallCount">70</div><div class="l">Wall</div></div>
+        <div class="center-stat"><div class="n" id="handNum">1</div><div class="l">Hand</div></div>
+        <div class="center-stat"><div class="n" id="riichiSticks">0</div><div class="l">Riichi sticks</div></div>
+      </div>
+
+      <div class="you-block" id="youBlock">
+        <div class="you-top">
+          <span class="seat-name">You <span id="riichiTag" style="display:none;color:var(--warn);">RIICHI</span></span>
+          <span class="seat-score" id="scoreYou">25000</span>
+        </div>
+        <div class="you-melds" id="youMelds"></div>
+        <div class="you-discards" id="youDiscards"></div>
+        <div class="hand-row" id="youHand"></div>
+        <div class="actions-row" id="actionsRow"></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="panel">
+        <h2>Scores</h2>
+        <div id="scorePanel"></div>
+      </div>
+      <div class="panel">
+        <h2>Log</h2>
+        <div class="log" id="logPanel"></div>
+      </div>
+      <div class="panel">
+        <h2>Rules note</h2>
+        <div class="rules-note">
+          Simplified riichi mahjong: standard hand, seven pairs, or thirteen orphans to win.
+          Only you can call pon / chi / ron — bots draw and discard only.
+          No kan, no fu/dora, flat han→point table, dragon triplets are the only yakuhai.
+          Wind rotation and furiten are not tracked.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="callModal">
+  <div class="modal">
+    <h3 id="callTitle">Call?</h3>
+    <p id="callDesc"></p>
+    <div class="chi-options" id="chiOptions"></div>
+    <div>
+      <button class="btn primary" id="callYesBtn">Call</button>
+      <button class="btn" id="callNoBtn">Pass</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="resultModal">
+  <div class="modal">
+    <h3 id="resultTitle">Result</h3>
+    <p id="resultDesc"></p>
+    <button class="btn primary" id="resultOkBtn">Next Hand</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// ---------- Tile helpers ----------
+// 0-8 man1-9, 9-17 pin1-9, 18-26 sou1-9, 27-30 winds(E,S,W,N), 31-33 dragons(White,Green,Red)
+const WIND_LABELS = ['E','S','W','N'];
+const DRAGON_LABELS = ['Wh','Gr','Rd'];
+function tileSuit(t){
+  if(t<9) return 'man';
+  if(t<18) return 'pin';
+  if(t<27) return 'sou';
+  return 'honor';
+}
+function tileLabel(t){
+  if(t<9) return (t+1)+'m';
+  if(t<18) return (t-9+1)+'p';
+  if(t<27) return (t-18+1)+'s';
+  if(t<31) return WIND_LABELS[t-27];
+  return DRAGON_LABELS[t-31];
+}
+function isTerminalOrHonor(t){
+  if(t>=27) return true;
+  const off = t%9;
+  return off===0 || off===8;
+}
+
+// ---------- Shanten (verified logic) ----------
+function standardShanten(counts, fixedMelds){
+  const c = counts.slice();
+  const targetMelds = 4 - fixedMelds;
+  let best = Infinity;
+  function finalize(melds, partials, pairUsed){
+    const cap = Math.max(0, targetMelds - melds);
+    const p = Math.min(partials, cap);
+    const s = (targetMelds - melds) * 2 - p - (pairUsed ? 1 : 0);
+    if (s < best) best = s;
+  }
+  function scan(pos, melds, partials, pairUsed){
+    if (pos === 34) { finalize(melds, partials, pairUsed); return; }
+    if (c[pos] === 0) { scan(pos + 1, melds, partials, pairUsed); return; }
+    const suited = pos < 27;
+    const offset = pos % 9;
+    if (c[pos] >= 3) { c[pos]-=3; scan(pos, melds+1, partials, pairUsed); c[pos]+=3; }
+    if (suited && offset<=6 && c[pos+1]>0 && c[pos+2]>0) { c[pos]--;c[pos+1]--;c[pos+2]--; scan(pos, melds+1, partials, pairUsed); c[pos]++;c[pos+1]++;c[pos+2]++; }
+    if (c[pos] >= 2 && !pairUsed) { c[pos]-=2; scan(pos, melds, partials, true); c[pos]+=2; }
+    if (c[pos] >= 2) { c[pos]-=2; scan(pos, melds, partials+1, pairUsed); c[pos]+=2; }
+    if (suited && offset<=7 && c[pos+1]>0) { c[pos]--;c[pos+1]--; scan(pos, melds, partials+1, pairUsed); c[pos]++;c[pos+1]++; }
+    if (suited && offset<=6 && c[pos+2]>0) { c[pos]--;c[pos+2]--; scan(pos, melds, partials+1, pairUsed); c[pos]++;c[pos+2]++; }
+    c[pos]--; scan(pos, melds, partials, pairUsed); c[pos]++;
+  }
+  scan(0,0,0,false);
+  return best;
+}
+function chiitoiShanten(counts){
+  let pairs=0, kinds=0;
+  for(let i=0;i<34;i++){ if(counts[i]>=1) kinds++; if(counts[i]>=2) pairs++; }
+  pairs = Math.min(pairs,7);
+  return 6 - pairs + Math.max(0, 7-kinds);
+}
+const TERMINAL_HONOR = [0,8,9,17,18,26,27,28,29,30,31,32,33];
+function kokushiShanten(counts){
+  let kinds=0, hasPair=false;
+  for(const i of TERMINAL_HONOR){ if(counts[i]>=1) kinds++; if(counts[i]>=2) hasPair=true; }
+  return 13 - kinds - (hasPair?1:0);
+}
+function fullShanten(counts, fixedMelds){
+  let s = standardShanten(counts, fixedMelds);
+  if(fixedMelds===0){
+    s = Math.min(s, chiitoiShanten(counts));
+    s = Math.min(s, kokushiShanten(counts));
+  }
+  return s;
+}
+function decomposeStandard(counts, fixedMeldCount){
+  const c = counts.slice();
+  const targetMelds = 4 - fixedMeldCount;
+  const results = [];
+  function scan(pos, melds, pairTile){
+    if (pos === 34) { if (melds.length===targetMelds && pairTile!==null) results.push({melds:melds.slice(), pair:pairTile}); return; }
+    if (c[pos] === 0) { scan(pos+1, melds, pairTile); return; }
+    const suited = pos<27, offset = pos%9;
+    if (c[pos] >= 3) { c[pos]-=3; melds.push({type:'triplet',tile:pos}); scan(pos, melds, pairTile); melds.pop(); c[pos]+=3; }
+    if (suited && offset<=6 && c[pos+1]>0 && c[pos+2]>0) { c[pos]--;c[pos+1]--;c[pos+2]--; melds.push({type:'seq',tile:pos}); scan(pos, melds, pairTile); melds.pop(); c[pos]++;c[pos+1]++;c[pos+2]++; }
+    if (c[pos] >= 2 && pairTile===null) { c[pos]-=2; scan(pos, melds, pos); c[pos]+=2; }
+  }
+  scan(0, [], null);
+  return results;
+}
+
+// ---------- Yaku / scoring ----------
+function hanToPoints(han){
+  if(han<=0) return 0;
+  if(han===1) return 1000;
+  if(han===2) return 2000;
+  if(han===3) return 3900;
+  return 8000; // 4+ flat mangan
+}
+// evaluate best yaku total for a winning hand. fixedMelds: array of {type:'seq'|'triplet', tile, open:true}
+function evaluateWin(concealedCounts, fixedMelds, opts){
+  const isTsumo = opts.isTsumo, isRiichi = opts.isRiichi;
+  const closed = fixedMelds.length === 0;
+  let bestHan = -1, bestLabel = [];
+
+  // Kokushi (yakuman-ish, only when fully closed)
+  if(closed && kokushiShanten(concealedCounts) === -1){
+    return { han: 13, points: 32000, labels: ['Thirteen Orphans'] };
+  }
+
+  // Chiitoitsu
+  if(closed && chiitoiShanten(concealedCounts) === -1){
+    let han = 2, labels = ['Seven Pairs'];
+    if(isRiichi){ han+=1; labels.push('Riichi'); }
+    if(isTsumo){ han+=1; labels.push('Menzen Tsumo'); }
+    let allSimple = true;
+    for(let i=0;i<34;i++) if(concealedCounts[i]>0 && isTerminalOrHonor(i)) allSimple=false;
+    if(allSimple){ han+=1; labels.push('Tanyao'); }
+    if(han > bestHan){ bestHan = han; bestLabel = labels; }
+  }
+
+  // Standard shapes
+  const decomps = decomposeStandard(concealedCounts, fixedMelds.length);
+  for(const d of decomps){
+    const allMelds = fixedMelds.map(m=>({type:m.type, tile:m.tile})).concat(d.melds);
+    let han = 0; const labels = [];
+    const allSeq = allMelds.every(m=>m.type==='seq');
+    const allTriplet = allMelds.every(m=>m.type==='triplet');
+    let allSimple = allMelds.every(m=>{
+      if(m.tile>=27) return false;
+      const off = m.tile%9;
+      if(m.type==='triplet') return off!==0 && off!==8;
+      return off>=1 && off<=4; // sequence start 2..6 keeps 2..8 (no terminal)
+    }) && !isTerminalOrHonor(d.pair);
+    const dragonTriplets = allMelds.filter(m=>m.type==='triplet' && m.tile>=31).length;
+
+    const suitsUsed = new Set();
+    let hasHonor = false;
+    for(const m of allMelds){ if(m.tile>=27) hasHonor=true; else suitsUsed.add(Math.floor(m.tile/9)); }
+    if(d.pair>=27) hasHonor=true; else suitsUsed.add(Math.floor(d.pair/9));
+
+    if(isRiichi){ han+=1; labels.push('Riichi'); }
+    if(isTsumo && closed){ han+=1; labels.push('Menzen Tsumo'); }
+    if(allSimple){ han+=1; labels.push('Tanyao'); }
+    if(dragonTriplets>0){ han += dragonTriplets; labels.push('Yakuhai x'+dragonTriplets); }
+    if(allTriplet){ han+=2; labels.push('Toitoi'); }
+    if(allSeq && closed && d.pair<31){ han+=1; labels.push('Pinfu'); }
+    if(suitsUsed.size===1 && hasHonor){ han += closed?3:2; labels.push('Honitsu'); }
+    else if(suitsUsed.size===1 && !hasHonor){ han += closed?6:5; labels.push('Chinitsu'); }
+
+    if(han > bestHan){ bestHan = han; bestLabel = labels; }
+  }
+
+  if(bestHan <= 0) return null;
+  return { han: bestHan, points: hanToPoints(bestHan), labels: bestLabel };
+}
+
+// ---------- Game state ----------
+const SEATS = ['you','right','across','left']; // turn order
+const SEAT_LABEL = {you:'You', right:'Right', across:'Across', left:'Left'};
+let state = null;
+let speedMs = 700;
+
+function buildWall(){
+  const wall = [];
+  for(let t=0;t<34;t++) for(let i=0;i<4;i++) wall.push(t);
+  for(let i=wall.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [wall[i],wall[j]]=[wall[j],wall[i]]; }
+  return wall;
+}
+function countsFromTiles(tiles){ const c=new Array(34).fill(0); for(const t of tiles) c[t]++; return c; }
+
+function newHand(handNum, scores){
+  const wall = buildWall();
+  const dead = wall.splice(wall.length-14, 14); // dead wall unused
+  const hands = {};
+  for(const s of SEATS) hands[s] = wall.splice(0,13).sort((a,b)=>a-b);
+  state = {
+    wall, hands,
+    fixedMelds: {you:[], right:[], across:[], left:[]},
+    discards: {you:[], right:[], across:[], left:[]},
+    scores: scores || {you:25000, right:25000, across:25000, left:25000},
+    riichi: {you:false, right:false, across:false, left:false},
+    riichiSticks: 0,
+    handNum: handNum || 1,
+    turnIdx: 0, // index into SEATS, 'you' starts
+    drawnTile: null,
+    over: false,
+    log: []
+  };
+  logMsg('New hand dealt. ' + state.wall.length + ' tiles left in live wall.');
+  render();
+  setTimeout(takeTurn, 300);
+}
+
+function logMsg(m){
+  state.log.unshift(m);
+  if(state.log.length>60) state.log.pop();
+  const el = document.getElementById('logPanel');
+  el.innerHTML = state.log.map(x=>'<div>'+x+'</div>').join('');
+}
+
+function nextSeat(seat){ return SEATS[(SEATS.indexOf(seat)+1)%4]; }
+
+// ---------- Turn loop ----------
+function takeTurn(){
+  if(state.over) return;
+  const seat = SEATS[state.turnIdx];
+  if(state.wall.length === 0){ endExhaustive(); return; }
+  const tile = state.wall.shift();
+  state.hands[seat].push(tile);
+  state.drawnTile = tile;
+  setDoc('statusLine', SEAT_LABEL[seat] + ' draws.');
+  render();
+
+  if(seat === 'you'){
+    handleYourDraw(tile);
+    return;
+  }
+
+  // Bot logic
+  setTimeout(()=>{
+    const counts = countsFromTiles(state.hands[seat]);
+    const fixed = state.fixedMelds[seat].length;
+    const s = fullShanten(counts, fixed);
+    if(s === -1){
+      const win = evaluateWin(counts, state.fixedMelds[seat], {isTsumo:true, isRiichi:state.riichi[seat]});
+      if(win){ finishWin(seat, 'tsumo', win, tile); return; }
+    }
+    // discard: choose tile minimizing shanten
+    let bestTile = tile, bestS = 99;
+    for(let t=0;t<34;t++){
+      if(counts[t]===0) continue;
+      counts[t]--;
+      const sh = fullShanten(counts, fixed);
+      counts[t]++;
+      if(sh < bestS || (sh===bestS && Math.random()<0.25)){ bestS = sh; bestTile = t; }
+    }
+    const idx = state.hands[seat].indexOf(bestTile);
+    state.hands[seat].splice(idx,1);
+    state.hands[seat].sort((a,b)=>a-b);
+    state.discards[seat].push(bestTile);
+    state.drawnTile = null;
+    logMsg(SEAT_LABEL[seat] + ' discards ' + tileLabel(bestTile) + '.');
+    render();
+    afterDiscard(seat, bestTile);
+  }, speedMs);
+}
+
+function afterDiscard(seat, tile){
+  // Only human can call on bot discards
+  if(seat === 'you'){ advanceTurn(); return; }
+  const opts = getHumanCallOptions(seat, tile);
+  if(opts.ron || opts.pon || opts.chi.length){
+    showCallModal(seat, tile, opts);
+  } else {
+    advanceTurn();
+  }
+}
+
+function advanceTurn(){
+  state.turnIdx = (state.turnIdx+1)%4;
+  setTimeout(takeTurn, seat_delay());
+}
+function seat_delay(){ return SEATS[state.turnIdx]==='you' ? 150 : Math.max(80, speedMs*0.15); }
+
+function endExhaustive(){
+  state.over = true;
+  logMsg('Wall empty — hand ends in a draw.');
+  showResult('Exhaustive Draw', 'No more tiles in the wall. No score change.');
+}
+
+function finishWin(seat, kind, win, winTile){
+  state.over = true;
+  const amt = win.points;
+  if(kind === 'tsumo'){
+    if(seat === 'you'){
+      for(const s of SEATS) if(s!=='you'){ state.scores[s]-=Math.round(amt/3); }
+      state.scores.you += Math.round(amt/3)*3;
+    } else {
+      for(const s of SEATS) if(s!==seat){ state.scores[s]-=Math.round(amt/3); }
+      state.scores[seat] += Math.round(amt/3)*3;
+    }
+  } else { // ron
+    state.scores[win.loser] -= amt;
+    state.scores[seat] += amt;
+  }
+  if(state.riichi.you) state.scores.you -= 0; // riichi stick already deducted at declare time
+  logMsg(SEAT_LABEL[seat] + ' wins by ' + kind.toUpperCase() + ' — ' + win.labels.join(', ') + ' (' + win.han + ' han, ' + amt + ' pts)');
+  render();
+  showResult(SEAT_LABEL[seat] + ' wins!', win.labels.join(', ') + ' — ' + win.han + ' han, ' + amt + ' points (' + kind + ').');
+}
+
+// ---------- Human turn ----------
+function handleYourDraw(tile){
+  const counts = countsFromTiles(state.hands.you);
+  const fixed = state.fixedMelds.you.length;
+  const s = fullShanten(counts, fixed);
+  const canTsumo = s === -1 && evaluateWin(counts, state.fixedMelds.you, {isTsumo:true, isRiichi:state.riichi.you});
+
+  if(state.riichi.you){
+    // locked: auto-discard drawn tile unless it wins
+    if(canTsumo){ renderActions({tsumo:true}); return; }
+    setTimeout(()=>{
+      state.hands.you.splice(state.hands.you.indexOf(tile),1);
+      state.discards.you.push(tile);
+      state.drawnTile = null;
+      logMsg('You (riichi) discard ' + tileLabel(tile) + '.');
+      render();
+      advanceTurn();
+    }, 250);
+    return;
+  }
+
+  let canRiichi = false;
+  if(fixed === 0){
+    for(let t=0;t<34;t++){
+      if(counts[t]===0) continue;
+      counts[t]--;
+      if(fullShanten(counts, 0) === 0) canRiichi = true;
+      counts[t]++;
+      if(canRiichi) break;
+    }
+  }
+  renderActions({tsumo: !!canTsumo, riichi: canRiichi});
+}
+
+function youDiscard(tile){
+  const idx = state.hands.you.indexOf(tile);
+  if(idx===-1) return;
+  state.hands.you.splice(idx,1);
+  state.hands.you.sort((a,b)=>a-b);
+  state.discards.you.push(tile);
+  state.drawnTile = null;
+  logMsg('You discard ' + tileLabel(tile) + '.');
+  render();
+  afterDiscard('you', tile);
+}
+
+function youDeclareRiichi(){
+  state.riichi.you = true;
+  state.scores.you -= 1000;
+  state.riichiSticks += 1;
+  logMsg('You declare Riichi!');
+  document.getElementById('riichiTag').style.display = '';
+  document.getElementById('youBlock').classList.add('riichi');
+  // must still discard after declaring
+  renderActions({riichiLocked:true});
+}
+
+function youTsumo(){
+  const counts = countsFromTiles(state.hands.you);
+  const win = evaluateWin(counts, state.fixedMelds.you, {isTsumo:true, isRiichi:state.riichi.you});
+  if(win) finishWin('you','tsumo',win, state.drawnTile);
+}
+
+// ---------- Calls (human only) ----------
+function getHumanCallOptions(discarder, tile){
+  const counts = countsFromTiles(state.hands.you);
+  const fixed = state.fixedMelds.you.length;
+  const opts = {ron:false, pon:false, chi:[], discarder, tile};
+
+  const withTile = counts.slice(); withTile[tile]++;
+  const s = fullShanten(withTile, fixed);
+  if(s === -1){
+    const win = evaluateWin(withTile, state.fixedMelds.you, {isTsumo:false, isRiichi:state.riichi.you});
+    if(win){ win.loser = discarder; opts.ron = win; }
+  }
+
+  if(counts[tile] >= 2) opts.pon = true;
+
+  const isKamicha = nextSeat(discarder) === 'you';
+  if(isKamicha && tile < 27){
+    const off = tile % 9;
+    const combos = [[-2,-1],[-1,1],[1,2]];
+    for(const [a,b] of combos){
+      const ta = tile+a, tb = tile+b;
+      if(Math.floor(ta/9)!==Math.floor(tile/9) || Math.floor(tb/9)!==Math.floor(tile/9)) continue;
+      if(ta<0||tb<0) continue;
+      if(counts[ta]>0 && counts[tb]>0) opts.chi.push([ta,tb]);
+    }
+  }
+  return opts;
+}
+
+let pendingCall = null;
+function showCallModal(discarder, tile, opts){
+  pendingCall = {discarder, tile, opts};
+  const overlay = document.getElementById('callModal');
+  const title = document.getElementById('callTitle');
+  const desc = document.getElementById('callDesc');
+  const chiWrap = document.getElementById('chiOptions');
+  chiWrap.innerHTML = '';
+  let label = tileLabel(tile);
+  title.textContent = SEAT_LABEL[discarder] + ' discarded ' + label;
+  let parts = [];
+  if(opts.ron) parts.push('Ron available!');
+  if(opts.pon) parts.push('Pon available');
+  if(opts.chi.length) parts.push('Chi available');
+  desc.textContent = parts.join(' · ') || 'No calls available.';
+
+  if(opts.chi.length){
+    opts.chi.forEach((combo,i)=>{
+      const b = document.createElement('button');
+      b.className='btn';
+      b.textContent = 'Chi ' + combo.map(tileLabel).sort().join('+');
+      b.onclick = ()=>{ pendingCall.chosenChi = combo; executeCall('chi'); };
+      chiWrap.appendChild(b);
+    });
+  }
+  document.getElementById('callYesBtn').style.display = (opts.ron || opts.pon) ? '' : 'none';
+  document.getElementById('callYesBtn').textContent = opts.ron ? 'Ron!' : 'Pon';
+  document.getElementById('callYesBtn').onclick = ()=> executeCall(opts.ron ? 'ron' : 'pon');
+  overlay.classList.remove('hidden');
+}
+
+function executeCall(kind){
+  document.getElementById('callModal').classList.add('hidden');
+  const {discarder, tile, opts} = pendingCall;
+  if(kind === 'ron'){
+    finishWin('you', 'ron', opts.ron, tile);
+    pendingCall = null;
+    return;
+  }
+  // remove the called tile from discarder's discard pile (last one)
+  const pile = state.discards[discarder];
+  pile.pop();
+
+  if(kind === 'pon'){
+    const idx1 = state.hands.you.indexOf(tile);
+    state.hands.you.splice(idx1,1);
+    const idx2 = state.hands.you.indexOf(tile);
+    state.hands.you.splice(idx2,1);
+    state.fixedMelds.you.push({type:'triplet', tile, open:true});
+    logMsg('You call Pon on ' + tileLabel(tile) + '.');
+    state.turnIdx = SEATS.indexOf('you');
+  } else if(kind === 'chi'){
+    const combo = pendingCall.chosenChi;
+    for(const t of combo){ state.hands.you.splice(state.hands.you.indexOf(t),1); }
+    const seqStart = Math.min(tile, combo[0], combo[1]);
+    state.fixedMelds.you.push({type:'seq', tile:seqStart, open:true});
+    logMsg('You call Chi with ' + combo.map(tileLabel).join('+') + '.');
+    state.turnIdx = SEATS.indexOf('you');
+  }
+  state.hands.you.sort((a,b)=>a-b);
+  render();
+  renderActions({mustDiscard:true});
+  pendingCall = null;
+}
+
+document.getElementById('callNoBtn').onclick = ()=>{
+  document.getElementById('callModal').classList.add('hidden');
+  pendingCall = null;
+  advanceTurn();
+};
+
+// ---------- Rendering ----------
+function tileDiv(t, opts){
+  opts = opts || {};
+  const d = document.createElement('div');
+  d.className = 'tile ' + tileSuit(t) + (opts.small?' small':'') + (opts.selectable?' selectable':'') + (opts.newDraw?' new-draw':'');
+  d.textContent = tileLabel(t);
+  if(opts.onclick) d.onclick = opts.onclick;
+  return d;
+}
+function backs(n){
+  const wrap = document.createElement('div');
+  for(let i=0;i<n;i++){ const b=document.createElement('div'); b.className='tile-back'; wrap.appendChild(b); }
+  return wrap;
+}
+
+function render(){
+  document.getElementById('wallCount').textContent = state.wall.length;
+  document.getElementById('handNum').textContent = state.handNum;
+  document.getElementById('riichiSticks').textContent = state.riichiSticks;
+
+  for(const seat of ['right','across','left']){
+    document.getElementById('back'+cap(seat)).replaceChildren(backs(state.hands[seat].length));
+    const dEl = document.getElementById('discard'+cap(seat));
+    dEl.innerHTML='';
+    state.discards[seat].forEach(t=>{ const c=document.createElement('div'); c.className='discard-chip'; c.textContent=tileLabel(t); dEl.appendChild(c); });
+    const mEl = document.getElementById('meld'+cap(seat));
+    mEl.innerHTML='';
+    state.fixedMelds[seat].forEach(m=>{ const c=document.createElement('div'); c.className='meld-chip'; c.textContent=(m.type==='seq'?'seq ':'set ')+tileLabel(m.tile); mEl.appendChild(c); });
+    document.getElementById('seat'+cap(seat)).classList.toggle('acting', SEATS[state.turnIdx]===seat);
+    document.getElementById('seat'+cap(seat)).classList.toggle('riichi', !!state.riichi[seat]);
+    document.getElementById('score'+cap(seat)).textContent = state.scores[seat];
+  }
+
+  document.getElementById('scoreYou').textContent = state.scores.you;
+  document.getElementById('youBlock').classList.toggle('acting', SEATS[state.turnIdx]==='you');
+
+  const yd = document.getElementById('youDiscards'); yd.innerHTML='';
+  state.discards.you.forEach(t=> yd.appendChild(tileDiv(t,{small:true})));
+
+  const ym = document.getElementById('youMelds'); ym.innerHTML='';
+  state.fixedMelds.you.forEach(m=>{ const c=document.createElement('div'); c.className='meld-chip'; c.textContent=(m.type==='seq'?'seq ':'set ')+tileLabel(m.tile); ym.appendChild(c); });
+
+  const hh = document.getElementById('youHand'); hh.innerHTML='';
+  state.hands.you.forEach(t=>{
+    const isDraw = t===state.drawnTile && state.hands.you.lastIndexOf(t)===state.hands.you.indexOf(t) && false;
+    hh.appendChild(tileDiv(t, {selectable:true, onclick: ()=> onTileClick(t)}));
+  });
+  if(state.drawnTile!==null){
+    // mark the last matching drawn tile visually
+  }
+
+  const sp = document.getElementById('scorePanel'); sp.innerHTML='';
+  for(const s of SEATS){
+    const row = document.createElement('div'); row.className='score-row';
+    row.innerHTML = '<span>'+SEAT_LABEL[s]+(state.riichi[s]?' (riichi)':'')+'</span><span>'+state.scores[s]+'</span>';
+    sp.appendChild(row);
+  }
+}
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+let discardMode = false;
+function onTileClick(t){
+  if(!discardMode) return;
+  youDiscard(t);
+  discardMode = false;
+  document.getElementById('actionsRow').innerHTML='';
+}
+
+function renderActions(opts){
+  const row = document.getElementById('actionsRow');
+  row.innerHTML = '';
+  if(opts.mustDiscard){
+    setDoc('statusLine','Choose a tile to discard.');
+    discardMode = true;
+    return;
+  }
+  if(opts.riichiLocked){
+    setDoc('statusLine','Riichi declared — discard the tile you drew, or wait to draw.');
+    return;
+  }
+  setDoc('statusLine', 'Your turn — click a tile to discard' + (opts.tsumo||opts.riichi ? ', or use an action below.' : '.'));
+  discardMode = true;
+  if(opts.tsumo){
+    const b=document.createElement('button'); b.className='btn win'; b.textContent='Tsumo!';
+    b.onclick=()=>{ discardMode=false; youTsumo(); };
+    row.appendChild(b);
+  }
+  if(opts.riichi){
+    const b=document.createElement('button'); b.className='btn primary'; b.textContent='Declare Riichi';
+    b.onclick=()=>{ youDeclareRiichi(); };
+    row.appendChild(b);
+  }
+}
+
+function setDoc(id, text){ document.getElementById(id).innerHTML = text; }
+
+function showResult(title, desc){
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultDesc').textContent = desc;
+  document.getElementById('resultModal').classList.remove('hidden');
+}
+document.getElementById('resultOkBtn').onclick = ()=>{
+  document.getElementById('resultModal').classList.add('hidden');
+  document.getElementById('riichiTag').style.display='none';
+  document.getElementById('youBlock').classList.remove('riichi');
+  newHand((state.handNum||1)+1, state.scores);
+};
+
+document.getElementById('newHandBtn').onclick = ()=>{
+  document.getElementById('riichiTag').style.display='none';
+  document.getElementById('youBlock').classList.remove('riichi');
+  newHand(1, null);
+};
+document.getElementById('speedSelect').onchange = (e)=>{ speedMs = parseInt(e.target.value,10); };
+
+newHand(1, null);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poker Helper</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0b0d12;
+    --panel:#12151c;
+    --panel-2:#171b24;
+    --border:#232838;
+    --text:#e8eaf0;
+    --text-dim:#8b93a7;
+    --accent:#22c58b;
+    --accent-dim:#1a9c6d;
+    --lose:#e0475a;
+    --tie:#e0b545;
+    --red:#e0475a;
+    --black:#161821;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .app{
+    max-width:1100px;
+    margin:0 auto;
+    padding:24px 20px 60px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:28px;
+  }
+  header h1{
+    font-size:22px;
+    font-weight:650;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .btn-reset{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+    padding:8px 16px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .btn-reset:hover{
+    border-color:var(--lose);
+    color:var(--lose);
+  }
+  .layout{
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width: 860px){
+    .layout{grid-template-columns:1fr;}
+  }
+  .table, .odds-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:22px;
+  }
+  .section-block{margin-bottom:26px;}
+  .section-block:last-child{margin-bottom:0;}
+  .section-block h2, .panel-block h2{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .card-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .card-slot{
+    width:76px;
+    height:106px;
+    border-radius:10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    user-select:none;
+    transition:transform .12s ease, box-shadow .12s ease;
+    position:relative;
+  }
+  .card-slot:hover{transform:translateY(-3px);}
+  .card-slot.empty{
+    background:transparent;
+    border:2px dashed var(--border);
+  }
+  .card-slot.empty:hover{border-color:var(--accent-dim);}
+  .card-slot.empty .plus{
+    font-size:26px;
+    color:var(--text-dim);
+    font-weight:300;
+  }
+  .card-slot.filled{
+    background:#f4f2ec;
+    border:1px solid #d8d5cb;
+    box-shadow:0 6px 16px rgba(0,0,0,.35);
+  }
+  .card-slot .card-rank{
+    font-size:30px;
+    font-weight:700;
+    line-height:1;
+  }
+  .card-slot .card-suit{
+    font-size:22px;
+    line-height:1.3;
+  }
+  .card-rank.red, .card-suit.red{color:var(--red);}
+  .card-rank.black, .card-suit.black{color:var(--black);}
+  .board-row .card-slot:nth-child(4){margin-left:14px;}
+  .board-row .card-slot:nth-child(5){margin-left:14px;}
+
+  .panel-block{margin-bottom:24px;}
+  .panel-block:last-child{margin-bottom:0;}
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .stepper-btn{
+    width:36px;
+    height:36px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+    color:var(--text);
+    font-size:18px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .stepper-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .stepper-btn:disabled{opacity:.35;cursor:not-allowed;}
+  #playersCount{
+    font-size:20px;
+    font-weight:700;
+    min-width:20px;
+    text-align:center;
+  }
+  .current-hand{
+    font-size:16px;
+    font-weight:650;
+    margin:0;
+    color:var(--accent);
+  }
+  .odds-bars, .hand-chances{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .odds-row{
+    display:grid;
+    grid-template-columns:40px 1fr 52px;
+    align-items:center;
+    gap:10px;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .bar{
+    height:8px;
+    background:var(--panel-2);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .bar.small{height:6px;}
+  .bar-fill{
+    height:100%;
+    width:0%;
+    border-radius:6px;
+    transition:width .35s ease;
+  }
+  .bar-fill.win{background:var(--accent);}
+  .bar-fill.tie{background:var(--tie);}
+  .bar-fill.lose{background:var(--lose);}
+  .bar-fill.chance{background:var(--accent-dim);}
+  .odds-row span:last-child{
+    text-align:right;
+    font-weight:700;
+    color:var(--text);
+  }
+  .chance-row{
+    display:grid;
+    grid-template-columns:1fr 70px 50px;
+    align-items:center;
+    gap:10px;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .chance-pct{text-align:right;font-weight:700;color:var(--text);}
+  .placeholder{
+    font-size:13px;
+    color:var(--text-dim);
+    margin:0;
+  }
+
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:16px;
+  }
+  .modal-overlay.hidden{display:none;}
+  .modal{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    width:100%;
+    max-width:460px;
+    max-height:88vh;
+    overflow:auto;
+  }
+  .modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 18px;
+    border-bottom:1px solid var(--border);
+  }
+  .modal-header h3{margin:0;font-size:15px;font-weight:650;}
+  .modal-close{
+    background:transparent;
+    border:none;
+    color:var(--text-dim);
+    font-size:22px;
+    line-height:1;
+    cursor:pointer;
+  }
+  .modal-close:hover{color:var(--text);}
+  .modal-body{padding:18px;}
+  .picker-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-dim);
+    font-weight:700;
+    margin:0 0 10px;
+  }
+  .suit-picker{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .suit-btn{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:16px 4px;
+    border-radius:12px;
+    border:1.5px solid var(--border);
+    background:var(--panel-2);
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .suit-btn .symbol{font-size:28px;line-height:1;}
+  .suit-btn .name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);}
+  .suit-btn.black .symbol{color:var(--text);}
+  .suit-btn.red .symbol{color:var(--red);}
+  .suit-btn:hover{border-color:var(--accent);}
+  .suit-btn.active{border-color:var(--accent);background:rgba(34,197,139,.14);}
+  .suit-btn.active .name{color:var(--text);}
+  .rank-grid-2{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(58px,1fr));
+    gap:10px;
+  }
+  .rank-btn2{
+    height:56px;
+    border-radius:12px;
+    border:1.5px solid var(--border);
+    background:var(--panel-2);
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .rank-grid-2.black .rank-btn2{color:var(--text);}
+  .rank-grid-2.red .rank-btn2{color:var(--red);}
+  .rank-btn2:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);}
+  .rank-btn2.selected{background:var(--accent);border-color:var(--accent);color:#06110c;}
+  .rank-btn2.disabled{opacity:.25;cursor:not-allowed;}
+  .modal-footer{
+    padding:14px 18px 18px;
+    border-top:1px solid var(--border);
+  }
+  .btn-clear{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--text-dim);
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .btn-clear:hover{border-color:var(--lose);color:var(--lose);}
+
+  @media (max-width: 520px){
+    .app{padding:16px 12px 40px;}
+    header{margin-bottom:20px;}
+    header h1{font-size:19px;}
+    .table, .odds-panel{padding:16px;border-radius:14px;}
+    .card-row{gap:8px;}
+    .card-slot{width:58px;height:82px;border-radius:9px;}
+    .card-slot .card-rank{font-size:22px;}
+    .card-slot .card-suit{font-size:16px;}
+    .board-row .card-slot:nth-child(4), .board-row .card-slot:nth-child(5){margin-left:8px;}
+    .modal{max-width:100%;}
+    .modal-body{padding:16px;}
+    .suit-btn{padding:14px 2px;}
+    .rank-btn2{height:52px;font-size:17px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Poker Helper</h1>
+    <button class="btn-reset" id="resetBtn">Reset</button>
+  </header>
+
+  <div class="layout">
+    <section class="table" id="table">
+      <div class="section-block">
+        <h2>My Hand</h2>
+        <div class="card-row" id="heroRow">
+          <div class="card-slot empty" data-zone="hero" data-idx="0"><span class="plus">+</span></div>
+          <div class="card-slot empty" data-zone="hero" data-idx="1"><span class="plus">+</span></div>
+        </div>
+      </div>
+      <div class="section-block">
+        <h2>Board</h2>
+        <div class="card-row board-row" id="boardRow">
+          <div class="card-slot empty" data-zone="board" data-idx="0"><span class="plus">+</span></div>
+          <div class="card-slot empty" data-zone="board" data-idx="1"><span class="plus">+</span></div>
+          <div class="card-slot empty" data-zone="board" data-idx="2"><span class="plus">+</span></div>
+          <div class="card-slot empty" data-zone="board" data-idx="3"><span class="plus">+</span></div>
+          <div class="card-slot empty" data-zone="board" data-idx="4"><span class="plus">+</span></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="odds-panel">
+      <div class="panel-block">
+        <h2>Players</h2>
+        <div class="stepper">
+          <button class="stepper-btn" id="playersMinus">−</button>
+          <span id="playersCount">2</span>
+          <button class="stepper-btn" id="playersPlus">+</button>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <h2>Current Hand</h2>
+        <p class="current-hand" id="currentHandLabel">Select your hole cards</p>
+      </div>
+
+      <div class="panel-block">
+        <h2>Win Odds</h2>
+        <div class="odds-bars">
+          <div class="odds-row">
+            <span>Win</span>
+            <div class="bar"><div class="bar-fill win" id="winBar"></div></div>
+            <span id="winPct">–</span>
+          </div>
+          <div class="odds-row">
+            <span>Tie</span>
+            <div class="bar"><div class="bar-fill tie" id="tieBar"></div></div>
+            <span id="tiePct">–</span>
+          </div>
+          <div class="odds-row">
+            <span>Lose</span>
+            <div class="bar"><div class="bar-fill lose" id="loseBar"></div></div>
+            <span id="losePct">–</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <h2>Final Hand Chances</h2>
+        <div class="hand-chances" id="handChances">
+          <p class="placeholder">Select both hole cards to see odds</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Choose a Card</h3>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="picker-label">Suit</p>
+      <div class="suit-picker" id="suitPicker"></div>
+      <p class="picker-label">Value</p>
+      <div id="rankGrid" class="rank-grid-2"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-clear" id="clearCardBtn">Clear Card</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Card helpers ----------
+  const SUITS = ['S','H','D','C'];
+  const RANK_NAMES = {2:'Two',3:'Three',4:'Four',5:'Five',6:'Six',7:'Seven',8:'Eight',9:'Nine',10:'Ten',11:'Jack',12:'Queen',13:'King',14:'Ace'};
+  const RANK_PLURAL = {2:'Twos',3:'Threes',4:'Fours',5:'Fives',6:'Sixes',7:'Sevens',8:'Eights',9:'Nines',10:'Tens',11:'Jacks',12:'Queens',13:'Kings',14:'Aces'};
+  const CATEGORY_LABELS = ["High Card","Pair","Two Pair","Three of a Kind","Straight","Flush","Full House","Four of a Kind","Straight Flush"];
+
+  function suitSymbol(s){ return {S:'♠',H:'♥',D:'♦',C:'♣'}[s]; }
+  function suitColor(s){ return (s==='H'||s==='D') ? 'red' : 'black'; }
+  function rankDisplay(r){ return r<=10 ? String(r) : {11:'J',12:'Q',13:'K',14:'A'}[r]; }
+
+  // ---------- Hand evaluator ----------
+  function evaluate5(cards){
+    const ranks = cards.map(c=>c.r).sort((a,b)=>b-a);
+    const suits = cards.map(c=>c.s);
+    const isFlush = suits.every(s=>s===suits[0]);
+    const uniqueRanks = [...new Set(ranks)];
+    let isStraight=false, straightHigh=0;
+    if(uniqueRanks.length===5){
+      if(uniqueRanks[0]-uniqueRanks[4]===4){ isStraight=true; straightHigh=uniqueRanks[0]; }
+      else if(uniqueRanks[0]===14 && uniqueRanks[1]===5 && uniqueRanks[2]===4 && uniqueRanks[3]===3 && uniqueRanks[4]===2){
+        isStraight=true; straightHigh=5;
+      }
+    }
+    const countsMap={};
+    ranks.forEach(r=>countsMap[r]=(countsMap[r]||0)+1);
+    const countsArr = Object.entries(countsMap).map(([r,c])=>[+r,c]).sort((a,b)=> b[1]-a[1] || b[0]-a[0]);
+    const pattern = countsArr.map(x=>x[1]);
+
+    if(isFlush && isStraight) return [8, straightHigh];
+    if(pattern[0]===4) return [7, countsArr[0][0], countsArr[1][0]];
+    if(pattern[0]===3 && pattern[1]===2) return [6, countsArr[0][0], countsArr[1][0]];
+    if(isFlush) return [5, ...ranks];
+    if(isStraight) return [4, straightHigh];
+    if(pattern[0]===3) return [3, countsArr[0][0], ...countsArr.slice(1).map(x=>x[0])];
+    if(pattern[0]===2 && pattern[1]===2){
+      const pairs=[countsArr[0][0],countsArr[1][0]].sort((a,b)=>b-a);
+      return [2, pairs[0], pairs[1], countsArr[2][0]];
+    }
+    if(pattern[0]===2) return [1, countsArr[0][0], ...countsArr.slice(1).map(x=>x[0])];
+    return [0, ...ranks];
+  }
+
+  function compareScore(a,b){
+    const len = Math.max(a.length,b.length);
+    for(let i=0;i<len;i++){
+      const va = a[i]===undefined?-1:a[i];
+      const vb = b[i]===undefined?-1:b[i];
+      if(va!==vb) return va-vb;
+    }
+    return 0;
+  }
+
+  function combinations(arr,k){
+    const results=[];
+    function helper(start, combo){
+      if(combo.length===k){ results.push(combo.slice()); return; }
+      for(let i=start;i<arr.length;i++){
+        combo.push(arr[i]);
+        helper(i+1, combo);
+        combo.pop();
+      }
+    }
+    helper(0, []);
+    return results;
+  }
+
+  function evaluateBestOf(cards){
+    if(cards.length===5) return evaluate5(cards);
+    let best=null;
+    for(const combo of combinations(cards,5)){
+      const score = evaluate5(combo);
+      if(!best || compareScore(score,best)>0) best=score;
+    }
+    return best;
+  }
+
+  function describeHand(category, tb){
+    switch(category){
+      case 8: return tb[0]===14 ? 'Royal Flush' : `${RANK_NAMES[tb[0]]}-High Straight Flush`;
+      case 7: return `Four of a Kind, ${RANK_PLURAL[tb[0]]}`;
+      case 6: return `Full House, ${RANK_PLURAL[tb[0]]} full of ${RANK_PLURAL[tb[1]]}`;
+      case 5: return `${RANK_NAMES[tb[0]]}-High Flush`;
+      case 4: return `${RANK_NAMES[tb[0]]}-High Straight`;
+      case 3: return `Three of a Kind, ${RANK_PLURAL[tb[0]]}`;
+      case 2: return `Two Pair, ${RANK_PLURAL[tb[0]]} and ${RANK_PLURAL[tb[1]]}`;
+      case 1: return `Pair of ${RANK_PLURAL[tb[0]]}`;
+      default: return `${RANK_NAMES[tb[0]]} High`;
+    }
+  }
+
+  function evaluateGeneric(cards){
+    if(cards.length>=5){
+      const score = evaluateBestOf(cards);
+      return describeHand(score[0], score.slice(1));
+    }
+    const countsMap={};
+    cards.forEach(c=>countsMap[c.r]=(countsMap[c.r]||0)+1);
+    const countsArr = Object.entries(countsMap).map(([r,c])=>[+r,c]).sort((a,b)=> b[1]-a[1] || b[0]-a[0]);
+    const pattern = countsArr.map(x=>x[1]);
+    let category, tb;
+    if(pattern[0]===4){ category=7; tb=[countsArr[0][0]]; }
+    else if(pattern[0]===3){ category=3; tb=[countsArr[0][0]]; }
+    else if(pattern[0]===2 && pattern[1]===2){ category=2; tb=[countsArr[0][0],countsArr[1][0]]; }
+    else if(pattern[0]===2){ category=1; tb=[countsArr[0][0]]; }
+    else { category=0; tb=[countsArr[0][0]]; }
+    return describeHand(category, tb);
+  }
+
+  // ---------- Deck / simulation ----------
+  function buildDeck(){
+    const deck=[];
+    for(let r=2;r<=14;r++) for(const s of SUITS) deck.push({r,s});
+    return deck;
+  }
+  function removeUsed(deck, used){
+    const usedKeys = new Set(used.map(c=>c.r+c.s));
+    return deck.filter(c=>!usedKeys.has(c.r+c.s));
+  }
+  function shuffle(arr){
+    const a=arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function runSimulation(heroCards, boardCards, numOpponents, trials){
+    const knownBoard = boardCards.filter(Boolean);
+    const used = heroCards.concat(knownBoard);
+    const baseDeck = removeUsed(buildDeck(), used);
+    const neededBoard = 5 - knownBoard.length;
+
+    let win=0, tie=0, lose=0;
+    const categoryCounts = new Array(9).fill(0);
+
+    for(let t=0;t<trials;t++){
+      const deck = shuffle(baseDeck);
+      let ptr=0;
+      const opponents=[];
+      for(let o=0;o<numOpponents;o++){
+        opponents.push([deck[ptr++], deck[ptr++]]);
+      }
+      const fullBoard = knownBoard.concat(deck.slice(ptr, ptr+neededBoard));
+
+      const heroScore = evaluateBestOf(heroCards.concat(fullBoard));
+      categoryCounts[heroScore[0]]++;
+
+      let bestScore = heroScore;
+      const oppScores = opponents.map(o=>evaluateBestOf(o.concat(fullBoard)));
+      for(const os of oppScores){ if(compareScore(os,bestScore)>0) bestScore=os; }
+
+      if(compareScore(heroScore,bestScore)===0){
+        const tiedCount = 1 + oppScores.filter(os=>compareScore(os,bestScore)===0).length;
+        if(tiedCount===1) win++; else tie++;
+      } else {
+        lose++;
+      }
+    }
+
+    return {
+      win: win/trials*100,
+      tie: tie/trials*100,
+      lose: lose/trials*100,
+      categoryPct: categoryCounts.map(c=>c/trials*100)
+    };
+  }
+
+  // ---------- State ----------
+  let hero = [null, null];
+  let board = [null, null, null, null, null];
+  let numPlayers = 2;
+  let activeSlot = null;
+  let calcTimer = null;
+  let pendingSuit = 'S';
+
+  // ---------- Rendering ----------
+  function renderCardSlot(el, card){
+    el.innerHTML='';
+    if(card){
+      el.classList.add('filled'); el.classList.remove('empty');
+      const color = suitColor(card.s);
+      el.innerHTML = `<span class="card-rank ${color}">${rankDisplay(card.r)}</span><span class="card-suit ${color}">${suitSymbol(card.s)}</span>`;
+    } else {
+      el.classList.add('empty'); el.classList.remove('filled');
+      el.innerHTML = `<span class="plus">+</span>`;
+    }
+  }
+
+  function renderAll(){
+    document.querySelectorAll('.card-slot[data-zone="hero"]').forEach(el=>{
+      renderCardSlot(el, hero[+el.dataset.idx]);
+    });
+    document.querySelectorAll('.card-slot[data-zone="board"]').forEach(el=>{
+      renderCardSlot(el, board[+el.dataset.idx]);
+    });
+    document.getElementById('playersCount').textContent = numPlayers;
+    document.getElementById('playersMinus').disabled = numPlayers<=2;
+    document.getElementById('playersPlus').disabled = numPlayers>=9;
+    renderCurrentHand();
+  }
+
+  function renderCurrentHand(){
+    const label = document.getElementById('currentHandLabel');
+    if(hero.filter(Boolean).length<2){ label.textContent='Select your hole cards'; return; }
+    const known = hero.filter(Boolean).concat(board.filter(Boolean));
+    label.textContent = evaluateGeneric(known);
+  }
+
+  function updateOddsDisplay(result){
+    const winBar=document.getElementById('winBar'), tieBar=document.getElementById('tieBar'), loseBar=document.getElementById('loseBar');
+    const winPct=document.getElementById('winPct'), tiePct=document.getElementById('tiePct'), losePct=document.getElementById('losePct');
+    const chances=document.getElementById('handChances');
+
+    if(!result){
+      winBar.style.width='0%'; tieBar.style.width='0%'; loseBar.style.width='0%';
+      winPct.textContent='–'; tiePct.textContent='–'; losePct.textContent='–';
+      chances.innerHTML = '<p class="placeholder">Select both hole cards to see odds</p>';
+      return;
+    }
+
+    winBar.style.width = result.win+'%';
+    tieBar.style.width = result.tie+'%';
+    loseBar.style.width = result.lose+'%';
+    winPct.textContent = result.win.toFixed(1)+'%';
+    tiePct.textContent = result.tie.toFixed(1)+'%';
+    losePct.textContent = result.lose.toFixed(1)+'%';
+
+    const rows = CATEGORY_LABELS
+      .map((label,i)=>({label, pct: result.categoryPct[i]}))
+      .filter(r=>r.pct>0.05)
+      .sort((a,b)=>b.pct-a.pct);
+
+    chances.innerHTML = rows.map(r=>`
+      <div class="chance-row">
+        <span>${r.label}</span>
+        <div class="bar small"><div class="bar-fill chance" style="width:${r.pct}%"></div></div>
+        <span class="chance-pct">${r.pct.toFixed(1)}%</span>
+      </div>
+    `).join('');
+  }
+
+  function setLoading(){
+    document.getElementById('winPct').textContent='…';
+    document.getElementById('tiePct').textContent='…';
+    document.getElementById('losePct').textContent='…';
+  }
+
+  function scheduleCalc(){
+    clearTimeout(calcTimer);
+    if(!hero[0] || !hero[1]){ updateOddsDisplay(null); return; }
+    setLoading();
+    calcTimer = setTimeout(()=>{
+      const opponents = numPlayers - 1;
+      const result = runSimulation(hero.filter(Boolean), board, opponents, 2000);
+      updateOddsDisplay(result);
+    }, 30);
+  }
+
+  // ---------- Modal ----------
+  function usedCardsExcluding(zone, idx){
+    const list=[];
+    hero.forEach((c,i)=>{ if(c && !(zone==='hero'&&i===idx)) list.push(c); });
+    board.forEach((c,i)=>{ if(c && !(zone==='board'&&i===idx)) list.push(c); });
+    return list;
+  }
+
+  const SUIT_NAMES = {S:'Spades',H:'Hearts',D:'Diamonds',C:'Clubs'};
+
+  function renderSuitPicker(current){
+    const container = document.getElementById('suitPicker');
+    container.innerHTML='';
+    SUITS.forEach(s=>{
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className = 'suit-btn '+suitColor(s)+(s===pendingSuit ? ' active' : '');
+      btn.innerHTML = `<span class="symbol">${suitSymbol(s)}</span><span class="name">${SUIT_NAMES[s]}</span>`;
+      btn.addEventListener('click', ()=>{
+        pendingSuit = s;
+        renderSuitPicker(current);
+        renderRankGrid(current);
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function renderRankGrid(current){
+    const usedKeys = new Set(usedCardsExcluding(activeSlot.zone, activeSlot.idx).map(c=>c.r+c.s));
+    const container = document.getElementById('rankGrid');
+    container.className = 'rank-grid-2 '+suitColor(pendingSuit);
+    container.innerHTML='';
+    for(let r=2;r<=14;r++){
+      const key = r+pendingSuit;
+      const btn = document.createElement('button');
+      btn.type='button';
+      btn.className='rank-btn2';
+      btn.textContent = rankDisplay(r);
+      const isCurrent = current && current.r===r && current.s===pendingSuit;
+      if(usedKeys.has(key) && !isCurrent){
+        btn.disabled=true; btn.classList.add('disabled');
+      }
+      if(isCurrent) btn.classList.add('selected');
+      btn.addEventListener('click', ()=> selectCard(r, pendingSuit));
+      container.appendChild(btn);
+    }
+  }
+
+  function openModal(zone, idx){
+    activeSlot = {zone, idx};
+    const current = zone==='hero' ? hero[idx] : board[idx];
+    pendingSuit = current ? current.s : pendingSuit;
+    renderSuitPicker(current);
+    renderRankGrid(current);
+    document.getElementById('modalOverlay').classList.remove('hidden');
+  }
+
+  function closeModal(){
+    document.getElementById('modalOverlay').classList.add('hidden');
+    activeSlot=null;
+  }
+
+  function selectCard(r,s){
+    if(!activeSlot) return;
+    const card={r,s};
+    if(activeSlot.zone==='hero') hero[activeSlot.idx]=card;
+    else board[activeSlot.idx]=card;
+    closeModal();
+    renderAll();
+    scheduleCalc();
+  }
+
+  function clearActive(){
+    if(!activeSlot) return;
+    if(activeSlot.zone==='hero') hero[activeSlot.idx]=null;
+    else board[activeSlot.idx]=null;
+    closeModal();
+    renderAll();
+    scheduleCalc();
+  }
+
+  // ---------- Events ----------
+  document.getElementById('table').addEventListener('click', (e)=>{
+    const slot = e.target.closest('.card-slot');
+    if(!slot) return;
+    openModal(slot.dataset.zone, +slot.dataset.idx);
+  });
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalOverlay').addEventListener('click', (e)=>{
+    if(e.target.id==='modalOverlay') closeModal();
+  });
+  document.getElementById('clearCardBtn').addEventListener('click', clearActive);
+
+  document.getElementById('playersMinus').addEventListener('click', ()=>{
+    if(numPlayers>2){ numPlayers--; renderAll(); scheduleCalc(); }
+  });
+  document.getElementById('playersPlus').addEventListener('click', ()=>{
+    if(numPlayers<9){ numPlayers++; renderAll(); scheduleCalc(); }
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    hero=[null,null];
+    board=[null,null,null,null,null];
+    numPlayers=2;
+    renderAll();
+    updateOddsDisplay(null);
+  });
+
+  // ---------- Init ----------
+  renderAll();
+  updateOddsDisplay(null);
+})();
+</script>
+</body>
+</html>
