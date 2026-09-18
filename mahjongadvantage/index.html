@@ -1029,7 +1029,13 @@ newHand(1, null);
 (function(){
   try{
     var seg = location.pathname.split('/').filter(Boolean).pop() || '';
-    if(window.parent !== window) window.parent.postMessage({source:'casino', folder:seg}, '*');
+    function announce(){
+      if(window.parent !== window) window.parent.postMessage({source:'casino', folder:seg}, '*');
+    }
+    announce();
+    setTimeout(announce, 150);
+    setTimeout(announce, 600);
+    window.addEventListener('pageshow', announce);
   }catch(e){}
 })();
 </script>
