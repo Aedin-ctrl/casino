@@ -234,5 +234,13 @@ footer p{ margin:0; font-size:12px; color:var(--faint); letter-spacing:.02em; }
   }));
 </script>
 
+<script>
+(function(){
+  try{
+    var seg = location.pathname.split('/').filter(Boolean).pop() || '';
+    if(window.parent !== window) window.parent.postMessage({source:'casino', folder:seg}, 'https://aedinlai.com');
+  }catch(e){}
+})();
+</script>
 </body>
 </html>

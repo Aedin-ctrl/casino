@@ -810,5 +810,13 @@
   updateOddsDisplay(null);
 })();
 </script>
+<script>
+(function(){
+  try{
+    var seg = location.pathname.split('/').filter(Boolean).pop() || '';
+    if(window.parent !== window) window.parent.postMessage({source:'casino', folder:seg}, 'https://aedinlai.com');
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
