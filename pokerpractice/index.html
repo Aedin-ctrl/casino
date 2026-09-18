@@ -118,17 +118,18 @@
   .opponents-row{
     display:flex;
     gap:22px;
-    justify-content:center;
+    justify-content:space-evenly;
+    width:100%; max-width:560px;
     flex-wrap:wrap;
     position:relative;
     z-index:2;
     margin-bottom:-18px;
   }
   .opponents-row .seat:nth-child(1),
-  .opponents-row .seat:nth-child(5){ margin-top:0; }
+  .opponents-row .seat:nth-child(5){ margin-top:16px; }
   .opponents-row .seat:nth-child(2),
-  .opponents-row .seat:nth-child(4){ margin-top:10px; }
-  .opponents-row .seat:nth-child(3){ margin-top:16px; }
+  .opponents-row .seat:nth-child(4){ margin-top:8px; }
+  .opponents-row .seat:nth-child(3){ margin-top:0; }
   .seat{
     position:relative;
     width:94px;
@@ -206,7 +207,7 @@
     width:100%; max-width:560px;
     background:var(--panel-2);
     border:1px solid var(--border);
-    border-radius:120px/56px;
+    border-radius:28px;
     padding:34px 24px 22px;
     display:flex; flex-direction:column; align-items:center; gap:10px;
     margin-bottom:22px;
