@@ -1020,7 +1020,7 @@
 (function(){
   try{
     var seg = location.pathname.split('/').filter(Boolean).pop() || '';
-    if(window.parent !== window) window.parent.postMessage({source:'casino', folder:seg}, 'https://aedinlai.com');
+    if(window.parent !== window) window.parent.postMessage({source:'casino', folder:seg}, '*');
   }catch(e){}
 })();
 </script>
