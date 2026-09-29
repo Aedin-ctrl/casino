@@ -21,7 +21,7 @@ old tile hub `webpage`). Their full commit history is merged into this repo,
 so nothing was lost when they were removed:
 
 ```
-git log -- history/pokerhelp        # the old pokerhelp repo's commits
+git log --full-history -- history/pokerhelp   # the old pokerhelp repo's commits
 git show <commit>:history/pokerhelp/index.html
 ```
 
