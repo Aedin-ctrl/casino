@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    @keyframes pixelSelectBlink{0%,49%{outline-color:#f4ecd8}50%,100%{outline-color:#d4a017}}
+  </style>
+</helmet>
+<div style="{{ wrapperStyle }}" title="{{ formattedValue }}">
+  <sc-for list="{{ grid }}" as="row" hint-placeholder-count="22">
+    <div style="display:flex;">
+      <sc-for list="{{ row }}" as="c" hint-placeholder-count="22">
+        <div style="width:{{ cellPx }}px;height:{{ cellPx }}px;background:{{ c }};flex:none;"></div>
+      </sc-for>
+    </div>
+  </sc-for>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:100,&quot;height&quot;:100},&quot;denom&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;number&quot;},&quot;selected&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;number&quot;,&quot;default&quot;:88,&quot;tsType&quot;:&quot;number&quot;}}">
+// SINGLE SOURCE OF TRUTH for coin appearance, ported from the uploaded
+// "8-Bit Casino Assets" reference file's generateChipTop() algorithm.
+// Every denomination maps to one of that file's 8 chip color combos
+// (Red/Green/Blue/Yellow x White/Black), so the whole game's coins come
+// from the same pixel-chip design used in the asset reference sheet.
+// Props (denom, selected, size) are unchanged from the old CSS-gradient
+// version, so CoinStack/MintMachine/GameTable/Home/Sandbox needed zero
+// changes to pick up the new look.
+const GRID_SIZE = 22;
+const DEFAULT_SIZE = 88; // 88 / 22 = 4px per pixel, divides evenly
+
+const CHIP_DEFS = {
+  1:     { main: '#c62828', accent: '#f4ecd8' }, // red / white
+  5:     { main: '#1e7d45', accent: '#f4ecd8' }, // green / white
+  25:    { main: '#1e5fa8', accent: '#f4ecd8' }, // blue / white
+  100:   { main: '#d4a017', accent: '#f4ecd8' }, // gold / white
+  500:   { main: '#c62828', accent: '#1a1a1a' }, // red / black
+  1000:  { main: '#1e7d45', accent: '#1a1a1a' }, // green / black
+  5000:  { main: '#1e5fa8', accent: '#1a1a1a' }, // blue / black
+  10000: { main: '#d4a017', accent: '#1a1a1a' }  // gold / black (high roller)
+};
+
+function formatMoney(v){ return v == null ? '' : '$' + v.toLocaleString('en-US'); }
+
+function generateChipTop(main, accent){
+  const size = GRID_SIZE, c = (size - 1) / 2;
+  const cream = '#f4ecd8', black = '#1a1a1a';
+  const grid = [];
+  for(let y = 0; y < size; y++){
+    const row = [];
+    for(let x = 0; x < size; x++){
+      const dx = x - c, dy = y - c;
+      const dist = Math.hypot(dx, dy);
+      const angle = Math.atan2(dy, dx);
+      let color = 'transparent';
+      if(dist <= c){
+        if(dist > c - 1.3){
+          const sector = Math.floor(((angle + Math.PI) / (2 * Math.PI)) * 16);
+          color = sector % 2 === 0 ? main : cream;
+        } else if(dist > c - 2.1){
+          color = black;
+        } else if(dist > c - 4.0){
+          color = main;
+        } else if(dist > c - 5.0){
+          color = cream;
+        } else if(dist > c - 7.5){
+          color = main;
+        } else {
+          color = accent;
+        }
+      }
+      row.push(color);
+    }
+    grid.push(row);
+  }
+  return grid;
+}
+
+class Component extends DCLogic {
+  renderVals(){
+    const denom = this.props.denom;
+    const size = this.props.size || DEFAULT_SIZE;
+    const cellPx = Math.max(1, Math.round(size / GRID_SIZE));
+    const def = CHIP_DEFS[denom] || { main: '#888888', accent: '#1a1a1a' };
+    const grid = generateChipTop(def.main, def.accent);
+    const selected = !!this.props.selected;
+    return {
+      grid, cellPx,
+      formattedValue: formatMoney(denom),
+      wrapperStyle: 'line-height:0;display:inline-block;' +
+        (selected ? 'outline:3px solid #d4a017;outline-offset:2px;animation:pixelSelectBlink .8s steps(2,jump-none) infinite;' : '')
+    };
+  }
+}
+
+</script>
+</body>
+</html>

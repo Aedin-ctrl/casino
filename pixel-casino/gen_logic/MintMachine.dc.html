@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="margin-top:22px;padding:16px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#d4d4d4;border:2px solid #808080;box-shadow:inset 1px 1px 0 #fff">
+  <div style="font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#808080;text-align:center;margin-bottom:6px">Mint / Exchange Machine</div>
+  <div style="font-size:10px;color:#666;text-align:center;margin-bottom:14px">{{ helperText }}</div>
+  <div style="display:flex;align-items:flex-start;gap:10px">
+
+    <!-- TRAY: any mix of denominations, click coins elsewhere then click here to add -->
+    <div onClick="{{ trayClick }}" style="flex:1;min-height:130px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#ffffff;border:2px {{ trayBorderStyle }};display:flex;flex-wrap:wrap;align-content:flex-start;gap:10px;padding:10px;cursor:{{ trayCursor }}">
+      <sc-if value="{{ trayEmpty }}" hint-placeholder-val="{{ true }}">
+        <div style="width:100%;text-align:center;font-size:11px;color:#666;align-self:center">{{ trayEmptyText }}</div>
+      </sc-if>
+      <sc-for list="{{ trayPiles }}" as="p" hint-placeholder-count="8">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <dc-import name="CoinStack" denom="{{ p.denom }}" count="{{ p.count }}" selected="{{ false }}" size="{{ 56 }}"></dc-import>
+          <div style="font-size:9px;color:#404040;font-weight:600">{{ p.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="font-size:18px;color:#555;font-weight:700;margin-top:48px">&#8594;</div>
+
+    <!-- RESULT: auto-computed live from the tray, no direction to choose -->
+    <div onClick="{{ resultClick }}" style="flex:1;min-height:130px;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);background:#ffffff;border:2px {{ resultBorderStyle }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px;cursor:{{ resultCursor }}">
+      <sc-if value="{{ resultEmpty }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:11px;color:#666;text-align:center;padding:0 8px">{{ resultEmptyText }}</div>
+      </sc-if>
+      <sc-if value="{{ resultReady }}" hint-placeholder-val="{{ false }}">
+        <dc-import name="CoinStack" denom="{{ resultDenom }}" count="{{ resultCount }}" selected="{{ false }}" size="{{ 64 }}"></dc-import>
+        <div style="font-size:11px;color:#404040;font-weight:700">{{ resultLabel }}</div>
+        <div style="font-size:9px;color:#888">tap to collect</div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:520,&quot;height&quot;:220},&quot;wallet&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;any&quot;},&quot;selectedDenom&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;number|null&quot;},&quot;onWalletChange&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(fn:(w:any)=&gt;any) =&gt; void&quot;},&quot;onDeselect&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+// MULTI-DENOMINATION TRAY MODEL.
+// wallet.mintInput = { counts: { denom: count, ... } } -- any mix of
+// denominations, built one coin at a time (click a coin elsewhere, click
+// the tray to add it -- this framework has no drag-and-drop support, so
+// this is the click-based equivalent).
+//
+// The result side is fully automatic -- no up/down choice:
+//   - If the tray holds exactly ONE coin and it isn't the lowest
+//     denomination, the result is that ONE coin broken down one tier.
+//   - Otherwise (0, or 2+ coins), the target is the tier directly ABOVE
+//     the largest denomination currently sitting in the tray -- not
+//     just "any denomination the total happens to cover". E.g. eight
+//     $25s plus one $100 totals $300, but since $100 is already the
+//     tray's ceiling, the next real tier is $500 -- $300 isn't enough,
+//     so nothing converts. This is intentional: the machine only ever
+//     builds UP from what's smaller than its own ceiling.
+//   - If the total covers the target more than once, it produces as
+//     many of that coin as fit (floor division), consuming exactly that
+//     much value greedily from the tray's largest coins down to its
+//     smallest, and leaves whatever's left untouched.
+const DENOMS = [1, 5, 25, 100, 500, 1000, 5000, 10000];
+function formatMoney(v){ return '$' + v.toLocaleString('en-US'); }
+
+function trayEntries(counts){
+  return DENOMS.filter(d => (counts[d] || 0) > 0);
+}
+function trayTotal(counts){
+  return DENOMS.reduce((s, d) => s + d * (counts[d] || 0), 0);
+}
+function trayCoinCount(counts){
+  return DENOMS.reduce((s, d) => s + (counts[d] || 0), 0);
+}
+function trayMaxDenom(counts){
+  const present = trayEntries(counts);
+  return present.length ? present[present.length - 1] : null;
+}
+
+// Returns null (no conversion available) or
+// { mode:'up'|'down', toDenom, toCount, consume:{denom:count,...} }
+function computePreview(counts){
+  const coinCount = trayCoinCount(counts);
+  if(coinCount === 0) return null;
+  const maxDenom = trayMaxDenom(counts);
+  const idx = DENOMS.indexOf(maxDenom);
+
+  if(coinCount === 1){
+    if(idx === 0) return null; // a single $1 can't break down further
+    const toDenom = DENOMS[idx - 1];
+    const toCount = DENOMS[idx] / DENOMS[idx - 1];
+    return { mode: 'down', toDenom, toCount, consume: { [maxDenom]: 1 } };
+  }
+
+  if(idx >= DENOMS.length - 1) return null; // already at the top denom
+  const target = DENOMS[idx + 1];
+  const total = trayTotal(counts);
+  const howMany = Math.floor(total / target);
+  if(howMany < 1) return null;
+
+  let need = howMany * target;
+  const consume = {};
+  for(let i = idx; i >= 0 && need > 0; i--){
+    const d = DENOMS[i];
+    const avail = counts[d] || 0;
+    if(avail <= 0) continue;
+    const take = Math.min(avail, Math.floor(need / d));
+    if(take > 0){
+      consume[d] = take;
+      need -= take * d;
+    }
+  }
+  if(need > 0) return null; // couldn't cleanly assemble -- refuse rather than guess
+
+  return { mode: 'up', toDenom: target, toCount: howMany, consume };
+}
+
+class Component extends DCLogic {
+  addToTray(e){
+    if(e && e.stopPropagation) e.stopPropagation();
+    const denom = this.props.selectedDenom;
+    if(denom == null) return;
+    this.props.onWalletChange((wallet) => {
+      if((wallet.counts[denom] || 0) <= 0) return wallet;
+      const next = { ...wallet, counts: { ...wallet.counts } };
+      const tray = { ...(wallet.mintInput ? wallet.mintInput.counts : {}) };
+      next.counts[denom] -= 1;
+      tray[denom] = (tray[denom] || 0) + 1;
+      next.mintInput = { counts: tray };
+      return next;
+    });
+    if(this.props.onDeselect) this.props.onDeselect();
+  }
+
+  recollect(e){
+    if(e && e.stopPropagation) e.stopPropagation();
+    this.props.onWalletChange((wallet) => {
+      if(!wallet.mintInput) return wallet;
+      const next = { ...wallet, counts: { ...wallet.counts } };
+      const tray = wallet.mintInput.counts || {};
+      for(const d of Object.keys(tray)){
+        next.counts[d] = (next.counts[d] || 0) + tray[d];
+      }
+      next.mintInput = null;
+      return next;
+    });
+  }
+
+  collect(e){
+    if(e && e.stopPropagation) e.stopPropagation();
+    this.props.onWalletChange((wallet) => {
+      const tray = wallet.mintInput ? wallet.mintInput.counts : null;
+      if(!tray) return wallet;
+      const preview = computePreview(tray);
+      if(!preview) return wallet;
+      const next = { ...wallet, counts: { ...wallet.counts } };
+      const remainingTray = { ...tray };
+      for(const d of Object.keys(preview.consume)){
+        remainingTray[d] = (remainingTray[d] || 0) - preview.consume[d];
+        if(remainingTray[d] <= 0) delete remainingTray[d];
+      }
+      next.counts[preview.toDenom] = (next.counts[preview.toDenom] || 0) + preview.toCount;
+      const stillHasCoins = Object.keys(remainingTray).length > 0;
+      next.mintInput = stillHasCoins ? { counts: remainingTray } : null;
+      const verb = preview.mode === 'up' ? 'Minted' : 'Broke';
+      next.history = [{
+        id: Date.now() + '-' + Math.random().toString(36).slice(2),
+        description: verb + ' \u2192 ' + preview.toCount + '\u00d7 ' + formatMoney(preview.toDenom),
+        timestamp: Date.now()
+      }, ...(wallet.history || [])].slice(0, 300);
+      return next;
+    });
+  }
+
+  renderVals(){
+    const wallet = this.props.wallet || { counts: {}, mintInput: null, history: [] };
+    const tray = wallet.mintInput ? wallet.mintInput.counts : {};
+    const hasTray = trayCoinCount(tray) > 0;
+    const selectedDenom = this.props.selectedDenom;
+
+    const trayPiles = trayEntries(tray).map(d => ({
+      denom: d, count: tray[d], label: tray[d] + '\u00d7 ' + formatMoney(d)
+    }));
+
+    const preview = hasTray ? computePreview(tray) : null;
+
+    let helperText;
+    if(!hasTray) helperText = selectedDenom != null ? 'Click the tray to add ' + formatMoney(selectedDenom) : 'Select a coin, then click the tray to add it';
+    else if(selectedDenom != null) helperText = 'Click the tray to add ' + formatMoney(selectedDenom) + ', or click empty tray space to recollect everything';
+    else helperText = 'Click empty tray space to recollect everything';
+
+    return {
+      helperText,
+      trayEmpty: !hasTray,
+      trayEmptyText: 'Select a coin, then click here to add it',
+      trayPiles,
+      trayBorderStyle: hasTray ? 'solid #404040' : 'dashed #999',
+      trayCursor: selectedDenom != null || hasTray ? 'pointer' : 'default',
+      trayClick: (e) => { if(selectedDenom != null) this.addToTray(e); else if(hasTray) this.recollect(e); },
+
+      resultEmpty: !preview,
+      resultEmptyText: !hasTray ? 'Add coins on the left first' : 'Not enough yet for the next tier',
+      resultReady: !!preview,
+      resultDenom: preview ? preview.toDenom : null,
+      resultCount: preview ? preview.toCount : 0,
+      resultLabel: preview ? (preview.toCount + '\u00d7 ' + formatMoney(preview.toDenom)) : '',
+      resultBorderStyle: preview ? 'solid #404040' : 'dashed #999',
+      resultCursor: preview ? 'pointer' : 'default',
+      resultClick: preview ? ((e) => this.collect(e)) : (() => {})
+    };
+  }
+}
+
+</script>
+</body>
+</html>

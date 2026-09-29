@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+  <!-- DRAWER BACKDROP: full-screen, translucent, click closes -->
+  <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ handleClose }}" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:5"></div>
+  </sc-if>
+
+  <!-- QUICK SLOTS (only visible while the drawer is fully closed) -->
+  <div style="{{ quickSlotsWrapperStyle }}">
+    <sc-for list="{{ quickSlots }}" as="q" hint-placeholder-count="3">
+      <div onClick="{{ q.onSelect }}" title="{{ q.formattedValue }}" style="position:relative;width:128px;height:128px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 200ms ease" style-hover="transform:translateX(-24px)">
+        <sc-if value="{{ q.isEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="width:80px;height:80px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);border:2px dashed #999;background:#ffffff"></div>
+        </sc-if>
+        <sc-if value="{{ q.isFilled }}" hint-placeholder-val="{{ false }}">
+          <dc-import name="CoinStack" denom="{{ q.value }}" count="{{ q.count }}" selected="{{ q.isSelected }}" size="{{ 90 }}" on-click="{{ q.onSelect }}"></dc-import>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- PERSISTENT DRAWER BAR -->
+  <div onClick="{{ toggleDrawer }}" style="position:fixed;right:0;top:0;bottom:0;width:14px;background:#808080;z-index:6;cursor:pointer"></div>
+  <div key="{{ open }}" onClick="{{ toggleDrawer }}" style="position:fixed;right:0;top:80px;width:28px;height:58px;background:#c0c0c0;border-radius:0;clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:7;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #808080,-3px 0 0 #000">
+    <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
+      <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:8px solid #404040"></div>
+    </sc-if>
+    <sc-if value="{{ closed }}" hint-placeholder-val="{{ true }}">
+      <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:8px solid #404040"></div>
+    </sc-if>
+  </div>
+
+  <!-- DRAWER PANEL -->
+  <div onClick="{{ stopProp }}" style="{{ panelStyle }}">
+    <div style="font-family:'Press Start 2P',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#808080;margin-bottom:8px">Inventory</div>
+    <div style="font-size:11px;color:#666;margin-bottom:16px">Click a square's border to pin/unpin it as a quick slot (max 3). Click the coin itself to select it.</div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+      <sc-for list="{{ denomSlots }}" as="d" hint-placeholder-count="8">
+        <div onClick="{{ d.onToggleQuickSlot }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;cursor:pointer;background:#d4d4d4;border:3px {{ d.borderStyle }}">
+          <div onClick="{{ d.onSelectCoin }}" title="{{ d.formattedValue }}" style="position:relative;width:88px;height:150px;display:flex;align-items:flex-end;justify-content:center;cursor:{{ d.coinCursor }}">
+            <sc-if value="{{ d.isEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="width:80px;height:80px;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);border:2px dashed #999;background:#ffffff"></div>
+            </sc-if>
+            <sc-if value="{{ d.showChip }}" hint-placeholder-val="{{ false }}">
+              <dc-import name="CoinStack" denom="{{ d.value }}" count="{{ d.count }}" selected="{{ d.isSelected }}"></dc-import>
+            </sc-if>
+          </div>
+          <div style="font-size:12px;color:#404040;font-weight:600">{{ d.formattedValue }}</div>
+          <div style="font-size:10px;color:#666">{{ d.countLabel }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <dc-import name="MintMachine" wallet="{{ wallet }}" selected-denom="{{ selectedDenom }}" on-wallet-change="{{ onWalletChange }}" on-deselect="{{ clearSelection }}"></dc-import>
+
+  </div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;wallet&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;any&quot;},&quot;open&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;selectedDenom&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;number|null&quot;},&quot;selectedSource&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string|null&quot;},&quot;onToggle&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onClose&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onSelectDenom&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(denom:number|null, source:string|null) =&gt; void&quot;},&quot;onWalletChange&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(fn:(w:any)=&gt;any) =&gt; void&quot;}}">
+// CHOREOGRAPHY: opening the drawer first slides the peeking quick-slot
+// coins fully off-screen, THEN springs the panel open once they're
+// clear. Closing reverses it: the panel slides shut first, and only once
+// that finishes do the quick-slot coins slide back into view. This is
+// tracked as two internal booleans (slotsVisible/panelVisible) derived
+// from the `open` prop with a timed handoff between them -- `open` itself
+// stays the single source of truth the parent page owns.
+//
+// QUICK SLOTS are now just an unordered set (up to 3) of denominations in
+// wallet.quickSlots, no positional "slot 1/2/3" concept. Toggling
+// membership happens by clicking a denomination's SQUARE in the grid
+// (highlighted border = currently pinned); clicking the COIN itself
+// inside that square still just selects it, same as anywhere else.
+const DENOMS = [1, 5, 25, 100, 500, 1000, 5000, 10000];
+const OPEN_DELAY = 300;   // slots-hide duration before panel opens
+const CLOSE_DELAY = 550;  // panel-close duration before slots reappear
+
+function formatMoney(v){ return '$' + v.toLocaleString('en-US'); }
+
+function sortedQuickDenoms(wallet){
+  const filled = (wallet.quickSlots || []).slice().sort((a,b) => b - a);
+  while(filled.length < 3) filled.push(null);
+  return filled.slice(0, 3);
+}
+
+function toggleQuickSlot(wallet, denom){
+  const slots = wallet.quickSlots || [];
+  if(slots.includes(denom)){
+    wallet.quickSlots = slots.filter(d => d !== denom);
+  } else if(slots.length < 3){
+    wallet.quickSlots = [...slots, denom];
+  }
+  // else: already at 3 and this denom isn't one of them -- no-op,
+  // player must unpin one of the existing 3 first.
+}
+
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    const isOpen = !!props.open;
+    this.state = { slotsVisible: !isOpen, panelVisible: isOpen };
+    this._timer = null;
+  }
+
+  componentDidUpdate(prevProps){
+    if(this.props.open && !prevProps.open){
+      this.setState({ slotsVisible: false });
+      clearTimeout(this._timer);
+      this._timer = setTimeout(() => this.setState({ panelVisible: true }), OPEN_DELAY);
+    } else if(!this.props.open && prevProps.open){
+      this.setState({ panelVisible: false });
+      clearTimeout(this._timer);
+      this._timer = setTimeout(() => this.setState({ slotsVisible: true }), CLOSE_DELAY);
+    }
+  }
+
+  componentWillUnmount(){ clearTimeout(this._timer); }
+
+  toggleDrawer = (e) => { if(e && e.stopPropagation) e.stopPropagation(); if(this.props.onToggle) this.props.onToggle(); };
+  handleClose = (e) => { if(e && e.stopPropagation) e.stopPropagation(); if(this.props.onClose) this.props.onClose(); };
+  stopProp = (e) => { e.stopPropagation(); };
+  clearSelection = () => { if(this.props.onSelectDenom) this.props.onSelectDenom(null, null); };
+
+  selectCoin = (value, selectable) => (e) => {
+    e.stopPropagation();
+    if(!this.props.onSelectDenom) return;
+    if(!selectable){ this.props.onSelectDenom(null, null); return; }
+    const already = this.props.selectedSource === 'drawer' && this.props.selectedDenom === value;
+    this.props.onSelectDenom(already ? null : value, already ? null : 'drawer');
+  };
+
+  selectQuickSlotCoin = (value) => (e) => {
+    e.stopPropagation();
+    if(!this.props.onSelectDenom) return;
+    const already = this.props.selectedSource === 'quickSlot' && this.props.selectedDenom === value;
+    this.props.onSelectDenom(already ? null : value, already ? null : 'quickSlot');
+  };
+
+  toggleQuickSlotFor = (value) => (e) => {
+    if(e && e.stopPropagation) e.stopPropagation();
+    this.props.onWalletChange((w) => {
+      const next = { ...w, quickSlots: [...(w.quickSlots || [])] };
+      toggleQuickSlot(next, value);
+      return next;
+    });
+  };
+
+  renderVals(){
+    const wallet = this.props.wallet || { counts: {}, quickSlots: [] };
+    const open = !!this.props.open;
+    const selectedDenom = this.props.selectedDenom;
+    const selectedSource = this.props.selectedSource;
+    const quickSlotSet = new Set(wallet.quickSlots || []);
+
+    const denomSlots = DENOMS.map(value => {
+      const count = wallet.counts[value] || 0;
+      const pinned = quickSlotSet.has(value);
+      const isSelected = selectedSource === 'drawer' && selectedDenom === value;
+      const selectable = count > 0;
+      return {
+        value, formattedValue: formatMoney(value), count,
+        countLabel: count + ' coins',
+        isEmpty: count <= 0,
+        showChip: count > 0,
+        isSelected, coinCursor: selectable ? 'pointer' : 'default',
+        borderStyle: pinned ? 'solid #404040' : 'solid transparent',
+        onSelectCoin: this.selectCoin(value, selectable),
+        onToggleQuickSlot: this.toggleQuickSlotFor(value)
+      };
+    });
+
+    const sortedQ = sortedQuickDenoms(wallet);
+    const quickSlots = sortedQ.map((denom) => {
+      const count = denom != null ? (wallet.counts[denom] || 0) : 0;
+      const isSelected = denom != null && selectedSource === 'quickSlot' && selectedDenom === denom;
+      return {
+        value: denom, formattedValue: denom != null ? formatMoney(denom) : 'Empty slot',
+        isEmpty: denom == null || count <= 0, isFilled: denom != null && count > 0,
+        isSelected, count,
+        onSelect: denom != null ? this.selectQuickSlotCoin(denom) : (() => {})
+      };
+    });
+
+    const slotsVisible = this.state.slotsVisible;
+    const panelVisible = this.state.panelVisible;
+
+    return {
+      wallet, open, closed: !open, selectedDenom,
+      panelVisible,
+      denomSlots, quickSlots,
+      toggleDrawer: this.toggleDrawer,
+      handleClose: this.handleClose,
+      stopProp: this.stopProp,
+      clearSelection: this.clearSelection,
+      onWalletChange: this.props.onWalletChange || (() => {}),
+      quickSlotsWrapperStyle: 'position:fixed;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:18px;z-index:7;pointer-events:' + (slotsVisible ? 'auto' : 'none') + ';transition:right 300ms cubic-bezier(.4,0,.2,1);right:' + (slotsVisible ? '-64px' : '-320px'),
+      panelStyle: 'position:fixed;top:0;bottom:0;width:480px;background:#c0c0c0;box-shadow:inset 2px 2px 0 #fff,inset -2px -2px 0 #808080,-5px 0 0 #000;z-index:6;padding:28px 24px;overflow-y:auto;transition:right 500ms cubic-bezier(.4,0,.2,1);right:' + (panelVisible ? '0px' : '-480px')
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="line-height:0;display:inline-block">
+  <sc-for list="{{ grid }}" as="row" hint-placeholder-count="12">
+    <div style="display:flex;">
+      <sc-for list="{{ row }}" as="c" hint-placeholder-count="12">
+        <div style="width:{{ cellPx }}px;height:{{ cellPx }}px;background:{{ c }};flex:none;"></div>
+      </sc-for>
+    </div>
+  </sc-for>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:60,&quot;height&quot;:60},&quot;color&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;#404040&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;number&quot;,&quot;default&quot;:44,&quot;tsType&quot;:&quot;number&quot;}}">
+// Generated the same way Coin.dc.html generates chips: a ring for the
+// clock face, plus two hand line-segments -- not hand-typed like the
+// book, since circles are much more reliable computed than drawn by eye.
+const GRID_SIZE = 12;
+
+function generateClockGrid(color){
+  const c = (GRID_SIZE - 1) / 2;
+  const outer = c - 0.4;
+  const inner = outer - 1.4;
+  const grid = [];
+  for(let y = 0; y < GRID_SIZE; y++){
+    const row = [];
+    for(let x = 0; x < GRID_SIZE; x++){
+      const dx = x - c, dy = y - c;
+      const dist = Math.hypot(dx, dy);
+      let filled = dist <= outer && dist >= inner;
+      if(Math.round(dx) === 0 && dy <= 0 && dy >= -(c - 1.5)) filled = true; // minute hand, up
+      if(Math.round(dy) === 0 && dx >= 0 && dx <= (c - 2.5)) filled = true;  // hour hand, right
+      if(dist < 1) filled = true; // center pip
+      row.push(filled ? color : 'transparent');
+    }
+    grid.push(row);
+  }
+  return grid;
+}
+
+class Component extends DCLogic {
+  renderVals(){
+    const color = this.props.color || '#404040';
+    const size = this.props.size || 44;
+    const cellPx = Math.max(1, Math.round(size / GRID_SIZE));
+    return { grid: generateClockGrid(color), cellPx };
+  }
+}
+
+</script>
+</body>
+</html>
