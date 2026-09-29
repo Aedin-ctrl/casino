@@ -837,7 +837,12 @@
 
   function totalPlayers(){ return settings.numOpponents + 1; }
 
+  // Bumped whenever a hand starts or the table is rebuilt, so a bot's delayed
+  // move from an earlier hand can't fire into the new one.
+  let handSeq = 0;
+
   function buildPlayers(){
+    handSeq++;
     players = [];
     players.push({ id:0, name:'You', isHuman:true, cards:[], folded:false, committedStreet:0, committedTotal:0, hasActed:false, result:null });
     for(let i=0;i<settings.numOpponents;i++){
@@ -863,6 +868,7 @@
     const bet = Math.min(betAmount, bank.player);
     if(bet<=0) return;
     currentHandBet = bet;
+    handSeq++;
     settle(-bet); // player stakes the bet up front, against the house
     if(players.length!==totalPlayers()) buildPlayers();
     deck = shuffle(buildDeck());
@@ -929,7 +935,10 @@
       renderAll();
       return; // wait for human input
     }
-    setTimeout(()=>{ aiAct(actingIndex); }, settings.decisionTimeMs);
+    const seq = handSeq, idx = actingIndex;
+    setTimeout(()=>{
+      if(seq===handSeq && idx===actingIndex && players[idx] && !players[idx].isHuman) aiAct(idx);
+    }, settings.decisionTimeMs);
   }
 
   function isBettingRoundComplete(){
@@ -1372,13 +1381,13 @@
   });
   document.getElementById('settingsClose').addEventListener('click', ()=>{
     document.getElementById('settingsOverlay').classList.add('hidden');
-    if(players.length!==totalPlayers()) buildPlayers();
+    if(players.length!==totalPlayers() && (street==='idle' || street==='showdown')) buildPlayers();
     renderOpponents();
   });
   document.getElementById('settingsOverlay').addEventListener('click', (e)=>{
     if(e.target.id==='settingsOverlay'){
       document.getElementById('settingsOverlay').classList.add('hidden');
-      if(players.length!==totalPlayers()) buildPlayers();
+      if(players.length!==totalPlayers() && (street==='idle' || street==='showdown')) buildPlayers();
       renderOpponents();
     }
   });
